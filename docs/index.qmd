@@ -1,0 +1,63 @@
+---
+title: "Cardio — Project Summary"
+author: "Tianqi Ouyang"
+date: last-modified
+---
+
+## Overview
+
+The **Cardio** sub-project characterizes the cardiopulmonary (echocardiographic) phenotype of HRS-AKI patients treated with terlipressin in the [HARMONY Terlipressin Registry](../../Terlipressin/docs/). The goal is to assess whether baseline echo abnormalities are associated with HRS response, 90-day mortality, and terlipressin-associated respiratory failure.
+
+## Cohort
+
+Analysis is restricted to patients with at least one non-missing measurement among:
+
+- `echo_ef` — Left-ventricular ejection fraction
+- `echo_earatio` — Mitral E/A ratio
+- `echo_eeratio` — E/e′ ratio
+- `echo_gls` — Global longitudinal strain
+- `echo_lateral_e` — Lateral e′ velocity
+
+## Abnormal-Echo Indicators
+
+Six binary flags are derived from the continuous echo variables:
+
+| Flag | Abnormal cutoff | Rationale |
+|:-----|:----------------|:----------|
+| `echo_ef_abnormal` | EF ≤ 50% | Reduced systolic function |
+| `echo_eeratio_abnormal` | E/e′ ≥ 15 | Elevated LV filling pressure |
+| `echo_gls_abnormal` | GLS < 18 (absolute) | Impaired strain |
+| `echo_lateral_e_abnormal` | Lateral e′ < 10 cm/s | Diastolic dysfunction |
+| `echo_tr_abnormal` | TR velocity > 2.8 m/s | Pulmonary hypertension signal |
+| `echo_lavi_abnormal` | LAVI > 34 mL/m² | Left-atrial enlargement |
+
+## Stratifications
+
+Table 1 is produced for each of the following stratification variables:
+
+| Strata | Description |
+|:-------|:-----------|
+| `hrs_responders` | 3-level: non-responder / partial / complete |
+| `hrs_responders_cat_2` | Binary: any AKI-stage improvement |
+| `time_to_death_status_90days` | 90-day mortality |
+| `terli_ae_respfail` | Terlipressin-associated respiratory failure |
+
+## Data Pipeline
+
+```{mermaid}
+flowchart TD
+    A[final_master_01282026.xlsx<br/>main Terlipressin project] --> B[Source shared_pipeline.qmd]
+    B --> C[Filter: any non-NA echo<br/>EF, E/A, E/e′, GLS, lateral e′]
+    C --> D[Derive 6 echo-abnormal flags]
+    D --> E[Table 1 stratified by<br/>hrs_responders, hrs_responders_cat_2,<br/>90-day mortality, respiratory AE]
+```
+
+## Repository Structure
+
+| File | Description |
+|:-----|:-----------|
+| `docs/analysis.qmd` | Canonical Quarto analysis (echo cohort → abnormal flags → stratified tables) |
+| `Code/cardio 2026.Rmd` | Analyst-facing Rmd version (Jan 2026) |
+| `Code/Cardio.Rmd` | Earlier analyst version (filter via `*_notavailable___999`) |
+| `Requests/Echo Data Request 01292016.docx` | Original analyst specification |
+| `Results/` | Rendered HTML and CSV outputs |

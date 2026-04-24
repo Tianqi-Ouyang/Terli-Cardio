@@ -1,0 +1,15 @@
+# OS
+.DS_Store
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+
+# Quarto
+docs/.quarto/
+docs/_site/
+*_cache/
+*_files/
+*.knit.md

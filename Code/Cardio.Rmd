@@ -1,0 +1,380 @@
+---
+title: "CardioPulm"
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+```{r,include=FALSE}
+library(tidyverse)
+library(tableone)
+library(writexl)
+library(gtsummary)
+library(survival)
+library(ggplot2)
+library(readxl)
+library(ggpubr)
+library(splines)
+library(xlsx)
+library(lattice)
+library(mice)
+library(DescTools)
+library(survminer)
+library(finalfit)
+library(tidycmprsk)
+library(ggsurvfit) 
+library(sqldf)
+library(table1)
+library(cobalt)
+
+library(MatchIt)
+
+
+final_master <- read_xlsx("/Users/to909/Desktop/Terlipressin/final_master_0508.xlsx") %>% filter(echo_ef_notavailable___999 == 0|echo_late_notavailable___999==0|echo_gls_notavailable___999==0|echo_earatio_notavailable___999==0|echo_eeratio_notavailable___999==0)
+```
+
+# Table 1 HRS_reversal_new
+```{r,echo=FALSE,warning=FALSE,message=FALSE}
+
+create_table_one <- function(all_vars,
+                             cat_vars,
+                             data,
+                             strata,
+                             output) {
+  
+  numerical_vars=setdiff(all_vars,cat_vars)
+  
+  # 1) Generate the table
+  T1_after <- tableone::CreateTableOne(
+    vars       = all_vars,
+    strata     = strata,        # variable to stratify by
+    data       = data,
+    factorVars = cat_vars,      # specify which variables are factors
+    addOverall = TRUE,
+    includeNA  = FALSE
+  )
+
+  # 2) Print TableOne object and convert to data frame
+  T1_after_print <-
+    print(
+      T1_after,
+      showAllLevels = T,
+      nonnormal = numerical_vars,
+      missing       = TRUE,
+      quote         = FALSE,
+      noSpaces      = TRUE,
+      printToggle   = FALSE
+    )
+  
+
+  # 3) Write the table as CSV
+  write.csv(T1_after_print, file = output)
+}
+
+
+
+```
+
+
+```{r}
+
+categorical_vars <- c(
+  "admit_admitservice",
+  "admit_admitroute",
+  "sex_male",
+  "race",
+  "hispanic",
+  "insurance_type",
+  "cirrhosis_etiology",
+  "etoh_hepatitis",
+  "hegrade_admit",
+  "admit_ascites",
+  "htn_medical_hx",
+  "dm_medical_hx",
+  "ckd_medical_hx",
+  "cad_medical_hx",
+  "nsbb_preadmission",
+  "nsbb_type_preadmission",
+  "ace_arb_preadmission",
+  "nsaid_preadmission",
+  "diuretics_preadmission",
+  "sbp_ppx_preadmission",
+  "lactulose_preadmission",
+  "rifaximin_preadmission",
+  "mido_preadmission",
+  "ascites_previous_comp",
+  "refascites_previous_comp",
+  "he_previous_comp",
+  "sbp_previous_comp",
+  "nonsbp_previous_comp",
+  "phtn_bleed_previous_comp",
+  "hcc_previous_comp",
+  "tips_previous_comp",
+  "baseline_scr_outpt",
+  "aki_previous_90days",
+  "transfer_aki",
+  "aki_precipitant_nsbpinf",
+  "he_aki",
+  "rrt_aki",
+  "mv_aki",
+  "pressors_aki",
+  "chest_imaging",
+  "chest_imaging_pulmedema",
+  "chest_imaging_effusion",
+  "ecg",
+  "echo",
+  "albumin_before_terli",
+  "crystalloid_before_terli",
+  "nsbb_before_terli",
+  "mido_before_terli",
+  "oct_before_terli",
+  "ne_before_terli",
+  "gihep_consult",
+  "neph_consult",
+  "pall_consult",
+  "code_status",
+  "ua_hrs",
+  "ua_na_hrs",
+  "ua_cr_hrs",
+  "ua_urea_hrs",
+  "ua_granularcasts_hrs",
+  "ua_epi_cells_hrs",
+  "location_terli_day0",
+  "terli_route_day0",
+  "tele_terli_day0",
+  "he_terli_day0",
+  "infection_terli_day0",
+  "typeinfection_terli_day0",
+  "hrs_responders",
+  "dosechange_terli_day1",
+  "dosechange_terli_day2",
+  "dosechange_terli_day3",
+  "dosechange_terli_day4",
+  "dosechange_terli_day5",
+  "dosechange_terli_day6",
+  "dosechange_terli_day7",
+  "dosechange_terli_day8",
+  "dosechange_terli_day9",
+  "dosechange_terli_day10",
+  "dosechange_terli_day11",
+  "dosechange_terli_day12",
+  "discont_aki_stage",
+  "aclf_grade",
+  "HRS_Criteria",
+  "criteria_1",
+  "criteria_2",
+  "criteria_3",
+  "criteria_4",
+  "akin",
+  "transplant_slkt",
+  "transplant_lt",
+  "rrt",
+  "rrt_2",
+  "rrt_modality",
+  "rrt_continuous",
+  "hd_discharge",
+  "disposition",
+  "liver_f",
+  "brain_f",
+  "coagulation_f",
+  "circulatory_f",
+  "respiratory_f",
+  "kidney_f",
+  "baseline_scr_120to365",
+  "aki_events_previous90days",
+  "prbc_trans_before_terli",
+  "time_to_death_status",
+   "terli_ae_abdpain", 
+    "terli_ae_nausea" ,
+    "terli_ae_diarrhea" ,
+    "terli_ae_volover" ,
+    "terli_ae_brady" ,
+    "terli_7",
+    "terli_8",
+  "terli_ae_respfail","any_ae","listed_transplant","dosechange_status","hrs_rebound","race_2","HRS_reversal_new",
+  "hrs_responders_cat_2","time_to_death_status_90days","time_to_death_status_90days_cmp","ckd_baseline","HRS_criteria_3"
+)
+
+
+# Vector of numerical variables
+numerical_vars <- c(
+  "age",
+  "scr_admit",
+  "tbili_admit",
+  "inr_admit",
+  "sodium_admit",
+  "albumin_admit",
+  "lactate_admit",
+  "nsbb_dose_preadmission",
+  "mido_dose_preadmission",
+  "baseline_scr",
+  "baseline_scr_days_to_admit",
+ 
+
+  "transfer_aki_days_toadmit",
+  "days_admit_to_aki",
+  "aki_weight",
+  "aki_height",
+  "aki_hr",
+  "aki_sbp",
+  "aki_dbp",
+  "aki_map",
+  "aki_pao2",
+  "fio2_aki",
+  "scr_aki",
+  "bun_aki",
+  "albumin_aki",
+  "inr_aki",
+  "wbc_aki",
+  "plt_aki",
+  "ecg_qtc",
+  "days_to_echo",
+  "echo_ef",
+  "echo_lateral_e",
+  "echo_trpeak",
+  "echo_gls",
+  "echo_earatio",
+  "echo_rvsp",
+  "echo_pasp",
+  "echo_lavi",
+  "echo_tr",
+  "totalalbumin_before_terli",
+  "albvolume_before_terli",
+  "saline_vol_before_terli",
+  "lr_volume_before_terli",
+  "other_cryst_before_terli",
+
+  "prbc_qaunt_before_terli",
+  "totalvolume_before_terli",
+  "total_uo_before_terli",
+  "days_first_mido_before_terli",
+  "days_total_mido_before_terli",
+  "mido_maxdose_before_terli",
+  "days_first_oct_before_terli",
+  "days_total_oct_before_terli",
+  "oct_maxdose_before_terli",
+  "days_first_ne_before_terli",
+  "days_total_ne_before_terli",
+  "days_to_gihep_consult",
+  "days_to_neph_consult",
+  "days_to_pall_consult",
+  "days_ua_hrs",
+  "days_ua_na_hrs",
+  "ua_na_value_hrs",
+  "days_ua_cr_hrs",
+  "ua_cr_value_hrs",
+  "days_ua_urea_hrs",
+  "ua_urea_value_hrs",
+  "feurea_hrs",
+  "ua_rbc_hrs",
+  "uaprotein_hrs",
+  "temp_terli_day0",
+  "hr_terli_day0",
+  "pao2_terli_day0",
+  "fio2_terli_day0",
+  "sbp_terli_day0_time0",
+  "map_terli_day0_time0",
+  "chloride_terli_day0",
+  "bicarb_terli_day0",
+  "scr_terli_day0",
+  "bun_terli_day0",
+  "ast_terli_day0",
+  "alt_terli_day0",
+  "bili_terli_day0",
+  "alb_terli_day0",
+  "inr_terli_day0",
+  "wbc_terli_day0",
+  "hgb_terli_day0",
+  "Discont_Day",
+  "na_terli_day0",
+  "days_to_terli_initiation_day0",
+  "clif_c_score",
+  "admit_meld",
+  "admit_meld_na",
+  "admit_meld_3",
+  "admit_meld_3_raw",
+  "day0_meld",
+  "day0_meld_na",
+  "day0_meld_3",
+  
+  "time_to_transplant",
+  "time_to_death_status",
+  "time_to_death_90days",
+  "cystatinc_admit","cystatinc_aki","cystatinc_terli_day0",
+  "urine_pc","fena","fena_hrs","time_to_death_90days","total_albumin","mido_maxdose_before_terli "
+)
+
+
+
+
+
+
+
+
+vars <- c(
+  "chest_imaging", "chest_imaging_pulmedema", "chest_imaging_effusion", 
+  "ecg", "days_to_ecg", "ecg_qtc", 
+  "echo", "days_to_echo", "echo_ef_notavailable___999", "echo_ef", 
+  "echo_late_notavailable___999", "echo_lateral_e", 
+  "echo_tr_notavailable___999", "echo_trpeak", 
+  "echo_gls_notavailable___999", "echo_gls", 
+  "echo_earatio_notavailable___999", "echo_earatio", 
+  "echo_eeratio_notavailable___999", "echo_eeratio", 
+  "echo_rvsp_notavailable___999", "echo_rvsp", 
+  "echo_pasp_notavailable___999", "echo_pasp", 
+  "echo_lavi_notavailable___999", "echo_lavi", 
+  "echo_trv_notavailable___999", "echo_tr"
+)
+
+num_vars <- c(
+  "days_to_ecg",
+  "ecg_qtc",
+  "days_to_echo",
+  "echo_ef",
+  "echo_lateral_e",
+  "echo_trpeak",
+  "echo_gls",
+  "echo_earatio",
+  "echo_eeratio",
+  "echo_rvsp",
+  "echo_pasp",
+  "echo_lavi",
+  "echo_tr"
+)
+
+
+
+
+
+categorical_vars <- intersect(categorical_vars, names(final_master))
+numerical_vars <- intersect(numerical_vars, names(final_master))
+all_vars <- c(numerical_vars,categorical_vars)
+
+final_master <- final_master %>% mutate_at(categorical_vars,factor)
+final_master <- final_master %>% mutate_at(numerical_vars,as.numeric)
+```
+
+# 
+```{r,include=FALSE,message=FALSE,echo=FALSE}
+
+create_table_one(
+  all_vars = vars,
+  cat_vars = cat_vars,
+  data     = final_master,
+  strata   = "hrs_responders_cat_2",
+  output   = '/Users/to909/Desktop/Terlipressin projects/Cardio/table_hrs_responders_cat_2_0917.csv'
+)
+
+```
+
+
+```{r,include=FALSE,message=FALSE,echo=FALSE}
+
+create_table_one(
+  all_vars = vars,
+  cat_vars = cat_vars,
+  data     = final_master,
+  strata   = "hrs_responders",
+  output   = '/Users/to909/Desktop/Terlipressin projects/Cardio/table_hrs_responders_0917.csv'
+)
+
+```

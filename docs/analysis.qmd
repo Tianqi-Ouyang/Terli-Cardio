@@ -1,0 +1,134 @@
+---
+title: "Cardio — Analysis"
+author: "Tianqi Ouyang"
+date: last-modified
+format:
+  html:
+    echo: true
+    code-fold: true
+    toc: true
+    toc-depth: 3
+---
+
+```{r setup}
+#| include: false
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+# Source the shared pipeline — loads `master` with all standard derived
+# variables and exposes helper functions (including create_table_one).
+source(knitr::purl(
+  "/Users/to909/Desktop/Terlipressin projects/Terlipressin/code/shared_pipeline.qmd",
+  quiet = TRUE
+))
+
+library(tidyverse)
+library(tableone)
+library(gtsummary)
+library(survival)
+library(survminer)
+library(ggsurvfit)
+library(tidycmprsk)
+```
+
+# Cohort & Derived Variables
+
+Restrict to patients with at least one non-missing echo measurement among EF, E/A, E/e′, GLS, and lateral e′. Then derive six binary abnormal-echo flags.
+
+```{r cohort-derive}
+#| code-summary: "Show cohort filter + abnormal-echo flag derivation"
+final_master <- master %>%
+  filter(if_any(
+    c(echo_ef, echo_earatio, echo_eeratio, echo_gls, echo_lateral_e),
+    ~ !is.na(.)
+  )) %>%
+  mutate(
+    echo_ef_abnormal       = if_else(is.na(echo_ef),         NA_real_, if_else(echo_ef        <= 50, 1, 0)),
+    echo_eeratio_abnormal  = if_else(is.na(echo_eeratio),    NA_real_, if_else(echo_eeratio   >= 15, 1, 0)),
+    echo_gls_abnormal      = if_else(is.na(echo_gls),        NA_real_, if_else(echo_gls       <  18, 1, 0)),
+    echo_lateral_e_abnormal= if_else(is.na(echo_lateral_e),  NA_real_, if_else(echo_lateral_e <  10, 1, 0)),
+    echo_tr_abnormal       = if_else(is.na(echo_tr),         NA_real_, if_else(echo_tr        > 2.8, 1, 0)),
+    echo_lavi_abnormal     = if_else(is.na(echo_lavi),       NA_real_, if_else(echo_lavi      >  34, 1, 0))
+  )
+
+cat("Cohort size (any non-NA echo):", nrow(final_master), "\n")
+```
+
+# Variable Lists
+
+```{r var-lists}
+#| code-summary: "Show numeric and categorical echo variable lists"
+num_vars_echo <- c("echo_ef", "echo_earatio", "echo_eeratio",
+                   "echo_gls", "echo_lateral_e")
+
+abnormal_flags <- c("echo_ef_abnormal", "echo_eeratio_abnormal",
+                    "echo_gls_abnormal", "echo_lateral_e_abnormal",
+                    "echo_tr_abnormal",  "echo_lavi_abnormal")
+
+all_vars_echo <- unique(c(num_vars_echo, abnormal_flags))
+cat_vars_echo <- setdiff(all_vars_echo, num_vars_echo)
+```
+
+# Table 1 — Stratified by HRS Responders (3-level)
+
+```{r t1-hrs-responders}
+#| code-summary: "Show Table 1 code"
+create_table_one(
+  all_vars = all_vars_echo,
+  cat_vars = cat_vars_echo,
+  data     = final_master,
+  strata   = "hrs_responders",
+  output   = "../Results/table_hrs_responders_a.csv"
+)
+```
+
+# Table 1 — Stratified by HRS Responders (Binary)
+
+```{r t1-hrs-cat2}
+#| code-summary: "Show Table 1 code"
+create_table_one(
+  all_vars = all_vars_echo,
+  cat_vars = cat_vars_echo,
+  data     = final_master,
+  strata   = "hrs_responders_cat_2",
+  output   = "../Results/table_hrs_responders_cat_2_b.csv"
+)
+```
+
+# Table 1 — Stratified by 90-Day Mortality
+
+```{r t1-death-90d}
+#| code-summary: "Show Table 1 code"
+create_table_one(
+  all_vars = all_vars_echo,
+  cat_vars = cat_vars_echo,
+  data     = final_master,
+  strata   = "time_to_death_status_90days",
+  output   = "../Results/table_time_to_death_status_90days.csv"
+)
+```
+
+# Table 1 — Stratified by Terlipressin Respiratory Failure
+
+Fisher exact used for every categorical row (`exact = cat_vars_echo`) because the respiratory-failure stratum is sparse.
+
+```{r t1-respfail}
+#| code-summary: "Show Table 1 code"
+create_table_one(
+  all_vars = all_vars_echo,
+  cat_vars = cat_vars_echo,
+  exact    = cat_vars_echo,
+  data     = final_master,
+  strata   = "terli_ae_respfail",
+  output   = "../Results/table_terli_ae_respfail.csv"
+)
+```
+
+# Availability of Echo Measurements
+
+```{r echo-availability}
+#| code-summary: "Show availability summary"
+final_master %>%
+  summarise(across(all_of(num_vars_echo), ~ sum(!is.na(.)))) %>%
+  pivot_longer(everything(), names_to = "Variable", values_to = "N non-missing") %>%
+  knitr::kable(caption = "Non-missing counts by echo measurement (cohort)")
+```
