@@ -131,6 +131,12 @@ create_table_one(
 
 Output: [`Results/table_demographics_hrs_responders.csv`](../Results/table_demographics_hrs_responders.csv)
 
+::: {.callout-warning}
+## `echo_gls` quirk
+
+In the pre-terli echo cohort, `echo_gls` ranges from **−20 to +25** — some centers store GLS as a negative number (the standard convention) and others store the absolute value. **83 %** of the cohort is missing GLS. Tasks 5–7 below report raw values only; medians are unstable and any future modeling on GLS should harmonize sign per center or work with `abs(echo_gls)`.
+:::
+
 # Task 5 — HRS Response (binary) × Echo Continuous Values
 
 ```{r task5-response}
