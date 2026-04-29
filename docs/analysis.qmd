@@ -14,121 +14,233 @@ format:
 #| include: false
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 
-# Source the shared pipeline — loads `master` with all standard derived
-# variables and exposes helper functions (including create_table_one).
+# Source the shared pipeline. Pass output = tempfile() so we don't leave a
+# stray shared_pipeline.R behind, and parallel renders don't race on the path.
 source(knitr::purl(
   "/Users/to909/Desktop/Terlipressin projects/Terlipressin/code/shared_pipeline.qmd",
-  quiet = TRUE
+  output = tempfile(fileext = ".R"),
+  quiet  = TRUE
 ))
 
 library(tidyverse)
 library(tableone)
-library(gtsummary)
-library(survival)
-library(survminer)
-library(ggsurvfit)
-library(tidycmprsk)
+library(splines)
+library(ggplot2)
 ```
 
-# Cohort & Derived Variables
+# Cohorts
 
-Restrict to patients with at least one non-missing echo measurement among EF, E/A, E/e′, GLS, and lateral e′. Then derive six binary abnormal-echo flags.
+Two cohorts are used.
 
-```{r cohort-derive}
-#| code-summary: "Show cohort filter + abnormal-echo flag derivation"
-final_master <- master %>%
-  filter(if_any(
-    c(echo_ef, echo_earatio, echo_eeratio, echo_gls, echo_lateral_e),
-    ~ !is.na(.)
-  )) %>%
-  mutate(
-    echo_ef_abnormal       = if_else(is.na(echo_ef),         NA_real_, if_else(echo_ef        <= 50, 1, 0)),
-    echo_eeratio_abnormal  = if_else(is.na(echo_eeratio),    NA_real_, if_else(echo_eeratio   >= 15, 1, 0)),
-    echo_gls_abnormal      = if_else(is.na(echo_gls),        NA_real_, if_else(echo_gls       <  18, 1, 0)),
-    echo_lateral_e_abnormal= if_else(is.na(echo_lateral_e),  NA_real_, if_else(echo_lateral_e <  10, 1, 0)),
-    echo_tr_abnormal       = if_else(is.na(echo_tr),         NA_real_, if_else(echo_tr        > 2.8, 1, 0)),
-    echo_lavi_abnormal     = if_else(is.na(echo_lavi),       NA_real_, if_else(echo_lavi      >  34, 1, 0))
+**Echo cohort** — at least one of the five core echo measurements is available
+(EF, lateral e′, GLS, E/A, E/e′):
+
+```{r echo-cohort}
+#| code-summary: "Show echo-cohort filter"
+echo_cohort <- master %>%
+  filter(
+    echo_ef_notavailable___999      == 0 |
+    echo_late_notavailable___999    == 0 |
+    echo_gls_notavailable___999     == 0 |
+    echo_earatio_notavailable___999 == 0 |
+    echo_eeratio_notavailable___999 == 0
   )
 
-cat("Cohort size (any non-NA echo):", nrow(final_master), "\n")
+cat("Echo cohort N:", nrow(echo_cohort), "\n")
 ```
 
-# Variable Lists
+**Pre-terli echo cohort** — echo cohort AND the echo was done before terlipressin
+initiation (`days_to_echo < days_to_terli_initiation_day0`). Used for tasks 4–8.
 
-```{r var-lists}
-#| code-summary: "Show numeric and categorical echo variable lists"
-num_vars_echo <- c("echo_ef", "echo_earatio", "echo_eeratio",
-                   "echo_gls", "echo_lateral_e")
+```{r preterli-cohort}
+#| code-summary: "Show pre-terli echo cohort filter"
+preterli_echo <- echo_cohort %>%
+  filter(days_to_echo < days_to_terli_initiation_day0)
 
-abnormal_flags <- c("echo_ef_abnormal", "echo_eeratio_abnormal",
-                    "echo_gls_abnormal", "echo_lateral_e_abnormal",
-                    "echo_tr_abnormal",  "echo_lavi_abnormal")
-
-all_vars_echo <- unique(c(num_vars_echo, abnormal_flags))
-cat_vars_echo <- setdiff(all_vars_echo, num_vars_echo)
+cat("Pre-terli echo cohort N:", nrow(preterli_echo), "\n")
 ```
 
-# Table 1 — Stratified by HRS Responders (3-level)
+# Tasks 1–3 — Echo Timing Counts
 
-```{r t1-hrs-responders}
-#| code-summary: "Show Table 1 code"
+Counts within the echo cohort, split by whether the echo was before, on the same
+day as, or after terlipressin initiation.
+
+```{r timing-counts}
+#| code-summary: "Show timing-count code"
+timing_counts <- echo_cohort %>%
+  mutate(timing = case_when(
+    days_to_echo <  days_to_terli_initiation_day0 ~ "1. echo before terli",
+    days_to_echo == days_to_terli_initiation_day0 ~ "2. echo same day as terli",
+    days_to_echo >  days_to_terli_initiation_day0 ~ "3. echo after terli",
+    TRUE                                          ~ "missing"
+  )) %>%
+  count(timing, name = "N")
+
+knitr::kable(timing_counts, caption = "Patients in echo cohort by echo timing relative to terlipressin initiation")
+```
+
+# Task 4 — Demographics Table (stratified by `hrs_responders`)
+
+```{r task4-demographics}
+#| code-summary: "Show demographic variable lists + Table 1 call"
+demographic_categorical <- c(
+  "sex_male", "race", "hispanic",
+  "cirrhosis_etiology", "etoh_hepatitis",
+  "hegrade_admit", "admit_ascites",
+  "htn_medical_hx", "dm_medical_hx", "ckd_medical_hx", "cad_medical_hx",
+  "sbp_ppx_preadmission", "lactulose_preadmission",
+  "ascites_previous_comp", "refascites_previous_comp",
+  "he_previous_comp", "sbp_previous_comp", "nonsbp_previous_comp",
+  "phtn_bleed_previous_comp", "hcc_previous_comp", "tips_previous_comp",
+  "baseline_scr_outpt", "aki_previous_90days", "transfer_aki",
+  "aki_precipitant_nsbpinf",
+  "he_aki", "rrt_aki", "mv_aki", "pressors_aki",
+  "chest_imaging", "chest_imaging_pulmedema", "chest_imaging_effusion",
+  "ecg", "echo",
+  "albumin_before_terli", "crystalloid_before_terli",
+  "nsbb_before_terli", "mido_before_terli", "oct_before_terli", "ne_before_terli",
+  "gihep_consult", "neph_consult", "pall_consult",
+  "code_status",
+  "ua_hrs", "ua_na_hrs", "ua_cr_hrs", "ua_urea_hrs",
+  "ua_granularcasts_hrs", "ua_epi_cells_hrs",
+  "location_terli_day0", "terli_route_day0",
+  "tele_terli_day0", "he_terli_day0",
+  "infection_terli_day0", "typeinfection_terli_day0",
+  "aclf_grade", "akin"
+)
+
+demographic_numerical <- c("age")
+
+# Keep only variables that actually exist in the dataset
+demographic_categorical <- intersect(demographic_categorical, names(preterli_echo))
+demographic_numerical   <- intersect(demographic_numerical,   names(preterli_echo))
+demographic_all <- c(demographic_numerical, demographic_categorical)
+
+dat4 <- preterli_echo %>%
+  mutate(across(all_of(demographic_categorical), as.factor),
+         across(all_of(demographic_numerical),   as.numeric))
+
 create_table_one(
-  all_vars = all_vars_echo,
-  cat_vars = cat_vars_echo,
-  data     = final_master,
+  all_vars = demographic_all,
+  cat_vars = demographic_categorical,
+  data     = dat4,
   strata   = "hrs_responders",
-  output   = "../Results/table_hrs_responders_a.csv"
+  output   = "../Results/table_demographics_hrs_responders.csv"
 )
 ```
 
-# Table 1 — Stratified by HRS Responders (Binary)
+Output: [`Results/table_demographics_hrs_responders.csv`](../Results/table_demographics_hrs_responders.csv)
 
-```{r t1-hrs-cat2}
-#| code-summary: "Show Table 1 code"
+# Task 5 — HRS Response (binary) × Echo Continuous Values
+
+```{r task5-response}
+#| code-summary: "Show Task 5 Table 1 call"
+echo_continuous <- c("echo_ef", "echo_earatio", "echo_eeratio",
+                     "echo_gls", "echo_lateral_e")
+
+dat5 <- preterli_echo %>%
+  mutate(across(all_of(echo_continuous), as.numeric))
+
 create_table_one(
-  all_vars = all_vars_echo,
-  cat_vars = cat_vars_echo,
-  data     = final_master,
+  all_vars = echo_continuous,
+  cat_vars = NULL,                       # all numerical
+  data     = dat5,
   strata   = "hrs_responders_cat_2",
-  output   = "../Results/table_hrs_responders_cat_2_b.csv"
+  output   = "../Results/table_echo_hrs_responders_cat_2.csv"
 )
 ```
 
-# Table 1 — Stratified by 90-Day Mortality
+Output: [`Results/table_echo_hrs_responders_cat_2.csv`](../Results/table_echo_hrs_responders_cat_2.csv)
 
-```{r t1-death-90d}
-#| code-summary: "Show Table 1 code"
+# Task 6 — Respiratory Failure × Echo Continuous Values
+
+```{r task6-respfail}
+#| code-summary: "Show Task 6 Table 1 call"
+dat6 <- preterli_echo %>%
+  mutate(across(all_of(echo_continuous), as.numeric))
+
 create_table_one(
-  all_vars = all_vars_echo,
-  cat_vars = cat_vars_echo,
-  data     = final_master,
-  strata   = "time_to_death_status_90days",
-  output   = "../Results/table_time_to_death_status_90days.csv"
-)
-```
-
-# Table 1 — Stratified by Terlipressin Respiratory Failure
-
-Fisher exact used for every categorical row (`exact = cat_vars_echo`) because the respiratory-failure stratum is sparse.
-
-```{r t1-respfail}
-#| code-summary: "Show Table 1 code"
-create_table_one(
-  all_vars = all_vars_echo,
-  cat_vars = cat_vars_echo,
-  exact    = cat_vars_echo,
-  data     = final_master,
+  all_vars = echo_continuous,
+  cat_vars = NULL,
+  data     = dat6,
   strata   = "terli_ae_respfail",
-  output   = "../Results/table_terli_ae_respfail.csv"
+  output   = "../Results/table_echo_terli_ae_respfail.csv"
 )
 ```
 
-# Availability of Echo Measurements
+Output: [`Results/table_echo_terli_ae_respfail.csv`](../Results/table_echo_terli_ae_respfail.csv)
 
-```{r echo-availability}
-#| code-summary: "Show availability summary"
-final_master %>%
-  summarise(across(all_of(num_vars_echo), ~ sum(!is.na(.)))) %>%
-  pivot_longer(everything(), names_to = "Variable", values_to = "N non-missing") %>%
-  knitr::kable(caption = "Non-missing counts by echo measurement (cohort)")
+# Task 7 — 90-Day Mortality × Echo Continuous Values
+
+Uses `time_to_death_status_90days` (death capped at 90 days).
+
+```{r task7-mortality}
+#| code-summary: "Show Task 7 Table 1 call"
+dat7 <- preterli_echo %>%
+  mutate(across(all_of(echo_continuous), as.numeric))
+
+create_table_one(
+  all_vars = echo_continuous,
+  cat_vars = NULL,
+  data     = dat7,
+  strata   = "time_to_death_status_90days",
+  output   = "../Results/table_echo_time_to_death_status_90days.csv"
+)
+```
+
+Output: [`Results/table_echo_time_to_death_status_90days.csv`](../Results/table_echo_time_to_death_status_90days.csv)
+
+# Task 8 — Cubic-Spline Logistic Regression
+
+Outcome: `hrs_responders_cat_2` (binary). Covariate: `echo_ef` modelled as a
+natural cubic spline with 3 degrees of freedom.
+
+```{r task8-spline-fit}
+#| code-summary: "Show spline model fit"
+dat8 <- preterli_echo %>%
+  mutate(
+    hrs_responders_cat_2 = as.numeric(as.character(hrs_responders_cat_2)),
+    echo_ef              = as.numeric(echo_ef)
+  ) %>%
+  drop_na(echo_ef, hrs_responders_cat_2)
+
+fit8 <- glm(
+  hrs_responders_cat_2 ~ ns(echo_ef, df = 3),
+  data   = dat8,
+  family = binomial
+)
+
+summary(fit8)
+```
+
+```{r task8-spline-plot, fig.height=5, fig.width=7}
+#| code-summary: "Show predicted-probability plot"
+grid8 <- tibble(
+  echo_ef = seq(min(dat8$echo_ef, na.rm = TRUE),
+                max(dat8$echo_ef, na.rm = TRUE),
+                length.out = 200)
+)
+
+pred8 <- predict(fit8, newdata = grid8, type = "link", se.fit = TRUE)
+grid8 <- grid8 %>%
+  mutate(
+    fit   = plogis(pred8$fit),
+    lower = plogis(pred8$fit - 1.96 * pred8$se.fit),
+    upper = plogis(pred8$fit + 1.96 * pred8$se.fit)
+  )
+
+ggplot(grid8, aes(echo_ef, fit)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2, fill = "#2c8dbb") +
+  geom_line(linewidth = 1, color = "#2c8dbb") +
+  geom_rug(data = dat8, aes(x = echo_ef), inherit.aes = FALSE,
+           alpha = 0.3, sides = "b") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1),
+                     limits = c(0, 1)) +
+  labs(
+    x = "Ejection fraction (%)",
+    y = "Probability of HRS response (hrs_responders_cat_2 = 1)",
+    title = "Predicted probability of HRS response by EF (natural cubic spline, df = 3)",
+    caption = "Shaded ribbon = 95% CI; rug = observed EF values"
+  ) +
+  theme_bw(base_size = 12)
 ```

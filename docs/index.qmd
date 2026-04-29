@@ -6,58 +6,54 @@ date: last-modified
 
 ## Overview
 
-The **Cardio** sub-project characterizes the cardiopulmonary (echocardiographic) phenotype of HRS-AKI patients treated with terlipressin in the [HARMONY Terlipressin Registry](../../Terlipressin/docs/). The goal is to assess whether baseline echo abnormalities are associated with HRS response, 90-day mortality, and terlipressin-associated respiratory failure.
+The **Cardio** sub-project characterizes the cardiopulmonary (echocardiographic) phenotype of HRS-AKI patients in the [HARMONY Terlipressin Registry](../../Terlipressin/docs/) — focused on echos performed **before** terlipressin initiation.
 
-## Cohort
+## Cohorts
 
-Analysis is restricted to patients with at least one non-missing measurement among:
+**Echo cohort** — at least one of these REDCap availability flags is `0`
+(measurement present):
 
-- `echo_ef` — Left-ventricular ejection fraction
-- `echo_earatio` — Mitral E/A ratio
-- `echo_eeratio` — E/e′ ratio
-- `echo_gls` — Global longitudinal strain
-- `echo_lateral_e` — Lateral e′ velocity
+- `echo_ef_notavailable___999` — Ejection fraction
+- `echo_late_notavailable___999` — Lateral e′ velocity
+- `echo_gls_notavailable___999` — Global longitudinal strain
+- `echo_earatio_notavailable___999` — Mitral E/A ratio
+- `echo_eeratio_notavailable___999` — E/e′ ratio
 
-## Abnormal-Echo Indicators
+**Pre-terli echo cohort** — echo cohort AND
+`days_to_echo < days_to_terli_initiation_day0`. All Table 1s and the spline
+model use this cohort.
 
-Six binary flags are derived from the continuous echo variables:
+## Outputs
 
-| Flag | Abnormal cutoff | Rationale |
-|:-----|:----------------|:----------|
-| `echo_ef_abnormal` | EF ≤ 50% | Reduced systolic function |
-| `echo_eeratio_abnormal` | E/e′ ≥ 15 | Elevated LV filling pressure |
-| `echo_gls_abnormal` | GLS < 18 (absolute) | Impaired strain |
-| `echo_lateral_e_abnormal` | Lateral e′ < 10 cm/s | Diastolic dysfunction |
-| `echo_tr_abnormal` | TR velocity > 2.8 m/s | Pulmonary hypertension signal |
-| `echo_lavi_abnormal` | LAVI > 34 mL/m² | Left-atrial enlargement |
+| # | Output | Stratifier | Notes |
+|:--|:-----|:-----------|:------|
+| 1–3 | Counts of patients by echo timing | — | echo before / same-day / after terli, within echo cohort |
+| 4 | Demographics Table 1 | `hrs_responders` (3-level) | ~55 demographic and clinical variables |
+| 5 | Echo Table 1 | `hrs_responders_cat_2` (binary) | 5 continuous echo measurements |
+| 6 | Echo Table 1 | `terli_ae_respfail` | 5 continuous echo measurements |
+| 7 | Echo Table 1 | `time_to_death_status_90days` | death capped at 90 days |
+| 8 | Cubic-spline logistic regression | outcome `hrs_responders_cat_2` | `ns(echo_ef, df = 3)`; predicted-probability plot with 95% CI |
 
-## Stratifications
-
-Table 1 is produced for each of the following stratification variables:
-
-| Strata | Description |
-|:-------|:-----------|
-| `hrs_responders` | 3-level: non-responder / partial / complete |
-| `hrs_responders_cat_2` | Binary: any AKI-stage improvement |
-| `time_to_death_status_90days` | 90-day mortality |
-| `terli_ae_respfail` | Terlipressin-associated respiratory failure |
-
-## Data Pipeline
+## Pipeline
 
 ```{mermaid}
 flowchart TD
     A[final_master_01282026.xlsx<br/>main Terlipressin project] --> B[Source shared_pipeline.qmd]
-    B --> C[Filter: any non-NA echo<br/>EF, E/A, E/e′, GLS, lateral e′]
-    C --> D[Derive 6 echo-abnormal flags]
-    D --> E[Table 1 stratified by<br/>hrs_responders, hrs_responders_cat_2,<br/>90-day mortality, respiratory AE]
+    B --> C[Echo cohort<br/>any non-NA echo availability flag]
+    C --> D{Echo timing<br/>vs days_to_terli_initiation_day0}
+    D -- before --> E[Pre-terli echo cohort]
+    D -- same day --> F[Counted only]
+    D -- after --> G[Counted only]
+    E --> H[Tasks 4–7<br/>stratified Table 1s]
+    E --> I[Task 8<br/>EF cubic-spline LR]
 ```
 
 ## Repository Structure
 
 | File | Description |
 |:-----|:-----------|
-| `docs/analysis.qmd` | Canonical Quarto analysis (echo cohort → abnormal flags → stratified tables) |
-| `Code/cardio 2026.Rmd` | Analyst-facing Rmd version (Jan 2026) |
-| `Code/Cardio.Rmd` | Earlier analyst version (filter via `*_notavailable___999`) |
+| `docs/analysis.qmd` | Canonical analysis — sources shared pipeline, runs all 8 tasks |
+| `Code/cardio 2026.Rmd` | Older analyst version (abnormal-flag thresholds) — superseded |
+| `Code/Cardio.Rmd` | Earlier analyst version — superseded |
 | `Requests/Echo Data Request 01292016.docx` | Original analyst specification |
-| `Results/` | Rendered HTML and CSV outputs |
+| `Results/` | Rendered CSV outputs |

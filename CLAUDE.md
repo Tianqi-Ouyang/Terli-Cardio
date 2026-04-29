@@ -6,60 +6,56 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 HARMONY Terlipressin **Cardio** sub-project — cardiopulmonary (echocardiographic) phenotyping of HRS-AKI patients treated with terlipressin. Shared context (dataset, derived variables, helper functions, coding conventions) lives in the parent `CLAUDE.md` one level up and applies here.
 
-## Analysis Scope
+## Analysis Scope (current spec, supersedes the older `Code/*.Rmd`)
 
-Cohort is restricted to patients with at least one non-missing echo measurement among:
+Two cohorts:
 
-```
-echo_ef, echo_earatio, echo_eeratio, echo_gls, echo_lateral_e
-```
+- **Echo cohort** — at least one of `echo_ef_notavailable___999`, `echo_late_notavailable___999`, `echo_gls_notavailable___999`, `echo_earatio_notavailable___999`, `echo_eeratio_notavailable___999` equals 0 (i.e. ≥ 1 echo measurement available).
+- **Pre-terli echo cohort** — echo cohort AND `days_to_echo < days_to_terli_initiation_day0`.
 
-Six abnormal-echo indicators are derived in the analysis file (thresholds below). Tables are then stratified by the standard HRS outcomes.
+Eight outputs in `docs/analysis.qmd`:
 
-| Variable | Abnormal cutoff |
-|:---|:---|
-| `echo_ef_abnormal` | `echo_ef <= 50` |
-| `echo_eeratio_abnormal` | `echo_eeratio >= 15` |
-| `echo_gls_abnormal` | `echo_gls < 18` |
-| `echo_lateral_e_abnormal` | `echo_lateral_e < 10` |
-| `echo_tr_abnormal` | `echo_tr > 2.8` |
-| `echo_lavi_abnormal` | `echo_lavi > 34` |
+| # | Output | Cohort | Stratifier (column) | Rows |
+|:--|:--|:--|:--|:--|
+| 1–3 | Counts of echo timing (before / same day / after terli) | echo cohort | — | — |
+| 4 | Demographics Table 1 (~55 rows) | pre-terli | `hrs_responders` | age + 50+ categorical demographics |
+| 5 | Echo Table 1 | pre-terli | `hrs_responders_cat_2` | echo_ef, echo_earatio, echo_eeratio, echo_gls, echo_lateral_e (all numeric) |
+| 6 | Echo Table 1 | pre-terli | `terli_ae_respfail` | same 5 echo |
+| 7 | Echo Table 1 | pre-terli | `time_to_death_status_90days` (capped at 90 days) | same 5 echo |
+| 8 | Cubic-spline logistic regression | pre-terli | outcome `hrs_responders_cat_2` | `ns(echo_ef, df = 3)` + 95% CI plot |
 
-Stratifications (Table 1 columns) per `Requests/Echo Data Request 01292016.docx`:
-
-- `hrs_responders` (3-level: 0 non-responder, 1 partial, 2 complete)
-- `hrs_responders_cat_2` (binary: any AKI-stage improvement)
-- `time_to_death_status_90days`
-- `terli_ae_respfail`
+The **abnormal-echo flag** definitions (EF < 60, \|GLS\| < 18, E/e′ > 15, lateral e′ < 10, TR > 2.8 m/s, LAVI > 34) used in the older `Code/*.Rmd` are **not** part of the current spec — keep the old code only as analyst history.
 
 ## Repository Layout
 
 | Path | Description |
 |:---|:---|
-| `Code/cardio 2026.Rmd` | Current (Jan 2026) analysis — filters by any non-NA echo, derives abnormal flags, runs 5 Table 1s |
-| `Code/Cardio.Rmd` | Older version — filters by `*_notavailable___999 == 0`, no abnormal flags |
-| `Requests/Echo Data Request *.docx` | Analyst specification for the stratified tables |
-| `Results/` | Rendered HTML + CSVs (`table_hrs_responders_*.csv`, `table_terli_ae_respfail.csv`, `table_time_to_death_status_90days.csv`) |
-| `docs/` | Quarto website — `index.qmd`, `analysis.qmd`, symlinked variable dictionaries |
+| `docs/analysis.qmd` | Canonical analysis (tasks 1–8 above) — sources the shared pipeline |
+| `docs/index.qmd` | Project summary page |
+| `docs/_quarto.yml` | Site config |
+| `docs/{redcap,derived}_variables.qmd` | Symlinks to the main project's variable dictionaries |
+| `Code/cardio 2026.Rmd` | Older analyst version (abnormal-flag thresholds) — superseded |
+| `Code/Cardio.Rmd` | Even older analyst version — superseded |
+| `Requests/Echo Data Request *.docx` | Original analyst specification |
+| `Results/` | Rendered HTML + CSVs |
 
-## Working with the Analysis
+## Sourcing the Shared Pipeline
 
-- The `.Rmd` files in `Code/` are the legacy analyst-facing source. The canonical analysis for the Quarto site is `docs/analysis.qmd` and **must** source the shared pipeline instead of reading xlsx directly:
+```r
+source(knitr::purl(
+  "/Users/to909/Desktop/Terlipressin projects/Terlipressin/code/shared_pipeline.qmd",
+  output = tempfile(fileext = ".R"),
+  quiet  = TRUE
+))
+# `master` is now loaded with every standard derived variable
+```
 
-  ```r
-  source(knitr::purl(
-    "/Users/to909/Desktop/Terlipressin projects/Terlipressin/code/shared_pipeline.qmd",
-    quiet = TRUE
-  ))
-  # `master` is now loaded with every standard derived variable
-  master <- master %>% filter(
-    if_any(c(echo_ef, echo_earatio, echo_eeratio, echo_gls, echo_lateral_e), ~ !is.na(.))
-  )
-  ```
+Pass `output = tempfile(...)` so we don't drop a stray `shared_pipeline.R` into
+the working directory and parallel renders don't race on the same path.
 
-- **Do not** re-read `/Users/to909/Desktop/Terlipressin/final_master_0508.xlsx` (the path used in the old `.Rmd`s) — that file predates the cleaned master. Use `data/final_master_01282026.xlsx` from the main project.
-
-- `create_table_one()` is provided by the shared pipeline. Local copies inside the `.Rmd` files are redundant; prefer the shared version so `nonnormal`, `exact`, `missing`, and `includeNA` behavior stays consistent across sub-projects.
+**Do not** re-read `/Users/to909/Desktop/Terlipressin/final_master_0508.xlsx` (the
+path used in the legacy `.Rmd`s) — that file predates the cleaned master. The
+shared pipeline reads `data/final_master_01282026.xlsx` from the main project.
 
 ## Rendering & Git
 
@@ -71,4 +67,8 @@ quarto render docs/
 quarto render docs/analysis.qmd
 ```
 
-The GitHub remote for this sub-project is <https://github.com/Tianqi-Ouyang/Terli-Cardio.git>. The master xlsx is **not** committed here — it is tracked in the main Terlipressin repo and loaded by path from the shared pipeline.
+Do **not** add a `Co-Authored-By: Claude ...` trailer to commit messages.
+
+The GitHub remote is <https://github.com/Tianqi-Ouyang/Terli-Cardio.git>. The
+master xlsx is **not** committed here — it is tracked in the main Terlipressin
+repo and loaded by path from the shared pipeline.
