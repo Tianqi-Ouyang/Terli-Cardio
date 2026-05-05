@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Tianqi Ouyang">
-<meta name="dcterms.date" content="2026-04-29">
+<meta name="dcterms.date" content="2026-05-05">
 
 <title>Cardio — Analysis – Terlipressin — Cardio</title>
 <style>
@@ -162,10 +162,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#cohorts" id="toc-cohorts" class="nav-link active" data-scroll-target="#cohorts">Cohorts</a></li>
   <li><a href="#tasks-13-echo-timing-counts" id="toc-tasks-13-echo-timing-counts" class="nav-link" data-scroll-target="#tasks-13-echo-timing-counts">Tasks 1–3 — Echo Timing Counts</a></li>
-  <li><a href="#task-4-demographics-table-stratified-by-hrs_responders" id="toc-task-4-demographics-table-stratified-by-hrs_responders" class="nav-link" data-scroll-target="#task-4-demographics-table-stratified-by-hrs_responders">Task 4 — Demographics Table (stratified by <code>hrs_responders</code>)</a></li>
-  <li><a href="#task-5-hrs-response-binary-echo-continuous-values" id="toc-task-5-hrs-response-binary-echo-continuous-values" class="nav-link" data-scroll-target="#task-5-hrs-response-binary-echo-continuous-values">Task 5 — HRS Response (binary) × Echo Continuous Values</a></li>
-  <li><a href="#task-6-respiratory-failure-echo-continuous-values" id="toc-task-6-respiratory-failure-echo-continuous-values" class="nav-link" data-scroll-target="#task-6-respiratory-failure-echo-continuous-values">Task 6 — Respiratory Failure × Echo Continuous Values</a></li>
-  <li><a href="#task-7-90-day-mortality-echo-continuous-values" id="toc-task-7-90-day-mortality-echo-continuous-values" class="nav-link" data-scroll-target="#task-7-90-day-mortality-echo-continuous-values">Task 7 — 90-Day Mortality × Echo Continuous Values</a></li>
+  <li><a href="#task-4-demographics-hrs_responders" id="toc-task-4-demographics-hrs_responders" class="nav-link" data-scroll-target="#task-4-demographics-hrs_responders">Task 4 — Demographics × <code>hrs_responders</code></a></li>
+  <li><a href="#task-5-echo-hrs_responders_cat_2" id="toc-task-5-echo-hrs_responders_cat_2" class="nav-link" data-scroll-target="#task-5-echo-hrs_responders_cat_2">Task 5 — Echo × <code>hrs_responders_cat_2</code></a></li>
+  <li><a href="#task-6-echo-terli_ae_respfail" id="toc-task-6-echo-terli_ae_respfail" class="nav-link" data-scroll-target="#task-6-echo-terli_ae_respfail">Task 6 — Echo × <code>terli_ae_respfail</code></a></li>
+  <li><a href="#task-7-echo-time_to_death_status_90days" id="toc-task-7-echo-time_to_death_status_90days" class="nav-link" data-scroll-target="#task-7-echo-time_to_death_status_90days">Task 7 — Echo × <code>time_to_death_status_90days</code></a></li>
   <li><a href="#task-8-cubic-spline-logistic-regression" id="toc-task-8-cubic-spline-logistic-regression" class="nav-link" data-scroll-target="#task-8-cubic-spline-logistic-regression">Task 8 — Cubic-Spline Logistic Regression</a></li>
   </ul>
 </nav>
@@ -192,7 +192,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 29, 2026</p>
+      <p class="date">May 5, 2026</p>
     </div>
   </div>
   
@@ -206,11 +206,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="cohorts" class="level1">
 <h1>Cohorts</h1>
-<p>Two cohorts are used.</p>
-<p><strong>Echo cohort</strong> — at least one of the five core echo measurements is available (EF, lateral e′, GLS, E/A, E/e′):</p>
 <div class="cell">
 <details class="code-fold">
-<summary>Show echo-cohort filter</summary>
+<summary>Show cohort filters</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>echo_cohort <span class="ot">&lt;-</span> master <span class="sc">%&gt;%</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    echo_ef_notavailable___999      <span class="sc">==</span> <span class="dv">0</span> <span class="sc">|</span></span>
@@ -220,29 +218,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    echo_eeratio_notavailable___999 <span class="sc">==</span> <span class="dv">0</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Echo cohort N:"</span>, <span class="fu">nrow</span>(echo_cohort), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>preterli_echo <span class="ot">&lt;-</span> echo_cohort <span class="sc">%&gt;%</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(days_to_echo <span class="sc">&lt;</span> days_to_terli_initiation_day0)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Echo cohort N      :"</span>, <span class="fu">nrow</span>(echo_cohort),    <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Echo cohort N: 243 </code></pre>
+<pre><code>Echo cohort N      : 243 </code></pre>
 </div>
-</div>
-<p><strong>Pre-terli echo cohort</strong> — echo cohort AND the echo was done before terlipressin initiation (<code>days_to_echo &lt; days_to_terli_initiation_day0</code>). Used for tasks 4–8.</p>
-<div class="cell">
 <details class="code-fold">
-<summary>Show pre-terli echo cohort filter</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>preterli_echo <span class="ot">&lt;-</span> echo_cohort <span class="sc">%&gt;%</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(days_to_echo <span class="sc">&lt;</span> days_to_terli_initiation_day0)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Pre-terli echo cohort N:"</span>, <span class="fu">nrow</span>(preterli_echo), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>Show cohort filters</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Pre-terli cohort N :"</span>, <span class="fu">nrow</span>(preterli_echo), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Pre-terli echo cohort N: 94 </code></pre>
+<pre><code>Pre-terli cohort N : 94 </code></pre>
 </div>
 </div>
 </section>
 <section id="tasks-13-echo-timing-counts" class="level1">
 <h1>Tasks 1–3 — Echo Timing Counts</h1>
-<p>Counts within the echo cohort, split by whether the echo was before, on the same day as, or after terlipressin initiation.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show timing-count code</summary>
@@ -255,7 +249,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">%&gt;%</span></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(timing, <span class="at">name =</span> <span class="st">"N"</span>)</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(timing_counts, <span class="at">caption =</span> <span class="st">"Patients in echo cohort by echo timing relative to terlipressin initiation"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(timing_counts,</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>             <span class="at">caption =</span> <span class="st">"Patients in echo cohort by echo timing relative to terlipressin initiation"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -288,8 +283,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="task-4-demographics-table-stratified-by-hrs_responders" class="level1">
-<h1>Task 4 — Demographics Table (stratified by <code>hrs_responders</code>)</h1>
+<section id="task-4-demographics-hrs_responders" class="level1">
+<h1>Task 4 — Demographics × <code>hrs_responders</code></h1>
 <div class="cell">
 <details class="code-fold">
 <summary>Show demographic variable lists + Table 1 call</summary>
@@ -318,2011 +313,1653 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">"infection_terli_day0"</span>, <span class="st">"typeinfection_terli_day0"</span>,</span>
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">"aclf_grade"</span>, <span class="st">"akin"</span></span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>demographic_numerical <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"age"</span>)</span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only variables that actually exist in the dataset</span></span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>demographic_categorical <span class="ot">&lt;-</span> <span class="fu">intersect</span>(demographic_categorical, <span class="fu">names</span>(preterli_echo))</span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>demographic_numerical   <span class="ot">&lt;-</span> <span class="fu">intersect</span>(demographic_numerical,   <span class="fu">names</span>(preterli_echo))</span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>demographic_all <span class="ot">&lt;-</span> <span class="fu">c</span>(demographic_numerical, demographic_categorical)</span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>dat4 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(demographic_categorical), as.factor),</span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>         <span class="fu">across</span>(<span class="fu">all_of</span>(demographic_numerical),   as.numeric))</span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a><span class="fu">create_table_one</span>(</span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> demographic_all,</span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> demographic_categorical,</span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat4,</span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"hrs_responders"</span>,</span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"../Results/table_demographics_hrs_responders.csv"</span></span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>demographic_numerical <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"age"</span>)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>demographic_categorical <span class="ot">&lt;-</span> <span class="fu">intersect</span>(demographic_categorical, <span class="fu">names</span>(preterli_echo))</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>demographic_numerical   <span class="ot">&lt;-</span> <span class="fu">intersect</span>(demographic_numerical,   <span class="fu">names</span>(preterli_echo))</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>demographic_all <span class="ot">&lt;-</span> <span class="fu">c</span>(demographic_numerical, demographic_categorical)</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>dat4 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(demographic_categorical), as.factor),</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>         <span class="fu">across</span>(<span class="fu">all_of</span>(demographic_numerical),   as.numeric))</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>t4 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> demographic_all,</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> demographic_categorical,</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat4,</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"hrs_responders"</span>,</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task4_demographics_hrs_responders.csv"</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t4, <span class="at">caption =</span> <span class="st">"Task 4 — Demographics by `hrs_responders` (3-level)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
-<table class="Rtable1 caption-top table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
+<caption>Task 4 &lt;U+2014&gt; Demographics by <code>hrs_responders</code> (3-level)</caption>
 <colgroup>
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
-<col style="width: 16%">
+<col style="width: 20%">
+<col style="width: 4%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 4%">
+<col style="width: 5%">
+<col style="width: 5%">
 </colgroup>
 <thead>
 <tr class="header">
-<th class="rowlabel firstrow lastrow" data-quarto-table-cell-role="th"></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">0<br>
-<span class="stratn">(N=34)</span></span></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">1<br>
-<span class="stratn">(N=20)</span></span></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">2<br>
-<span class="stratn">(N=40)</span></span></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">Overall<br>
-<span class="stratn">(N=94)</span></span></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">P-value</span></th>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">level</th>
+<th style="text-align: left;">Overall</th>
+<th style="text-align: left;">0</th>
+<th style="text-align: left;">1</th>
+<th style="text-align: left;">2</th>
+<th style="text-align: left;">p</th>
+<th style="text-align: left;">test</th>
+<th style="text-align: left;">Missing</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td class="rowlabel firstrow">age</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Median [Q1, Q3]</td>
-<td class="lastrow">54 [43, 65]</td>
-<td class="lastrow">61 [56, 64]</td>
-<td class="lastrow">58 [52, 63]</td>
-<td class="lastrow">58 [50, 64]</td>
-<td class="lastrow">0.436</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">sex_male</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>15 (44.1%)</td>
-<td>10 (50.0%)</td>
-<td>14 (35.0%)</td>
-<td>39 (41.5%)</td>
-<td>0.708</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">1</td>
-<td class="lastrow">19 (55.9%)</td>
-<td class="lastrow">10 (50.0%)</td>
-<td class="lastrow">26 (65.0%)</td>
-<td class="lastrow">55 (58.5%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">race</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>30 (88.2%)</td>
-<td>15 (75.0%)</td>
-<td>33 (82.5%)</td>
-<td>78 (83.0%)</td>
-<td>0.793</td>
-</tr>
-<tr class="even">
-<td class="rowlabel">2</td>
-<td>0 (0%)</td>
-<td>2 (10.0%)</td>
-<td>2 (5.0%)</td>
-<td>4 (4.3%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">3</td>
-<td>0 (0%)</td>
-<td>0 (0%)</td>
-<td>1 (2.5%)</td>
-<td>1 (1.1%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">4</td>
-<td class="lastrow">4 (11.8%)</td>
-<td class="lastrow">3 (15.0%)</td>
-<td class="lastrow">4 (10.0%)</td>
-<td class="lastrow">11 (11.7%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">hispanic</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>27 (79.4%)</td>
-<td>19 (95.0%)</td>
-<td>32 (80.0%)</td>
-<td>78 (83.0%)</td>
-<td>0.466</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">1</td>
-<td class="lastrow">7 (20.6%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">8 (20.0%)</td>
-<td class="lastrow">16 (17.0%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">cirrhosis_etiology</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>21 (61.8%)</td>
-<td>12 (60.0%)</td>
-<td>26 (65.0%)</td>
-<td>59 (62.8%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">2</td>
-<td>6 (17.6%)</td>
-<td>3 (15.0%)</td>
-<td>6 (15.0%)</td>
-<td>15 (16.0%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">3</td>
-<td>0 (0%)</td>
-<td>2 (10.0%)</td>
-<td>1 (2.5%)</td>
-<td>3 (3.2%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">4</td>
-<td>4 (11.8%)</td>
-<td>0 (0%)</td>
-<td>3 (7.5%)</td>
-<td>7 (7.4%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">5</td>
-<td>1 (2.9%)</td>
-<td>2 (10.0%)</td>
-<td>3 (7.5%)</td>
-<td>6 (6.4%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">6</td>
-<td class="lastrow">2 (5.9%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">1 (2.5%)</td>
-<td class="lastrow">4 (4.3%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">etoh_hepatitis</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>23 (67.6%)</td>
-<td>16 (80.0%)</td>
-<td>26 (65.0%)</td>
-<td>65 (69.1%)</td>
-<td>0.708</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">1</td>
-<td class="lastrow">11 (32.4%)</td>
-<td class="lastrow">4 (20.0%)</td>
-<td class="lastrow">14 (35.0%)</td>
-<td class="lastrow">29 (30.9%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">hegrade_admit</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>16 (47.1%)</td>
-<td>12 (60.0%)</td>
-<td>23 (57.5%)</td>
-<td>51 (54.3%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>11 (32.4%)</td>
-<td>5 (25.0%)</td>
-<td>11 (27.5%)</td>
-<td>27 (28.7%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">2</td>
-<td>4 (11.8%)</td>
-<td>2 (10.0%)</td>
-<td>4 (10.0%)</td>
-<td>10 (10.6%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">3</td>
-<td>0 (0%)</td>
-<td>1 (5.0%)</td>
-<td>1 (2.5%)</td>
-<td>2 (2.1%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">4</td>
-<td>2 (5.9%)</td>
-<td>0 (0%)</td>
-<td>1 (2.5%)</td>
-<td>3 (3.2%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">1 (2.9%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">admit_ascites</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>1 (2.9%)</td>
-<td>3 (15.0%)</td>
-<td>1 (2.5%)</td>
-<td>5 (5.3%)</td>
-<td>0.32</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">2</td>
-<td>18 (52.9%)</td>
-<td>9 (45.0%)</td>
-<td>28 (70.0%)</td>
-<td>55 (58.5%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">3</td>
-<td>15 (44.1%)</td>
-<td>7 (35.0%)</td>
-<td>11 (27.5%)</td>
-<td>33 (35.1%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">htn_medical_hx</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>19 (55.9%)</td>
-<td>10 (50.0%)</td>
-<td>21 (52.5%)</td>
-<td>50 (53.2%)</td>
-<td>0.979</td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">1</td>
-<td class="lastrow">15 (44.1%)</td>
-<td class="lastrow">10 (50.0%)</td>
-<td class="lastrow">19 (47.5%)</td>
-<td class="lastrow">44 (46.8%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">dm_medical_hx</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>20 (58.8%)</td>
-<td>16 (80.0%)</td>
-<td>27 (67.5%)</td>
-<td>63 (67.0%)</td>
-<td>0.481</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">1</td>
-<td class="lastrow">14 (41.2%)</td>
-<td class="lastrow">4 (20.0%)</td>
-<td class="lastrow">13 (32.5%)</td>
-<td class="lastrow">31 (33.0%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">ckd_medical_hx</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>22 (64.7%)</td>
-<td>15 (75.0%)</td>
-<td>29 (72.5%)</td>
-<td>66 (70.2%)</td>
-<td>0.847</td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">1</td>
-<td class="lastrow">12 (35.3%)</td>
-<td class="lastrow">5 (25.0%)</td>
-<td class="lastrow">11 (27.5%)</td>
-<td class="lastrow">28 (29.8%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">cad_medical_hx</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>27 (79.4%)</td>
-<td>14 (70.0%)</td>
-<td>33 (82.5%)</td>
-<td>74 (78.7%)</td>
-<td>0.739</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">1</td>
-<td class="lastrow">7 (20.6%)</td>
-<td class="lastrow">6 (30.0%)</td>
-<td class="lastrow">7 (17.5%)</td>
-<td class="lastrow">20 (21.3%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">sbp_ppx_preadmission</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>24 (70.6%)</td>
-<td>16 (80.0%)</td>
-<td>24 (60.0%)</td>
-<td>64 (68.1%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>6 (17.6%)</td>
-<td>2 (10.0%)</td>
-<td>12 (30.0%)</td>
-<td>20 (21.3%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">2</td>
-<td>1 (2.9%)</td>
-<td>0 (0%)</td>
-<td>2 (5.0%)</td>
-<td>3 (3.2%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">3</td>
-<td>3 (8.8%)</td>
-<td>0 (0%)</td>
-<td>2 (5.0%)</td>
-<td>5 (5.3%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">2 (10.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">2 (2.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">lactulose_preadmission</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>15 (44.1%)</td>
-<td>11 (55.0%)</td>
-<td>17 (42.5%)</td>
-<td>43 (45.7%)</td>
-<td>0.723</td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>19 (55.9%)</td>
-<td>8 (40.0%)</td>
-<td>23 (57.5%)</td>
-<td>50 (53.2%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">ascites_previous_comp</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>2 (5.9%)</td>
-<td>3 (15.0%)</td>
-<td>6 (15.0%)</td>
-<td>11 (11.7%)</td>
-<td>0.579</td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">1</td>
-<td class="lastrow">32 (94.1%)</td>
-<td class="lastrow">17 (85.0%)</td>
-<td class="lastrow">34 (85.0%)</td>
-<td class="lastrow">83 (88.3%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">refascites_previous_comp</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>17 (50.0%)</td>
-<td>8 (40.0%)</td>
-<td>12 (30.0%)</td>
-<td>37 (39.4%)</td>
-<td>0.53</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>15 (44.1%)</td>
-<td>7 (35.0%)</td>
-<td>21 (52.5%)</td>
-<td>43 (45.7%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">2 (5.9%)</td>
-<td class="lastrow">5 (25.0%)</td>
-<td class="lastrow">7 (17.5%)</td>
-<td class="lastrow">14 (14.9%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">he_previous_comp</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>15 (44.1%)</td>
-<td>9 (45.0%)</td>
-<td>19 (47.5%)</td>
-<td>43 (45.7%)</td>
-<td>0.993</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">1</td>
-<td class="lastrow">19 (55.9%)</td>
-<td class="lastrow">11 (55.0%)</td>
-<td class="lastrow">21 (52.5%)</td>
-<td class="lastrow">51 (54.3%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">sbp_previous_comp</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>27 (79.4%)</td>
-<td>14 (70.0%)</td>
-<td>30 (75.0%)</td>
-<td>71 (75.5%)</td>
-<td>0.887</td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>6 (17.6%)</td>
-<td>5 (25.0%)</td>
-<td>10 (25.0%)</td>
-<td>21 (22.3%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">1 (2.9%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">2 (2.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">nonsbp_previous_comp</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>25 (73.5%)</td>
-<td>13 (65.0%)</td>
-<td>37 (92.5%)</td>
-<td>75 (79.8%)</td>
-<td>0.106</td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>7 (20.6%)</td>
-<td>6 (30.0%)</td>
-<td>3 (7.5%)</td>
-<td>16 (17.0%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">2 (5.9%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">3 (3.2%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">phtn_bleed_previous_comp</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>29 (85.3%)</td>
-<td>15 (75.0%)</td>
-<td>28 (70.0%)</td>
-<td>72 (76.6%)</td>
-<td>0.5</td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>5 (14.7%)</td>
-<td>4 (20.0%)</td>
-<td>12 (30.0%)</td>
-<td>21 (22.3%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">hcc_previous_comp</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>33 (97.1%)</td>
-<td>18 (90.0%)</td>
-<td>38 (95.0%)</td>
-<td>89 (94.7%)</td>
-<td>1</td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>1 (2.9%)</td>
-<td>1 (5.0%)</td>
-<td>2 (5.0%)</td>
-<td>4 (4.3%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">tips_previous_comp</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>31 (91.2%)</td>
-<td>20 (100%)</td>
-<td>37 (92.5%)</td>
-<td>88 (93.6%)</td>
-<td>0.635</td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">1</td>
-<td class="lastrow">3 (8.8%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">3 (7.5%)</td>
-<td class="lastrow">6 (6.4%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">baseline_scr_outpt</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>18 (52.9%)</td>
-<td>14 (70.0%)</td>
-<td>22 (55.0%)</td>
-<td>54 (57.4%)</td>
-<td>0.489</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>16 (47.1%)</td>
-<td>5 (25.0%)</td>
-<td>18 (45.0%)</td>
-<td>39 (41.5%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">aki_previous_90days</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>21 (61.8%)</td>
-<td>11 (55.0%)</td>
-<td>24 (60.0%)</td>
-<td>56 (59.6%)</td>
-<td>0.993</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>13 (38.2%)</td>
-<td>8 (40.0%)</td>
-<td>15 (37.5%)</td>
-<td>36 (38.3%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">1 (2.5%)</td>
-<td class="lastrow">2 (2.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">transfer_aki</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>26 (76.5%)</td>
-<td>16 (80.0%)</td>
-<td>31 (77.5%)</td>
-<td>73 (77.7%)</td>
-<td>0.958</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>8 (23.5%)</td>
-<td>3 (15.0%)</td>
-<td>9 (22.5%)</td>
-<td>20 (21.3%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">aki_precipitant_nsbpinf</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">2</td>
-<td>0 (0%)</td>
-<td>1 (5.0%)</td>
-<td>0 (0%)</td>
-<td>1 (1.1%)</td>
-<td>0.909</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">3</td>
-<td>1 (2.9%)</td>
-<td>1 (5.0%)</td>
-<td>0 (0%)</td>
-<td>2 (2.1%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">4</td>
-<td>2 (5.9%)</td>
-<td>0 (0%)</td>
-<td>1 (2.5%)</td>
-<td>3 (3.2%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">31 (91.2%)</td>
-<td class="lastrow">18 (90.0%)</td>
-<td class="lastrow">39 (97.5%)</td>
-<td class="lastrow">88 (93.6%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">he_aki</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>15 (44.1%)</td>
-<td>12 (60.0%)</td>
-<td>20 (50.0%)</td>
-<td>47 (50.0%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>11 (32.4%)</td>
-<td>6 (30.0%)</td>
-<td>14 (35.0%)</td>
-<td>31 (33.0%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">2</td>
-<td>5 (14.7%)</td>
-<td>1 (5.0%)</td>
-<td>5 (12.5%)</td>
-<td>11 (11.7%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">3</td>
-<td>0 (0%)</td>
-<td>1 (5.0%)</td>
-<td>1 (2.5%)</td>
-<td>2 (2.1%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">4</td>
-<td>2 (5.9%)</td>
-<td>0 (0%)</td>
-<td>0 (0%)</td>
-<td>2 (2.1%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">1 (2.9%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">rrt_aki</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>34 (100%)</td>
-<td>18 (90.0%)</td>
-<td>39 (97.5%)</td>
-<td>91 (96.8%)</td>
-<td>0.611</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>0 (0%)</td>
-<td>1 (5.0%)</td>
-<td>1 (2.5%)</td>
-<td>2 (2.1%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">mv_aki</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>32 (94.1%)</td>
-<td>19 (95.0%)</td>
-<td>39 (97.5%)</td>
-<td>90 (95.7%)</td>
-<td>0.863</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">1</td>
-<td class="lastrow">2 (5.9%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">1 (2.5%)</td>
-<td class="lastrow">4 (4.3%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">pressors_aki</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>32 (94.1%)</td>
-<td>17 (85.0%)</td>
-<td>35 (87.5%)</td>
-<td>84 (89.4%)</td>
-<td>0.824</td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>2 (5.9%)</td>
-<td>2 (10.0%)</td>
-<td>5 (12.5%)</td>
-<td>9 (9.6%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">chest_imaging</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>0 (0%)</td>
-<td>0 (0%)</td>
-<td>3 (7.5%)</td>
-<td>3 (3.2%)</td>
-<td>0.325</td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>33 (97.1%)</td>
-<td>20 (100%)</td>
-<td>37 (92.5%)</td>
-<td>90 (95.7%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">1 (2.9%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">chest_imaging_pulmedema</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>23 (67.6%)</td>
-<td>15 (75.0%)</td>
-<td>27 (67.5%)</td>
-<td>65 (69.1%)</td>
-<td>0.913</td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>10 (29.4%)</td>
-<td>4 (20.0%)</td>
-<td>9 (22.5%)</td>
-<td>23 (24.5%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">1 (2.9%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">4 (10.0%)</td>
-<td class="lastrow">6 (6.4%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">chest_imaging_effusion</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>20 (58.8%)</td>
-<td>10 (50.0%)</td>
-<td>26 (65.0%)</td>
-<td>56 (59.6%)</td>
-<td>0.616</td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>13 (38.2%)</td>
-<td>9 (45.0%)</td>
-<td>11 (27.5%)</td>
-<td>33 (35.1%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">1 (2.9%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">3 (7.5%)</td>
-<td class="lastrow">5 (5.3%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">ecg</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>2 (5.9%)</td>
-<td>2 (10.0%)</td>
-<td>4 (10.0%)</td>
-<td>8 (8.5%)</td>
-<td>0.901</td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>32 (94.1%)</td>
-<td>17 (85.0%)</td>
-<td>36 (90.0%)</td>
-<td>85 (90.4%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">echo</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">1</td>
-<td class="lastrow">34 (100%)</td>
-<td class="lastrow">20 (100%)</td>
-<td class="lastrow">40 (100%)</td>
-<td class="lastrow">94 (100%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">albumin_before_terli</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>0 (0%)</td>
-<td>5 (25.0%)</td>
-<td>0 (0%)</td>
-<td>5 (5.3%)</td>
-<td>0.0016</td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">1</td>
-<td class="lastrow">34 (100%)</td>
-<td class="lastrow">15 (75.0%)</td>
-<td class="lastrow">40 (100%)</td>
-<td class="lastrow">89 (94.7%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">crystalloid_before_terli</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>12 (35.3%)</td>
-<td>8 (40.0%)</td>
-<td>17 (42.5%)</td>
-<td>37 (39.4%)</td>
-<td>0.881</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>22 (64.7%)</td>
-<td>12 (60.0%)</td>
-<td>21 (52.5%)</td>
-<td>55 (58.5%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">2 (5.0%)</td>
-<td class="lastrow">2 (2.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">nsbb_before_terli</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>5 (14.7%)</td>
-<td>7 (35.0%)</td>
-<td>4 (10.0%)</td>
-<td>16 (17.0%)</td>
-<td>0.0567</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">2</td>
-<td>1 (2.9%)</td>
-<td>0 (0%)</td>
-<td>0 (0%)</td>
-<td>1 (1.1%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">3</td>
-<td>0 (0%)</td>
-<td>2 (10.0%)</td>
-<td>0 (0%)</td>
-<td>2 (2.1%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">4</td>
-<td>27 (79.4%)</td>
-<td>10 (50.0%)</td>
-<td>35 (87.5%)</td>
-<td>72 (76.6%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">1 (2.9%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">1 (2.5%)</td>
-<td class="lastrow">3 (3.2%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">mido_before_terli</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>8 (23.5%)</td>
-<td>5 (25.0%)</td>
-<td>8 (20.0%)</td>
-<td>21 (22.3%)</td>
-<td>0.956</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>26 (76.5%)</td>
-<td>14 (70.0%)</td>
-<td>32 (80.0%)</td>
-<td>72 (76.6%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">oct_before_terli</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>14 (41.2%)</td>
-<td>8 (40.0%)</td>
-<td>17 (42.5%)</td>
-<td>39 (41.5%)</td>
-<td>1</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>20 (58.8%)</td>
-<td>11 (55.0%)</td>
-<td>23 (57.5%)</td>
-<td>54 (57.4%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">ne_before_terli</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>25 (73.5%)</td>
-<td>15 (75.0%)</td>
-<td>34 (85.0%)</td>
-<td>74 (78.7%)</td>
-<td>0.682</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>9 (26.5%)</td>
-<td>4 (20.0%)</td>
-<td>6 (15.0%)</td>
-<td>19 (20.2%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">gihep_consult</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>0 (0%)</td>
-<td>1 (5.0%)</td>
-<td>3 (7.5%)</td>
-<td>4 (4.3%)</td>
-<td>0.404</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>34 (100%)</td>
-<td>18 (90.0%)</td>
-<td>37 (92.5%)</td>
-<td>89 (94.7%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">neph_consult</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>0 (0%)</td>
-<td>2 (10.0%)</td>
-<td>4 (10.0%)</td>
-<td>6 (6.4%)</td>
-<td>0.219</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>34 (100%)</td>
-<td>17 (85.0%)</td>
-<td>36 (90.0%)</td>
-<td>87 (92.6%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">pall_consult</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>19 (55.9%)</td>
-<td>15 (75.0%)</td>
-<td>30 (75.0%)</td>
-<td>64 (68.1%)</td>
-<td>0.206</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>15 (44.1%)</td>
-<td>4 (20.0%)</td>
-<td>9 (22.5%)</td>
-<td>28 (29.8%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">1 (2.5%)</td>
-<td class="lastrow">2 (2.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">code_status</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>10 (29.4%)</td>
-<td>4 (20.0%)</td>
-<td>8 (20.0%)</td>
-<td>22 (23.4%)</td>
-<td>0.707</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">2</td>
-<td>4 (11.8%)</td>
-<td>0 (0%)</td>
-<td>1 (2.5%)</td>
-<td>5 (5.3%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">20 (58.8%)</td>
-<td class="lastrow">16 (80.0%)</td>
-<td class="lastrow">31 (77.5%)</td>
-<td class="lastrow">67 (71.3%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">ua_hrs</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>1 (2.9%)</td>
-<td>2 (10.0%)</td>
-<td>2 (5.0%)</td>
-<td>5 (5.3%)</td>
-<td>0.635</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>33 (97.1%)</td>
-<td>17 (85.0%)</td>
-<td>38 (95.0%)</td>
-<td>88 (93.6%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">ua_na_hrs</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>7 (20.6%)</td>
-<td>3 (15.0%)</td>
-<td>3 (7.5%)</td>
-<td>13 (13.8%)</td>
-<td>0.421</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>27 (79.4%)</td>
-<td>16 (80.0%)</td>
-<td>37 (92.5%)</td>
-<td>80 (85.1%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">ua_cr_hrs</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>8 (23.5%)</td>
-<td>3 (15.0%)</td>
-<td>9 (22.5%)</td>
-<td>20 (21.3%)</td>
-<td>0.958</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>26 (76.5%)</td>
-<td>16 (80.0%)</td>
-<td>31 (77.5%)</td>
-<td>73 (77.7%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">ua_urea_hrs</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>22 (64.7%)</td>
-<td>11 (55.0%)</td>
-<td>16 (40.0%)</td>
-<td>49 (52.1%)</td>
-<td>0.22</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>11 (32.4%)</td>
-<td>8 (40.0%)</td>
-<td>22 (55.0%)</td>
-<td>41 (43.6%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">1 (2.9%)</td>
-<td class="lastrow">1 (5.0%)</td>
-<td class="lastrow">2 (5.0%)</td>
-<td class="lastrow">4 (4.3%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">ua_granularcasts_hrs</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>20 (58.8%)</td>
-<td>9 (45.0%)</td>
-<td>25 (62.5%)</td>
-<td>54 (57.4%)</td>
-<td>0.924</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>9 (26.5%)</td>
-<td>6 (30.0%)</td>
-<td>11 (27.5%)</td>
-<td>26 (27.7%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">5 (14.7%)</td>
-<td class="lastrow">5 (25.0%)</td>
-<td class="lastrow">4 (10.0%)</td>
-<td class="lastrow">14 (14.9%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">ua_epi_cells_hrs</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>22 (64.7%)</td>
-<td>10 (50.0%)</td>
-<td>29 (72.5%)</td>
-<td>61 (64.9%)</td>
-<td>0.851</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>7 (20.6%)</td>
-<td>5 (25.0%)</td>
-<td>8 (20.0%)</td>
-<td>20 (21.3%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">5 (14.7%)</td>
-<td class="lastrow">5 (25.0%)</td>
-<td class="lastrow">3 (7.5%)</td>
-<td class="lastrow">13 (13.8%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">location_terli_day0</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>18 (52.9%)</td>
-<td>6 (30.0%)</td>
-<td>22 (55.0%)</td>
-<td>46 (48.9%)</td>
-<td>0.632</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">2</td>
-<td>8 (23.5%)</td>
-<td>6 (30.0%)</td>
-<td>10 (25.0%)</td>
-<td>24 (25.5%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">3</td>
-<td>7 (20.6%)</td>
-<td>6 (30.0%)</td>
-<td>5 (12.5%)</td>
-<td>18 (19.1%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">1 (2.9%)</td>
-<td class="lastrow">2 (10.0%)</td>
-<td class="lastrow">3 (7.5%)</td>
-<td class="lastrow">6 (6.4%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">terli_route_day0</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>24 (70.6%)</td>
-<td>15 (75.0%)</td>
-<td>30 (75.0%)</td>
-<td>69 (73.4%)</td>
-<td>0.975</td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">2</td>
-<td class="lastrow">10 (29.4%)</td>
-<td class="lastrow">5 (25.0%)</td>
-<td class="lastrow">10 (25.0%)</td>
-<td class="lastrow">25 (26.6%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">tele_terli_day0</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>6 (17.6%)</td>
-<td>3 (15.0%)</td>
-<td>6 (15.0%)</td>
-<td>15 (16.0%)</td>
-<td>0.99</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>28 (82.4%)</td>
-<td>17 (85.0%)</td>
-<td>33 (82.5%)</td>
-<td>78 (83.0%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (2.5%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">he_terli_day0</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>24 (70.6%)</td>
-<td>17 (85.0%)</td>
-<td>27 (67.5%)</td>
-<td>68 (72.3%)</td>
-<td>0.86</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>6 (17.6%)</td>
-<td>2 (10.0%)</td>
-<td>11 (27.5%)</td>
-<td>19 (20.2%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">2</td>
-<td>1 (2.9%)</td>
-<td>1 (5.0%)</td>
-<td>2 (5.0%)</td>
-<td>4 (4.3%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">3</td>
-<td>1 (2.9%)</td>
-<td>0 (0%)</td>
-<td>0 (0%)</td>
-<td>1 (1.1%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">4</td>
-<td>1 (2.9%)</td>
-<td>0 (0%)</td>
-<td>0 (0%)</td>
-<td>1 (1.1%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">1 (2.9%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (1.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">infection_terli_day0</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">0</td>
-<td>22 (64.7%)</td>
-<td>11 (55.0%)</td>
-<td>27 (67.5%)</td>
-<td>60 (63.8%)</td>
-<td>0.746</td>
-</tr>
-<tr class="even">
-<td class="rowlabel">1</td>
-<td>11 (32.4%)</td>
-<td>9 (45.0%)</td>
-<td>12 (30.0%)</td>
-<td>32 (34.0%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">1 (2.9%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">1 (2.5%)</td>
-<td class="lastrow">2 (2.1%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">typeinfection_terli_day0</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>0 (0%)</td>
-<td>0 (0%)</td>
-<td>2 (5.0%)</td>
-<td>2 (2.1%)</td>
-<td>0.922</td>
-</tr>
-<tr class="even">
-<td class="rowlabel">2</td>
-<td>2 (5.9%)</td>
-<td>2 (10.0%)</td>
-<td>1 (2.5%)</td>
-<td>5 (5.3%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">3</td>
-<td>3 (8.8%)</td>
-<td>1 (5.0%)</td>
-<td>1 (2.5%)</td>
-<td>5 (5.3%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">4</td>
-<td>1 (2.9%)</td>
-<td>2 (10.0%)</td>
-<td>4 (10.0%)</td>
-<td>7 (7.4%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">5</td>
-<td>5 (14.7%)</td>
-<td>4 (20.0%)</td>
-<td>4 (10.0%)</td>
-<td>13 (13.8%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">23 (67.6%)</td>
-<td class="lastrow">11 (55.0%)</td>
-<td class="lastrow">28 (70.0%)</td>
-<td class="lastrow">62 (66.0%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">aclf_grade</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">0</td>
-<td>0 (0%)</td>
-<td>0 (0%)</td>
-<td>2 (5.0%)</td>
-<td>2 (2.1%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>5 (14.7%)</td>
-<td>4 (20.0%)</td>
-<td>8 (20.0%)</td>
-<td>17 (18.1%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">2</td>
-<td>12 (35.3%)</td>
-<td>5 (25.0%)</td>
-<td>21 (52.5%)</td>
-<td>38 (40.4%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">3</td>
-<td class="lastrow">17 (50.0%)</td>
-<td class="lastrow">11 (55.0%)</td>
-<td class="lastrow">9 (22.5%)</td>
-<td class="lastrow">37 (39.4%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">akin</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">1</td>
-<td>8 (23.5%)</td>
-<td>0 (0%)</td>
-<td>15 (37.5%)</td>
-<td>23 (24.5%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">2</td>
-<td>13 (38.2%)</td>
-<td>5 (25.0%)</td>
-<td>9 (22.5%)</td>
-<td>27 (28.7%)</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">3</td>
-<td>13 (38.2%)</td>
-<td>15 (75.0%)</td>
-<td>10 (25.0%)</td>
-<td>38 (40.4%)</td>
-<td></td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">0 (0%)</td>
-<td class="lastrow">6 (15.0%)</td>
-<td class="lastrow">6 (6.4%)</td>
-<td class="lastrow"></td>
+<td style="text-align: left;">n</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">94</td>
+<td style="text-align: left;">34</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">40</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">age (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">58.10 [50.47, 63.75]</td>
+<td style="text-align: left;">53.65 [43.42, 65.02]</td>
+<td style="text-align: left;">61.45 [55.95, 63.75]</td>
+<td style="text-align: left;">57.90 [51.95, 63.28]</td>
+<td style="text-align: left;">0.258</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">sex_male (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">39 (41.5)</td>
+<td style="text-align: left;">15 (44.1)</td>
+<td style="text-align: left;">10 (50.0)</td>
+<td style="text-align: left;">14 (35.0)</td>
+<td style="text-align: left;">0.500</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">55 (58.5)</td>
+<td style="text-align: left;">19 (55.9)</td>
+<td style="text-align: left;">10 (50.0)</td>
+<td style="text-align: left;">26 (65.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">race (%)</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">78 (83.0)</td>
+<td style="text-align: left;">30 (88.2)</td>
+<td style="text-align: left;">15 (75.0)</td>
+<td style="text-align: left;">33 (82.5)</td>
+<td style="text-align: left;">0.550</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">4 (4.3)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">2 (10.0)</td>
+<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">1 (1.1)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">11 (11.7)</td>
+<td style="text-align: left;">4 (11.8)</td>
+<td style="text-align: left;">3 (15.0)</td>
+<td style="text-align: left;">4 (10.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">hispanic (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">78 (83.0)</td>
+<td style="text-align: left;">27 (79.4)</td>
+<td style="text-align: left;">19 (95.0)</td>
+<td style="text-align: left;">32 (80.0)</td>
+<td style="text-align: left;">0.272</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">16 (17.0)</td>
+<td style="text-align: left;">7 (20.6)</td>
+<td style="text-align: left;">1 (5.0)</td>
+<td style="text-align: left;">8 (20.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">cirrhosis_etiology (%)</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">59 (62.8)</td>
+<td style="text-align: left;">21 (61.8)</td>
+<td style="text-align: left;">12 (60.0)</td>
+<td style="text-align: left;">26 (65.0)</td>
+<td style="text-align: left;">0.610</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">15 (16.0)</td>
+<td style="text-align: left;">6 (17.6)</td>
+<td style="text-align: left;">3 (15.0)</td>
+<td style="text-align: left;">6 (15.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">3 (3.2)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">2 (10.0)</td>
+<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">7 (7.4)</td>
+<td style="text-align: left;">4 (11.8)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">3 (7.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">6 (6.4)</td>
+<td style="text-align: left;">1 (2.9)</td>
+<td style="text-align: left;">2 (10.0)</td>
+<td style="text-align: left;">3 (7.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">4 (4.3)</td>
+<td style="text-align: left;">2 (5.9)</td>
+<td style="text-align: left;">1 (5.0)</td>
+<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">etoh_hepatitis (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">65 (69.1)</td>
+<td style="text-align: left;">23 (67.6)</td>
+<td style="text-align: left;">16 (80.0)</td>
+<td style="text-align: left;">26 (65.0)</td>
+<td style="text-align: left;">0.481</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">29 (30.9)</td>
+<td style="text-align: left;">11 (32.4)</td>
+<td style="text-align: left;">4 (20.0)</td>
+<td style="text-align: left;">14 (35.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">hegrade_admit (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">51 (54.8)</td>
+<td style="text-align: left;">16 (48.5)</td>
+<td style="text-align: left;">12 (60.0)</td>
+<td style="text-align: left;">23 (57.5)</td>
+<td style="text-align: left;">0.870</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">27 (29.0)</td>
+<td style="text-align: left;">11 (33.3)</td>
+<td style="text-align: left;">5 (25.0)</td>
+<td style="text-align: left;">11 (27.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">10 (10.8)</td>
+<td style="text-align: left;">4 (12.1)</td>
+<td style="text-align: left;">2 (10.0)</td>
+<td style="text-align: left;">4 (10.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">2 (2.2)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">1 (5.0)</td>
+<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">3 (3.2)</td>
+<td style="text-align: left;">2 (6.1)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">admit_ascites (%)</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">5 (5.4)</td>
+<td style="text-align: left;">1 (2.9)</td>
+<td style="text-align: left;">3 (15.8)</td>
+<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;">0.102</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">55 (59.1)</td>
+<td style="text-align: left;">18 (52.9)</td>
+<td style="text-align: left;">9 (47.4)</td>
+<td style="text-align: left;">28 (70.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">33 (35.5)</td>
+<td style="text-align: left;">15 (44.1)</td>
+<td style="text-align: left;">7 (36.8)</td>
+<td style="text-align: left;">11 (27.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">htn_medical_hx (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">50 (53.2)</td>
+<td style="text-align: left;">19 (55.9)</td>
+<td style="text-align: left;">10 (50.0)</td>
+<td style="text-align: left;">21 (52.5)</td>
+<td style="text-align: left;">0.910</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">44 (46.8)</td>
+<td style="text-align: left;">15 (44.1)</td>
+<td style="text-align: left;">10 (50.0)</td>
+<td style="text-align: left;">19 (47.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">dm_medical_hx (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">63 (67.0)</td>
+<td style="text-align: left;">20 (58.8)</td>
+<td style="text-align: left;">16 (80.0)</td>
+<td style="text-align: left;">27 (67.5)</td>
+<td style="text-align: left;">0.278</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">31 (33.0)</td>
+<td style="text-align: left;">14 (41.2)</td>
+<td style="text-align: left;">4 (20.0)</td>
+<td style="text-align: left;">13 (32.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ckd_medical_hx (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">66 (70.2)</td>
+<td style="text-align: left;">22 (64.7)</td>
+<td style="text-align: left;">15 (75.0)</td>
+<td style="text-align: left;">29 (72.5)</td>
+<td style="text-align: left;">0.666</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">28 (29.8)</td>
+<td style="text-align: left;">12 (35.3)</td>
+<td style="text-align: left;">5 (25.0)</td>
+<td style="text-align: left;">11 (27.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">cad_medical_hx (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">74 (78.7)</td>
+<td style="text-align: left;">27 (79.4)</td>
+<td style="text-align: left;">14 (70.0)</td>
+<td style="text-align: left;">33 (82.5)</td>
+<td style="text-align: left;">0.533</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">20 (21.3)</td>
+<td style="text-align: left;">7 (20.6)</td>
+<td style="text-align: left;">6 (30.0)</td>
+<td style="text-align: left;">7 (17.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">sbp_ppx_preadmission (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">64 (69.6)</td>
+<td style="text-align: left;">24 (70.6)</td>
+<td style="text-align: left;">16 (88.9)</td>
+<td style="text-align: left;">24 (60.0)</td>
+<td style="text-align: left;">0.356</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">20 (21.7)</td>
+<td style="text-align: left;">6 (17.6)</td>
+<td style="text-align: left;">2 (11.1)</td>
+<td style="text-align: left;">12 (30.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">3 (3.3)</td>
+<td style="text-align: left;">1 (2.9)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">5 (5.4)</td>
+<td style="text-align: left;">3 (8.8)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">lactulose_preadmission (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">43 (46.2)</td>
+<td style="text-align: left;">15 (44.1)</td>
+<td style="text-align: left;">11 (57.9)</td>
+<td style="text-align: left;">17 (42.5)</td>
+<td style="text-align: left;">0.516</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">50 (53.8)</td>
+<td style="text-align: left;">19 (55.9)</td>
+<td style="text-align: left;">8 (42.1)</td>
+<td style="text-align: left;">23 (57.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ascites_previous_comp (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">11 (11.7)</td>
+<td style="text-align: left;">2 (5.9)</td>
+<td style="text-align: left;">3 (15.0)</td>
+<td style="text-align: left;">6 (15.0)</td>
+<td style="text-align: left;">0.418</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">83 (88.3)</td>
+<td style="text-align: left;">32 (94.1)</td>
+<td style="text-align: left;">17 (85.0)</td>
+<td style="text-align: left;">34 (85.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">refascites_previous_comp (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">37 (46.2)</td>
+<td style="text-align: left;">17 (53.1)</td>
+<td style="text-align: left;">8 (53.3)</td>
+<td style="text-align: left;">12 (36.4)</td>
+<td style="text-align: left;">0.331</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">14.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">43 (53.8)</td>
+<td style="text-align: left;">15 (46.9)</td>
+<td style="text-align: left;">7 (46.7)</td>
+<td style="text-align: left;">21 (63.6)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">he_previous_comp (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">43 (45.7)</td>
+<td style="text-align: left;">15 (44.1)</td>
+<td style="text-align: left;">9 (45.0)</td>
+<td style="text-align: left;">19 (47.5)</td>
+<td style="text-align: left;">0.956</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">51 (54.3)</td>
+<td style="text-align: left;">19 (55.9)</td>
+<td style="text-align: left;">11 (55.0)</td>
+<td style="text-align: left;">21 (52.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">sbp_previous_comp (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">71 (77.2)</td>
+<td style="text-align: left;">27 (81.8)</td>
+<td style="text-align: left;">14 (73.7)</td>
+<td style="text-align: left;">30 (75.0)</td>
+<td style="text-align: left;">0.725</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">21 (22.8)</td>
+<td style="text-align: left;">6 (18.2)</td>
+<td style="text-align: left;">5 (26.3)</td>
+<td style="text-align: left;">10 (25.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">nonsbp_previous_comp (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">75 (82.4)</td>
+<td style="text-align: left;">25 (78.1)</td>
+<td style="text-align: left;">13 (68.4)</td>
+<td style="text-align: left;">37 (92.5)</td>
+<td style="text-align: left;">0.056</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">16 (17.6)</td>
+<td style="text-align: left;">7 (21.9)</td>
+<td style="text-align: left;">6 (31.6)</td>
+<td style="text-align: left;">3 (7.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">phtn_bleed_previous_comp (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">72 (77.4)</td>
+<td style="text-align: left;">29 (85.3)</td>
+<td style="text-align: left;">15 (78.9)</td>
+<td style="text-align: left;">28 (70.0)</td>
+<td style="text-align: left;">0.288</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">21 (22.6)</td>
+<td style="text-align: left;">5 (14.7)</td>
+<td style="text-align: left;">4 (21.1)</td>
+<td style="text-align: left;">12 (30.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">hcc_previous_comp (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">89 (95.7)</td>
+<td style="text-align: left;">33 (97.1)</td>
+<td style="text-align: left;">18 (94.7)</td>
+<td style="text-align: left;">38 (95.0)</td>
+<td style="text-align: left;">0.886</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">4 (4.3)</td>
+<td style="text-align: left;">1 (2.9)</td>
+<td style="text-align: left;">1 (5.3)</td>
+<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">tips_previous_comp (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">88 (93.6)</td>
+<td style="text-align: left;">31 (91.2)</td>
+<td style="text-align: left;">20 (100.0)</td>
+<td style="text-align: left;">37 (92.5)</td>
+<td style="text-align: left;">0.409</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">6 (6.4)</td>
+<td style="text-align: left;">3 (8.8)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">3 (7.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">baseline_scr_outpt (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">54 (58.1)</td>
+<td style="text-align: left;">18 (52.9)</td>
+<td style="text-align: left;">14 (73.7)</td>
+<td style="text-align: left;">22 (55.0)</td>
+<td style="text-align: left;">0.298</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">39 (41.9)</td>
+<td style="text-align: left;">16 (47.1)</td>
+<td style="text-align: left;">5 (26.3)</td>
+<td style="text-align: left;">18 (45.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aki_previous_90days (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">56 (60.9)</td>
+<td style="text-align: left;">21 (61.8)</td>
+<td style="text-align: left;">11 (57.9)</td>
+<td style="text-align: left;">24 (61.5)</td>
+<td style="text-align: left;">0.956</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">36 (39.1)</td>
+<td style="text-align: left;">13 (38.2)</td>
+<td style="text-align: left;">8 (42.1)</td>
+<td style="text-align: left;">15 (38.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">transfer_aki (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">73 (78.5)</td>
+<td style="text-align: left;">26 (76.5)</td>
+<td style="text-align: left;">16 (84.2)</td>
+<td style="text-align: left;">31 (77.5)</td>
+<td style="text-align: left;">0.789</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">20 (21.5)</td>
+<td style="text-align: left;">8 (23.5)</td>
+<td style="text-align: left;">3 (15.8)</td>
+<td style="text-align: left;">9 (22.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aki_precipitant_nsbpinf (%)</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">1 (16.7)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">1 (50.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">0.384</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">93.6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">2 (33.3)</td>
+<td style="text-align: left;">1 (33.3)</td>
+<td style="text-align: left;">1 (50.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">3 (50.0)</td>
+<td style="text-align: left;">2 (66.7)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">1 (100.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">he_aki (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">47 (50.5)</td>
+<td style="text-align: left;">15 (45.5)</td>
+<td style="text-align: left;">12 (60.0)</td>
+<td style="text-align: left;">20 (50.0)</td>
+<td style="text-align: left;">0.552</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">31 (33.3)</td>
+<td style="text-align: left;">11 (33.3)</td>
+<td style="text-align: left;">6 (30.0)</td>
+<td style="text-align: left;">14 (35.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">11 (11.8)</td>
+<td style="text-align: left;">5 (15.2)</td>
+<td style="text-align: left;">1 (5.0)</td>
+<td style="text-align: left;">5 (12.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">2 (2.2)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">1 (5.0)</td>
+<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">2 (2.2)</td>
+<td style="text-align: left;">2 (6.1)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">rrt_aki (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">91 (97.8)</td>
+<td style="text-align: left;">34 (100.0)</td>
+<td style="text-align: left;">18 (94.7)</td>
+<td style="text-align: left;">39 (97.5)</td>
+<td style="text-align: left;">0.439</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">2 (2.2)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">1 (5.3)</td>
+<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">mv_aki (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">90 (95.7)</td>
+<td style="text-align: left;">32 (94.1)</td>
+<td style="text-align: left;">19 (95.0)</td>
+<td style="text-align: left;">39 (97.5)</td>
+<td style="text-align: left;">0.759</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">4 (4.3)</td>
+<td style="text-align: left;">2 (5.9)</td>
+<td style="text-align: left;">1 (5.0)</td>
+<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">pressors_aki (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">84 (90.3)</td>
+<td style="text-align: left;">32 (94.1)</td>
+<td style="text-align: left;">17 (89.5)</td>
+<td style="text-align: left;">35 (87.5)</td>
+<td style="text-align: left;">0.625</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">9 (9.7)</td>
+<td style="text-align: left;">2 (5.9)</td>
+<td style="text-align: left;">2 (10.5)</td>
+<td style="text-align: left;">5 (12.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">chest_imaging (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">3 (3.2)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">3 (7.5)</td>
+<td style="text-align: left;">0.128</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">90 (96.8)</td>
+<td style="text-align: left;">33 (100.0)</td>
+<td style="text-align: left;">20 (100.0)</td>
+<td style="text-align: left;">37 (92.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">chest_imaging_pulmedema (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">65 (73.9)</td>
+<td style="text-align: left;">23 (69.7)</td>
+<td style="text-align: left;">15 (78.9)</td>
+<td style="text-align: left;">27 (75.0)</td>
+<td style="text-align: left;">0.750</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">6.4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">23 (26.1)</td>
+<td style="text-align: left;">10 (30.3)</td>
+<td style="text-align: left;">4 (21.1)</td>
+<td style="text-align: left;">9 (25.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">chest_imaging_effusion (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">56 (62.9)</td>
+<td style="text-align: left;">20 (60.6)</td>
+<td style="text-align: left;">10 (52.6)</td>
+<td style="text-align: left;">26 (70.3)</td>
+<td style="text-align: left;">0.408</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">5.3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">33 (37.1)</td>
+<td style="text-align: left;">13 (39.4)</td>
+<td style="text-align: left;">9 (47.4)</td>
+<td style="text-align: left;">11 (29.7)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ecg (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">8 (8.6)</td>
+<td style="text-align: left;">2 (5.9)</td>
+<td style="text-align: left;">2 (10.5)</td>
+<td style="text-align: left;">4 (10.0)</td>
+<td style="text-align: left;">0.775</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">85 (91.4)</td>
+<td style="text-align: left;">32 (94.1)</td>
+<td style="text-align: left;">17 (89.5)</td>
+<td style="text-align: left;">36 (90.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">echo (%)</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">94 (100.0)</td>
+<td style="text-align: left;">34 (100.0)</td>
+<td style="text-align: left;">20 (100.0)</td>
+<td style="text-align: left;">40 (100.0)</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">albumin_before_terli (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">5 (5.3)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">5 (25.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">&lt;0.001</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">89 (94.7)</td>
+<td style="text-align: left;">34 (100.0)</td>
+<td style="text-align: left;">15 (75.0)</td>
+<td style="text-align: left;">40 (100.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">crystalloid_before_terli (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">37 (40.2)</td>
+<td style="text-align: left;">12 (35.3)</td>
+<td style="text-align: left;">8 (40.0)</td>
+<td style="text-align: left;">17 (44.7)</td>
+<td style="text-align: left;">0.717</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">55 (59.8)</td>
+<td style="text-align: left;">22 (64.7)</td>
+<td style="text-align: left;">12 (60.0)</td>
+<td style="text-align: left;">21 (55.3)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">nsbb_before_terli (%)</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">16 (17.6)</td>
+<td style="text-align: left;">5 (15.2)</td>
+<td style="text-align: left;">7 (36.8)</td>
+<td style="text-align: left;">4 (10.3)</td>
+<td style="text-align: left;">0.010</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">1 (1.1)</td>
+<td style="text-align: left;">1 (3.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">2 (2.2)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">2 (10.5)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">72 (79.1)</td>
+<td style="text-align: left;">27 (81.8)</td>
+<td style="text-align: left;">10 (52.6)</td>
+<td style="text-align: left;">35 (89.7)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">mido_before_terli (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">21 (22.6)</td>
+<td style="text-align: left;">8 (23.5)</td>
+<td style="text-align: left;">5 (26.3)</td>
+<td style="text-align: left;">8 (20.0)</td>
+<td style="text-align: left;">0.851</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">72 (77.4)</td>
+<td style="text-align: left;">26 (76.5)</td>
+<td style="text-align: left;">14 (73.7)</td>
+<td style="text-align: left;">32 (80.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">oct_before_terli (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">39 (41.9)</td>
+<td style="text-align: left;">14 (41.2)</td>
+<td style="text-align: left;">8 (42.1)</td>
+<td style="text-align: left;">17 (42.5)</td>
+<td style="text-align: left;">0.993</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">54 (58.1)</td>
+<td style="text-align: left;">20 (58.8)</td>
+<td style="text-align: left;">11 (57.9)</td>
+<td style="text-align: left;">23 (57.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ne_before_terli (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">74 (79.6)</td>
+<td style="text-align: left;">25 (73.5)</td>
+<td style="text-align: left;">15 (78.9)</td>
+<td style="text-align: left;">34 (85.0)</td>
+<td style="text-align: left;">0.474</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">19 (20.4)</td>
+<td style="text-align: left;">9 (26.5)</td>
+<td style="text-align: left;">4 (21.1)</td>
+<td style="text-align: left;">6 (15.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">gihep_consult (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">4 (4.3)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">1 (5.3)</td>
+<td style="text-align: left;">3 (7.5)</td>
+<td style="text-align: left;">0.277</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">89 (95.7)</td>
+<td style="text-align: left;">34 (100.0)</td>
+<td style="text-align: left;">18 (94.7)</td>
+<td style="text-align: left;">37 (92.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">neph_consult (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">6 (6.5)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">2 (10.5)</td>
+<td style="text-align: left;">4 (10.0)</td>
+<td style="text-align: left;">0.157</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">87 (93.5)</td>
+<td style="text-align: left;">34 (100.0)</td>
+<td style="text-align: left;">17 (89.5)</td>
+<td style="text-align: left;">36 (90.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">pall_consult (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">64 (69.6)</td>
+<td style="text-align: left;">19 (55.9)</td>
+<td style="text-align: left;">15 (78.9)</td>
+<td style="text-align: left;">30 (76.9)</td>
+<td style="text-align: left;">0.091</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">28 (30.4)</td>
+<td style="text-align: left;">15 (44.1)</td>
+<td style="text-align: left;">4 (21.1)</td>
+<td style="text-align: left;">9 (23.1)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">code_status (%)</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">22 (81.5)</td>
+<td style="text-align: left;">10 (71.4)</td>
+<td style="text-align: left;">4 (100.0)</td>
+<td style="text-align: left;">8 (88.9)</td>
+<td style="text-align: left;">0.337</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">71.3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">5 (18.5)</td>
+<td style="text-align: left;">4 (28.6)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">1 (11.1)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ua_hrs (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">5 (5.4)</td>
+<td style="text-align: left;">1 (2.9)</td>
+<td style="text-align: left;">2 (10.5)</td>
+<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;">0.497</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">88 (94.6)</td>
+<td style="text-align: left;">33 (97.1)</td>
+<td style="text-align: left;">17 (89.5)</td>
+<td style="text-align: left;">38 (95.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ua_na_hrs (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">13 (14.0)</td>
+<td style="text-align: left;">7 (20.6)</td>
+<td style="text-align: left;">3 (15.8)</td>
+<td style="text-align: left;">3 (7.5)</td>
+<td style="text-align: left;">0.261</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">80 (86.0)</td>
+<td style="text-align: left;">27 (79.4)</td>
+<td style="text-align: left;">16 (84.2)</td>
+<td style="text-align: left;">37 (92.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ua_cr_hrs (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">20 (21.5)</td>
+<td style="text-align: left;">8 (23.5)</td>
+<td style="text-align: left;">3 (15.8)</td>
+<td style="text-align: left;">9 (22.5)</td>
+<td style="text-align: left;">0.789</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">73 (78.5)</td>
+<td style="text-align: left;">26 (76.5)</td>
+<td style="text-align: left;">16 (84.2)</td>
+<td style="text-align: left;">31 (77.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ua_urea_hrs (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">49 (54.4)</td>
+<td style="text-align: left;">22 (66.7)</td>
+<td style="text-align: left;">11 (57.9)</td>
+<td style="text-align: left;">16 (42.1)</td>
+<td style="text-align: left;">0.110</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">4.3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">41 (45.6)</td>
+<td style="text-align: left;">11 (33.3)</td>
+<td style="text-align: left;">8 (42.1)</td>
+<td style="text-align: left;">22 (57.9)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ua_granularcasts_hrs (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">54 (67.5)</td>
+<td style="text-align: left;">20 (69.0)</td>
+<td style="text-align: left;">9 (60.0)</td>
+<td style="text-align: left;">25 (69.4)</td>
+<td style="text-align: left;">0.789</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">14.9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">26 (32.5)</td>
+<td style="text-align: left;">9 (31.0)</td>
+<td style="text-align: left;">6 (40.0)</td>
+<td style="text-align: left;">11 (30.6)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ua_epi_cells_hrs (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">61 (75.3)</td>
+<td style="text-align: left;">22 (75.9)</td>
+<td style="text-align: left;">10 (66.7)</td>
+<td style="text-align: left;">29 (78.4)</td>
+<td style="text-align: left;">0.672</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">13.8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">20 (24.7)</td>
+<td style="text-align: left;">7 (24.1)</td>
+<td style="text-align: left;">5 (33.3)</td>
+<td style="text-align: left;">8 (21.6)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">location_terli_day0 (%)</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">46 (52.3)</td>
+<td style="text-align: left;">18 (54.5)</td>
+<td style="text-align: left;">6 (33.3)</td>
+<td style="text-align: left;">22 (59.5)</td>
+<td style="text-align: left;">0.363</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">6.4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">24 (27.3)</td>
+<td style="text-align: left;">8 (24.2)</td>
+<td style="text-align: left;">6 (33.3)</td>
+<td style="text-align: left;">10 (27.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">18 (20.5)</td>
+<td style="text-align: left;">7 (21.2)</td>
+<td style="text-align: left;">6 (33.3)</td>
+<td style="text-align: left;">5 (13.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">terli_route_day0 (%)</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">69 (73.4)</td>
+<td style="text-align: left;">24 (70.6)</td>
+<td style="text-align: left;">15 (75.0)</td>
+<td style="text-align: left;">30 (75.0)</td>
+<td style="text-align: left;">0.897</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">25 (26.6)</td>
+<td style="text-align: left;">10 (29.4)</td>
+<td style="text-align: left;">5 (25.0)</td>
+<td style="text-align: left;">10 (25.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">tele_terli_day0 (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">15 (16.1)</td>
+<td style="text-align: left;">6 (17.6)</td>
+<td style="text-align: left;">3 (15.0)</td>
+<td style="text-align: left;">6 (15.4)</td>
+<td style="text-align: left;">0.955</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">78 (83.9)</td>
+<td style="text-align: left;">28 (82.4)</td>
+<td style="text-align: left;">17 (85.0)</td>
+<td style="text-align: left;">33 (84.6)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">he_terli_day0 (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">68 (73.1)</td>
+<td style="text-align: left;">24 (72.7)</td>
+<td style="text-align: left;">17 (85.0)</td>
+<td style="text-align: left;">27 (67.5)</td>
+<td style="text-align: left;">0.590</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">19 (20.4)</td>
+<td style="text-align: left;">6 (18.2)</td>
+<td style="text-align: left;">2 (10.0)</td>
+<td style="text-align: left;">11 (27.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">4 (4.3)</td>
+<td style="text-align: left;">1 (3.0)</td>
+<td style="text-align: left;">1 (5.0)</td>
+<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">1 (1.1)</td>
+<td style="text-align: left;">1 (3.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">1 (1.1)</td>
+<td style="text-align: left;">1 (3.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">infection_terli_day0 (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">60 (65.2)</td>
+<td style="text-align: left;">22 (66.7)</td>
+<td style="text-align: left;">11 (55.0)</td>
+<td style="text-align: left;">27 (69.2)</td>
+<td style="text-align: left;">0.541</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">32 (34.8)</td>
+<td style="text-align: left;">11 (33.3)</td>
+<td style="text-align: left;">9 (45.0)</td>
+<td style="text-align: left;">12 (30.8)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">typeinfection_terli_day0 (%)</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">2 (6.2)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">2 (16.7)</td>
+<td style="text-align: left;">0.503</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">66.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">5 (15.6)</td>
+<td style="text-align: left;">2 (18.2)</td>
+<td style="text-align: left;">2 (22.2)</td>
+<td style="text-align: left;">1 (8.3)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">5 (15.6)</td>
+<td style="text-align: left;">3 (27.3)</td>
+<td style="text-align: left;">1 (11.1)</td>
+<td style="text-align: left;">1 (8.3)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">7 (21.9)</td>
+<td style="text-align: left;">1 (9.1)</td>
+<td style="text-align: left;">2 (22.2)</td>
+<td style="text-align: left;">4 (33.3)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">13 (40.6)</td>
+<td style="text-align: left;">5 (45.5)</td>
+<td style="text-align: left;">4 (44.4)</td>
+<td style="text-align: left;">4 (33.3)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">aclf_grade (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">2 (2.1)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;">0.089</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">17 (18.1)</td>
+<td style="text-align: left;">5 (14.7)</td>
+<td style="text-align: left;">4 (20.0)</td>
+<td style="text-align: left;">8 (20.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">38 (40.4)</td>
+<td style="text-align: left;">12 (35.3)</td>
+<td style="text-align: left;">5 (25.0)</td>
+<td style="text-align: left;">21 (52.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">37 (39.4)</td>
+<td style="text-align: left;">17 (50.0)</td>
+<td style="text-align: left;">11 (55.0)</td>
+<td style="text-align: left;">9 (22.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">akin (%)</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">23 (26.1)</td>
+<td style="text-align: left;">8 (23.5)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">15 (44.1)</td>
+<td style="text-align: left;">0.002</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">6.4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">27 (30.7)</td>
+<td style="text-align: left;">13 (38.2)</td>
+<td style="text-align: left;">5 (25.0)</td>
+<td style="text-align: left;">9 (26.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">38 (43.2)</td>
+<td style="text-align: left;">13 (38.2)</td>
+<td style="text-align: left;">15 (75.0)</td>
+<td style="text-align: left;">10 (29.4)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
 </tr>
 </tbody>
 </table>
-
-
-<p style="font-size: 0.85em; color: #555; margin-top: 4px;">Statistical tests: Kruskal-Wallis test (continuous, ≥3 groups); Chi-squared test (categorical); Fisher’s exact test (categorical, any cell &lt; 5)</p>
 </div>
 </div>
-<p>Output: <a href="../Results/table_demographics_hrs_responders.csv"><code>Results/table_demographics_hrs_responders.csv</code></a></p>
+<p><a href="tables/task4_demographics_hrs_responders.csv">📥 Download CSV — Task 4</a></p>
 <div class="callout callout-style-default callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -2337,8 +1974,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="task-5-hrs-response-binary-echo-continuous-values" class="level1">
-<h1>Task 5 — HRS Response (binary) × Echo Continuous Values</h1>
+<section id="task-5-echo-hrs_responders_cat_2" class="level1">
+<h1>Task 5 — Echo × <code>hrs_responders_cat_2</code></h1>
 <div class="cell">
 <details class="code-fold">
 <summary>Show Task 5 Table 1 call</summary>
@@ -2348,433 +1985,325 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>dat5 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(echo_continuous), as.numeric))</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">create_table_one</span>(</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>t5 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> echo_continuous,</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> <span class="cn">NULL</span>,                       <span class="co"># all numerical</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> <span class="cn">NULL</span>,</span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat5,</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"hrs_responders_cat_2"</span>,</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"../Results/table_echo_hrs_responders_cat_2.csv"</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task5_echo_hrs_responders_cat_2.csv"</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t5, <span class="at">caption =</span> <span class="st">"Task 5 — Echo by HRS response (binary)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
-<table class="Rtable1 caption-top table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
+<caption>Task 5 &lt;U+2014&gt; Echo by HRS response (binary)</caption>
 <colgroup>
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
+<col style="width: 24%">
+<col style="width: 4%">
+<col style="width: 16%">
+<col style="width: 18%">
+<col style="width: 17%">
+<col style="width: 4%">
+<col style="width: 6%">
+<col style="width: 6%">
 </colgroup>
 <thead>
 <tr class="header">
-<th class="rowlabel firstrow lastrow" data-quarto-table-cell-role="th"></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">0<br>
-<span class="stratn">(N=34)</span></span></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">1<br>
-<span class="stratn">(N=60)</span></span></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">Overall<br>
-<span class="stratn">(N=94)</span></span></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">P-value</span></th>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">level</th>
+<th style="text-align: left;">Overall</th>
+<th style="text-align: left;">0</th>
+<th style="text-align: left;">1</th>
+<th style="text-align: left;">p</th>
+<th style="text-align: left;">test</th>
+<th style="text-align: left;">Missing</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td class="rowlabel firstrow">echo_ef</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
+<td style="text-align: left;">n</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">94</td>
+<td style="text-align: left;">34</td>
+<td style="text-align: left;">60</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
 </tr>
 <tr class="even">
-<td class="rowlabel lastrow">Median [Q1, Q3]</td>
-<td class="lastrow">69 [65, 73]</td>
-<td class="lastrow">66 [63, 70]</td>
-<td class="lastrow">67 [63, 71]</td>
-<td class="lastrow">0.166</td>
+<td style="text-align: left;">echo_ef (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">67.00 [63.00, 70.75]</td>
+<td style="text-align: left;">68.50 [65.00, 72.50]</td>
+<td style="text-align: left;">65.50 [62.50, 70.00]</td>
+<td style="text-align: left;">0.059</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">0.0</td>
 </tr>
 <tr class="odd">
-<td class="rowlabel firstrow">echo_earatio</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
+<td style="text-align: left;">echo_earatio (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.10 [0.90, 1.40]</td>
+<td style="text-align: left;">1.29 [1.02, 1.48]</td>
+<td style="text-align: left;">1.00 [0.86, 1.30]</td>
+<td style="text-align: left;">0.043</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">37.2</td>
 </tr>
 <tr class="even">
-<td class="rowlabel">Median [Q1, Q3]</td>
-<td>1.3 [1.0, 1.5]</td>
-<td>1.0 [0.86, 1.3]</td>
-<td>1.1 [0.90, 1.4]</td>
-<td>0.127</td>
+<td style="text-align: left;">echo_eeratio (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">8.77 [7.00, 10.20]</td>
+<td style="text-align: left;">8.35 [7.22, 10.42]</td>
+<td style="text-align: left;">9.00 [7.00, 10.00]</td>
+<td style="text-align: left;">0.902</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">38.3</td>
 </tr>
 <tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">12 (35.3%)</td>
-<td class="lastrow">23 (38.3%)</td>
-<td class="lastrow">35 (37.2%)</td>
-<td class="lastrow"></td>
+<td style="text-align: left;">echo_gls (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.65 [-20.77, 25.00]</td>
+<td style="text-align: left;">-18.50 [-20.85, 21.80]</td>
+<td style="text-align: left;">22.70 [-20.70, 25.30]</td>
+<td style="text-align: left;">0.368</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">83.0</td>
 </tr>
 <tr class="even">
-<td class="rowlabel firstrow">echo_eeratio</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">Median [Q1, Q3]</td>
-<td>8.4 [7.2, 10]</td>
-<td>9.0 [7.0, 10]</td>
-<td>8.8 [7.0, 10]</td>
-<td>0.992</td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">14 (41.2%)</td>
-<td class="lastrow">22 (36.7%)</td>
-<td class="lastrow">36 (38.3%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">echo_gls</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">Median [Q1, Q3]</td>
-<td>-19 [-21, 22]</td>
-<td>23 [-21, 25]</td>
-<td>0.65 [-21, 25]</td>
-<td>0.658</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">27 (79.4%)</td>
-<td class="lastrow">51 (85.0%)</td>
-<td class="lastrow">78 (83.0%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">echo_lateral_e</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">Median [Q1, Q3]</td>
-<td>12 [10, 15]</td>
-<td>12 [9.4, 13]</td>
-<td>12 [9.4, 14]</td>
-<td>0.564</td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">18 (52.9%)</td>
-<td class="lastrow">30 (50.0%)</td>
-<td class="lastrow">48 (51.1%)</td>
-<td class="lastrow"></td>
+<td style="text-align: left;">echo_lateral_e (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">11.50 [9.40, 14.00]</td>
+<td style="text-align: left;">12.02 [10.35, 15.20]</td>
+<td style="text-align: left;">11.50 [9.40, 13.00]</td>
+<td style="text-align: left;">0.287</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">51.1</td>
 </tr>
 </tbody>
 </table>
-
-
-<p style="font-size: 0.85em; color: #555; margin-top: 4px;">Statistical tests: Kruskal-Wallis test (continuous, ≥3 groups)</p>
 </div>
 </div>
-<p>Output: <a href="../Results/table_echo_hrs_responders_cat_2.csv"><code>Results/table_echo_hrs_responders_cat_2.csv</code></a></p>
+<p><a href="tables/task5_echo_hrs_responders_cat_2.csv">📥 Download CSV — Task 5</a></p>
 </section>
-<section id="task-6-respiratory-failure-echo-continuous-values" class="level1">
-<h1>Task 6 — Respiratory Failure × Echo Continuous Values</h1>
+<section id="task-6-echo-terli_ae_respfail" class="level1">
+<h1>Task 6 — Echo × <code>terli_ae_respfail</code></h1>
 <div class="cell">
 <details class="code-fold">
 <summary>Show Task 6 Table 1 call</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>dat6 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(echo_continuous), as.numeric))</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">create_table_one</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>t6 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> echo_continuous,</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> <span class="cn">NULL</span>,</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat6,</span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"terli_ae_respfail"</span>,</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"../Results/table_echo_terli_ae_respfail.csv"</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task6_echo_terli_ae_respfail.csv"</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t6, <span class="at">caption =</span> <span class="st">"Task 6 — Echo by terlipressin-associated respiratory failure"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
-<table class="Rtable1 caption-top table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
+<caption>Task 6 &lt;U+2014&gt; Echo by terlipressin-associated respiratory failure</caption>
 <colgroup>
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
+<col style="width: 24%">
+<col style="width: 4%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 4%">
+<col style="width: 6%">
+<col style="width: 6%">
 </colgroup>
 <thead>
 <tr class="header">
-<th class="rowlabel firstrow lastrow" data-quarto-table-cell-role="th"></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">0<br>
-<span class="stratn">(N=85)</span></span></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">1<br>
-<span class="stratn">(N=9)</span></span></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">Overall<br>
-<span class="stratn">(N=94)</span></span></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">P-value</span></th>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">level</th>
+<th style="text-align: left;">Overall</th>
+<th style="text-align: left;">0</th>
+<th style="text-align: left;">1</th>
+<th style="text-align: left;">p</th>
+<th style="text-align: left;">test</th>
+<th style="text-align: left;">Missing</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td class="rowlabel firstrow">echo_ef</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
+<td style="text-align: left;">n</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">94</td>
+<td style="text-align: left;">85</td>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
 </tr>
 <tr class="even">
-<td class="rowlabel lastrow">Median [Q1, Q3]</td>
-<td class="lastrow">66 [63, 70]</td>
-<td class="lastrow">70 [68, 75]</td>
-<td class="lastrow">67 [63, 71]</td>
-<td class="lastrow">0.106</td>
+<td style="text-align: left;">echo_ef (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">67.00 [63.00, 70.75]</td>
+<td style="text-align: left;">66.00 [62.50, 70.00]</td>
+<td style="text-align: left;">70.00 [67.50, 75.00]</td>
+<td style="text-align: left;">0.035</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">0.0</td>
 </tr>
 <tr class="odd">
-<td class="rowlabel firstrow">echo_earatio</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
+<td style="text-align: left;">echo_earatio (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.10 [0.90, 1.40]</td>
+<td style="text-align: left;">1.10 [0.88, 1.35]</td>
+<td style="text-align: left;">1.35 [1.23, 1.56]</td>
+<td style="text-align: left;">0.135</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">37.2</td>
 </tr>
 <tr class="even">
-<td class="rowlabel">Median [Q1, Q3]</td>
-<td>1.1 [0.89, 1.4]</td>
-<td>1.4 [1.2, 1.6]</td>
-<td>1.1 [0.90, 1.4]</td>
-<td>0.325</td>
+<td style="text-align: left;">echo_eeratio (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">8.77 [7.00, 10.20]</td>
+<td style="text-align: left;">8.64 [6.85, 10.16]</td>
+<td style="text-align: left;">9.15 [8.29, 10.23]</td>
+<td style="text-align: left;">0.611</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">38.3</td>
 </tr>
 <tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">30 (35.3%)</td>
-<td class="lastrow">5 (55.6%)</td>
-<td class="lastrow">35 (37.2%)</td>
-<td class="lastrow"></td>
+<td style="text-align: left;">echo_gls (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.65 [-20.77, 25.00]</td>
+<td style="text-align: left;">0.65 [-20.77, 25.00]</td>
+<td style="text-align: left;">NA [NA, NA]</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">83.0</td>
 </tr>
 <tr class="even">
-<td class="rowlabel firstrow">echo_eeratio</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">Median [Q1, Q3]</td>
-<td>8.6 [6.9, 10]</td>
-<td>9.2 [8.3, 10]</td>
-<td>8.8 [7.0, 10]</td>
-<td>0.877</td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">30 (35.3%)</td>
-<td class="lastrow">6 (66.7%)</td>
-<td class="lastrow">36 (38.3%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">echo_gls</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">Median [Q1, Q3]</td>
-<td>0.65 [-21, 25]</td>
-<td>NA [NA, NA]</td>
-<td>0.65 [-21, 25]</td>
-<td>1</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">69 (81.2%)</td>
-<td class="lastrow">9 (100%)</td>
-<td class="lastrow">78 (83.0%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">echo_lateral_e</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">Median [Q1, Q3]</td>
-<td>11 [9.2, 14]</td>
-<td>14 [14, 15]</td>
-<td>12 [9.4, 14]</td>
-<td>0.522</td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">41 (48.2%)</td>
-<td class="lastrow">7 (77.8%)</td>
-<td class="lastrow">48 (51.1%)</td>
-<td class="lastrow"></td>
+<td style="text-align: left;">echo_lateral_e (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">11.50 [9.40, 14.00]</td>
+<td style="text-align: left;">11.00 [9.15, 14.00]</td>
+<td style="text-align: left;">14.00 [13.50, 14.50]</td>
+<td style="text-align: left;">0.257</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">51.1</td>
 </tr>
 </tbody>
 </table>
-
-
-<p style="font-size: 0.85em; color: #555; margin-top: 4px;">Statistical tests: Kruskal-Wallis test (continuous, ≥3 groups)</p>
 </div>
 </div>
-<p>Output: <a href="../Results/table_echo_terli_ae_respfail.csv"><code>Results/table_echo_terli_ae_respfail.csv</code></a></p>
+<p><a href="tables/task6_echo_terli_ae_respfail.csv">📥 Download CSV — Task 6</a></p>
 </section>
-<section id="task-7-90-day-mortality-echo-continuous-values" class="level1">
-<h1>Task 7 — 90-Day Mortality × Echo Continuous Values</h1>
-<p>Uses <code>time_to_death_status_90days</code> (death capped at 90 days).</p>
+<section id="task-7-echo-time_to_death_status_90days" class="level1">
+<h1>Task 7 — Echo × <code>time_to_death_status_90days</code></h1>
+<p>Death capped at 90 days.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show Task 7 Table 1 call</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dat7 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(echo_continuous), as.numeric))</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">create_table_one</span>(</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>t7 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> echo_continuous,</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> <span class="cn">NULL</span>,</span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat7,</span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"time_to_death_status_90days"</span>,</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"../Results/table_echo_time_to_death_status_90days.csv"</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task7_echo_time_to_death_status_90days.csv"</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t7, <span class="at">caption =</span> <span class="st">"Task 7 — Echo by 90-day mortality status"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
-<table class="Rtable1 caption-top table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
+<caption>Task 7 &lt;U+2014&gt; Echo by 90-day mortality status</caption>
 <colgroup>
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
+<col style="width: 24%">
+<col style="width: 4%">
+<col style="width: 16%">
+<col style="width: 17%">
+<col style="width: 18%">
+<col style="width: 4%">
+<col style="width: 6%">
+<col style="width: 6%">
 </colgroup>
 <thead>
 <tr class="header">
-<th class="rowlabel firstrow lastrow" data-quarto-table-cell-role="th"></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">0<br>
-<span class="stratn">(N=59)</span></span></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">1<br>
-<span class="stratn">(N=35)</span></span></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">Overall<br>
-<span class="stratn">(N=94)</span></span></th>
-<th class="firstrow lastrow" data-quarto-table-cell-role="th"><span class="stratlabel">P-value</span></th>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">level</th>
+<th style="text-align: left;">Overall</th>
+<th style="text-align: left;">0</th>
+<th style="text-align: left;">1</th>
+<th style="text-align: left;">p</th>
+<th style="text-align: left;">test</th>
+<th style="text-align: left;">Missing</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td class="rowlabel firstrow">echo_ef</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
+<td style="text-align: left;">n</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">94</td>
+<td style="text-align: left;">59</td>
+<td style="text-align: left;">35</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
 </tr>
 <tr class="even">
-<td class="rowlabel lastrow">Median [Q1, Q3]</td>
-<td class="lastrow">68 [63, 71]</td>
-<td class="lastrow">66 [64, 68]</td>
-<td class="lastrow">67 [63, 71]</td>
-<td class="lastrow">0.467</td>
+<td style="text-align: left;">echo_ef (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">67.00 [63.00, 70.75]</td>
+<td style="text-align: left;">67.50 [62.75, 71.00]</td>
+<td style="text-align: left;">66.00 [63.75, 67.75]</td>
+<td style="text-align: left;">0.218</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">0.0</td>
 </tr>
 <tr class="odd">
-<td class="rowlabel firstrow">echo_earatio</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
+<td style="text-align: left;">echo_earatio (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1.10 [0.90, 1.40]</td>
+<td style="text-align: left;">1.12 [0.93, 1.50]</td>
+<td style="text-align: left;">1.10 [0.82, 1.30]</td>
+<td style="text-align: left;">0.172</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">37.2</td>
 </tr>
 <tr class="even">
-<td class="rowlabel">Median [Q1, Q3]</td>
-<td>1.1 [0.93, 1.5]</td>
-<td>1.1 [0.82, 1.3]</td>
-<td>1.1 [0.90, 1.4]</td>
-<td>0.39</td>
+<td style="text-align: left;">echo_eeratio (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">8.77 [7.00, 10.20]</td>
+<td style="text-align: left;">9.00 [7.00, 10.53]</td>
+<td style="text-align: left;">7.75 [6.85, 9.97]</td>
+<td style="text-align: left;">0.301</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">38.3</td>
 </tr>
 <tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">24 (40.7%)</td>
-<td class="lastrow">11 (31.4%)</td>
-<td class="lastrow">35 (37.2%)</td>
-<td class="lastrow"></td>
+<td style="text-align: left;">echo_gls (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.65 [-20.77, 25.00]</td>
+<td style="text-align: left;">19.80 [-21.00, 23.80]</td>
+<td style="text-align: left;">-18.50 [-19.95, 25.20]</td>
+<td style="text-align: left;">0.791</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">83.0</td>
 </tr>
 <tr class="even">
-<td class="rowlabel firstrow">echo_eeratio</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">Median [Q1, Q3]</td>
-<td>9.0 [7.0, 11]</td>
-<td>7.8 [6.9, 10]</td>
-<td>8.8 [7.0, 10]</td>
-<td>0.583</td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">23 (39.0%)</td>
-<td class="lastrow">13 (37.1%)</td>
-<td class="lastrow">36 (38.3%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel firstrow">echo_gls</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel">Median [Q1, Q3]</td>
-<td>20 [-21, 24]</td>
-<td>-19 [-20, 25]</td>
-<td>0.65 [-21, 25]</td>
-<td>0.964</td>
-</tr>
-<tr class="odd">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">50 (84.7%)</td>
-<td class="lastrow">28 (80.0%)</td>
-<td class="lastrow">78 (83.0%)</td>
-<td class="lastrow"></td>
-</tr>
-<tr class="even">
-<td class="rowlabel firstrow">echo_lateral_e</td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-<td class="firstrow"></td>
-</tr>
-<tr class="odd">
-<td class="rowlabel">Median [Q1, Q3]</td>
-<td>11 [10, 14]</td>
-<td>12 [9.0, 13]</td>
-<td>12 [9.4, 14]</td>
-<td>0.927</td>
-</tr>
-<tr class="even">
-<td class="rowlabel lastrow">Missing</td>
-<td class="lastrow">30 (50.8%)</td>
-<td class="lastrow">18 (51.4%)</td>
-<td class="lastrow">48 (51.1%)</td>
-<td class="lastrow"></td>
+<td style="text-align: left;">echo_lateral_e (median [IQR])</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">11.50 [9.40, 14.00]</td>
+<td style="text-align: left;">11.00 [10.10, 14.00]</td>
+<td style="text-align: left;">12.30 [9.00, 13.00]</td>
+<td style="text-align: left;">0.698</td>
+<td style="text-align: left;">nonnorm</td>
+<td style="text-align: left;">51.1</td>
 </tr>
 </tbody>
 </table>
-
-
-<p style="font-size: 0.85em; color: #555; margin-top: 4px;">Statistical tests: Kruskal-Wallis test (continuous, ≥3 groups)</p>
 </div>
 </div>
-<p>Output: <a href="../Results/table_echo_time_to_death_status_90days.csv"><code>Results/table_echo_time_to_death_status_90days.csv</code></a></p>
+<p><a href="tables/task7_echo_time_to_death_status_90days.csv">📥 Download CSV — Task 7</a></p>
 </section>
 <section id="task-8-cubic-spline-logistic-regression" class="level1">
 <h1>Task 8 — Cubic-Spline Logistic Regression</h1>
