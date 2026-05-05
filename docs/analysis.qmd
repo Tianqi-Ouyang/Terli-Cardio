@@ -14,8 +14,7 @@ format:
 #| include: false
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 
-# Source the shared pipeline. Pass output = tempfile() so we don't leave a
-# stray shared_pipeline.R behind, and parallel renders don't race on the path.
+# Load `master` and shared helpers from the main project.
 source(knitr::purl(
   "/Users/to909/Desktop/Terlipressin projects/Terlipressin/code/shared_pipeline.qmd",
   output = tempfile(fileext = ".R"),
@@ -26,17 +25,56 @@ library(tidyverse)
 library(tableone)
 library(splines)
 library(ggplot2)
+
+# Make sure the per-page download dir exists.
+dir.create("tables", showWarnings = FALSE)
+
+# --- Local override of `create_table_one()` ---------------------------------
+# Same behaviour as the analyst-pasted version — only writes a CSV. The single
+# change vs. the pasted snippet is the trailing `invisible(T1_after_print)` so
+# the inline kable below each chunk can render the same table the CSV holds.
+create_table_one <- function(all_vars,
+                             data,
+                             strata,
+                             output,
+                             cat_vars = NULL,
+                             exact = NULL) {
+
+  if (is.null(cat_vars)) {
+    numerical_vars <- all_vars
+  } else {
+    numerical_vars <- setdiff(all_vars, cat_vars)
+  }
+
+  T1_after <- tableone::CreateTableOne(
+    vars       = all_vars,
+    strata     = strata,
+    data       = data,
+    factorVars = cat_vars,
+    addOverall = TRUE,
+    includeNA  = FALSE
+  )
+
+  T1_after_print <- print(
+    T1_after,
+    showAllLevels = TRUE,
+    exact         = exact,
+    nonnormal     = numerical_vars,
+    missing       = TRUE,
+    quote         = FALSE,
+    noSpaces      = TRUE,
+    printToggle   = FALSE
+  )
+
+  write.csv(T1_after_print, file = output, row.names = TRUE)
+  invisible(T1_after_print)
+}
 ```
 
 # Cohorts
 
-Two cohorts are used.
-
-**Echo cohort** — at least one of the five core echo measurements is available
-(EF, lateral e′, GLS, E/A, E/e′):
-
-```{r echo-cohort}
-#| code-summary: "Show echo-cohort filter"
+```{r cohorts}
+#| code-summary: "Show cohort filters"
 echo_cohort <- master %>%
   filter(
     echo_ef_notavailable___999      == 0 |
@@ -46,24 +84,14 @@ echo_cohort <- master %>%
     echo_eeratio_notavailable___999 == 0
   )
 
-cat("Echo cohort N:", nrow(echo_cohort), "\n")
-```
-
-**Pre-terli echo cohort** — echo cohort AND the echo was done before terlipressin
-initiation (`days_to_echo < days_to_terli_initiation_day0`). Used for tasks 4–8.
-
-```{r preterli-cohort}
-#| code-summary: "Show pre-terli echo cohort filter"
 preterli_echo <- echo_cohort %>%
   filter(days_to_echo < days_to_terli_initiation_day0)
 
-cat("Pre-terli echo cohort N:", nrow(preterli_echo), "\n")
+cat("Echo cohort N      :", nrow(echo_cohort),    "\n")
+cat("Pre-terli cohort N :", nrow(preterli_echo), "\n")
 ```
 
 # Tasks 1–3 — Echo Timing Counts
-
-Counts within the echo cohort, split by whether the echo was before, on the same
-day as, or after terlipressin initiation.
 
 ```{r timing-counts}
 #| code-summary: "Show timing-count code"
@@ -76,10 +104,11 @@ timing_counts <- echo_cohort %>%
   )) %>%
   count(timing, name = "N")
 
-knitr::kable(timing_counts, caption = "Patients in echo cohort by echo timing relative to terlipressin initiation")
+knitr::kable(timing_counts,
+             caption = "Patients in echo cohort by echo timing relative to terlipressin initiation")
 ```
 
-# Task 4 — Demographics Table (stratified by `hrs_responders`)
+# Task 4 — Demographics × `hrs_responders`
 
 ```{r task4-demographics}
 #| code-summary: "Show demographic variable lists + Table 1 call"
@@ -108,10 +137,8 @@ demographic_categorical <- c(
   "infection_terli_day0", "typeinfection_terli_day0",
   "aclf_grade", "akin"
 )
-
 demographic_numerical <- c("age")
 
-# Keep only variables that actually exist in the dataset
 demographic_categorical <- intersect(demographic_categorical, names(preterli_echo))
 demographic_numerical   <- intersect(demographic_numerical,   names(preterli_echo))
 demographic_all <- c(demographic_numerical, demographic_categorical)
@@ -120,16 +147,17 @@ dat4 <- preterli_echo %>%
   mutate(across(all_of(demographic_categorical), as.factor),
          across(all_of(demographic_numerical),   as.numeric))
 
-create_table_one(
+t4 <- create_table_one(
   all_vars = demographic_all,
   cat_vars = demographic_categorical,
   data     = dat4,
   strata   = "hrs_responders",
-  output   = "../Results/table_demographics_hrs_responders.csv"
+  output   = "tables/task4_demographics_hrs_responders.csv"
 )
+knitr::kable(t4, caption = "Task 4 — Demographics by `hrs_responders` (3-level)")
 ```
 
-Output: [`Results/table_demographics_hrs_responders.csv`](../Results/table_demographics_hrs_responders.csv)
+[📥 Download CSV — Task 4](tables/task4_demographics_hrs_responders.csv)
 
 ::: {.callout-warning}
 ## `echo_gls` quirk
@@ -137,7 +165,7 @@ Output: [`Results/table_demographics_hrs_responders.csv`](../Results/table_demog
 In the pre-terli echo cohort, `echo_gls` ranges from **−20 to +25** — some centers store GLS as a negative number (the standard convention) and others store the absolute value. **83 %** of the cohort is missing GLS. Tasks 5–7 below report raw values only; medians are unstable and any future modeling on GLS should harmonize sign per center or work with `abs(echo_gls)`.
 :::
 
-# Task 5 — HRS Response (binary) × Echo Continuous Values
+# Task 5 — Echo × `hrs_responders_cat_2`
 
 ```{r task5-response}
 #| code-summary: "Show Task 5 Table 1 call"
@@ -147,54 +175,57 @@ echo_continuous <- c("echo_ef", "echo_earatio", "echo_eeratio",
 dat5 <- preterli_echo %>%
   mutate(across(all_of(echo_continuous), as.numeric))
 
-create_table_one(
+t5 <- create_table_one(
   all_vars = echo_continuous,
-  cat_vars = NULL,                       # all numerical
+  cat_vars = NULL,
   data     = dat5,
   strata   = "hrs_responders_cat_2",
-  output   = "../Results/table_echo_hrs_responders_cat_2.csv"
+  output   = "tables/task5_echo_hrs_responders_cat_2.csv"
 )
+knitr::kable(t5, caption = "Task 5 — Echo by HRS response (binary)")
 ```
 
-Output: [`Results/table_echo_hrs_responders_cat_2.csv`](../Results/table_echo_hrs_responders_cat_2.csv)
+[📥 Download CSV — Task 5](tables/task5_echo_hrs_responders_cat_2.csv)
 
-# Task 6 — Respiratory Failure × Echo Continuous Values
+# Task 6 — Echo × `terli_ae_respfail`
 
 ```{r task6-respfail}
 #| code-summary: "Show Task 6 Table 1 call"
 dat6 <- preterli_echo %>%
   mutate(across(all_of(echo_continuous), as.numeric))
 
-create_table_one(
+t6 <- create_table_one(
   all_vars = echo_continuous,
   cat_vars = NULL,
   data     = dat6,
   strata   = "terli_ae_respfail",
-  output   = "../Results/table_echo_terli_ae_respfail.csv"
+  output   = "tables/task6_echo_terli_ae_respfail.csv"
 )
+knitr::kable(t6, caption = "Task 6 — Echo by terlipressin-associated respiratory failure")
 ```
 
-Output: [`Results/table_echo_terli_ae_respfail.csv`](../Results/table_echo_terli_ae_respfail.csv)
+[📥 Download CSV — Task 6](tables/task6_echo_terli_ae_respfail.csv)
 
-# Task 7 — 90-Day Mortality × Echo Continuous Values
+# Task 7 — Echo × `time_to_death_status_90days`
 
-Uses `time_to_death_status_90days` (death capped at 90 days).
+Death capped at 90 days.
 
 ```{r task7-mortality}
 #| code-summary: "Show Task 7 Table 1 call"
 dat7 <- preterli_echo %>%
   mutate(across(all_of(echo_continuous), as.numeric))
 
-create_table_one(
+t7 <- create_table_one(
   all_vars = echo_continuous,
   cat_vars = NULL,
   data     = dat7,
   strata   = "time_to_death_status_90days",
-  output   = "../Results/table_echo_time_to_death_status_90days.csv"
+  output   = "tables/task7_echo_time_to_death_status_90days.csv"
 )
+knitr::kable(t7, caption = "Task 7 — Echo by 90-day mortality status")
 ```
 
-Output: [`Results/table_echo_time_to_death_status_90days.csv`](../Results/table_echo_time_to_death_status_90days.csv)
+[📥 Download CSV — Task 7](tables/task7_echo_time_to_death_status_90days.csv)
 
 # Task 8 — Cubic-Spline Logistic Regression
 
