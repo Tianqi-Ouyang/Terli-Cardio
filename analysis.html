@@ -219,9 +219,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>preterli_echo <span class="ot">&lt;-</span> echo_cohort <span class="sc">%&gt;%</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(days_to_echo <span class="sc">&lt;</span> days_to_terli_initiation_day0)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Echo cohort N      :"</span>, <span class="fu">nrow</span>(echo_cohort),    <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(days_to_echo <span class="sc">&lt;</span> days_to_terli_initiation_day0) <span class="sc">%&gt;%</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Abnormal-echo flags (1 = abnormal, 0 = normal, NA if measurement missing)</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_ef_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_ef),</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_ef <span class="sc">&lt;</span> <span class="dv">60</span>)),</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_eeratio_abnormal   =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_eeratio),</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_eeratio <span class="sc">&gt;</span> <span class="dv">15</span>)),</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># GLS uses |GLS| &lt; 18 because some centers store the value as a negative</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># number (standard convention) while others store the absolute value.</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_gls_abnormal       =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_gls),</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(<span class="fu">abs</span>(echo_gls) <span class="sc">&lt;</span> <span class="dv">18</span>)),</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_lateral_e_abnormal =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_lateral_e),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_lateral_e <span class="sc">&lt;</span> <span class="dv">10</span>)),</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># TR is unit-aware: &lt; 100 treated as m/s (cutoff 2.8); &gt;= 100 as cm/s (cutoff 280).</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_tr_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_tr),</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>,</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>                                      <span class="fu">as.numeric</span>(<span class="fu">if_else</span>(echo_tr <span class="sc">&lt;</span> <span class="dv">100</span>,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>                                                         echo_tr <span class="sc">&gt;</span> <span class="fl">2.8</span>,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>                                                         echo_tr <span class="sc">&gt;</span> <span class="dv">280</span>))),</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_lavi_abnormal      =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_lavi),</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_lavi <span class="sc">&gt;</span> <span class="dv">34</span>))</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Echo cohort N      :"</span>, <span class="fu">nrow</span>(echo_cohort),    <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Echo cohort N      : 243 </code></pre>
@@ -1981,18 +2002,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <summary>Show Task 5 Table 1 call</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>echo_continuous <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"echo_ef"</span>, <span class="st">"echo_earatio"</span>, <span class="st">"echo_eeratio"</span>,</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"echo_gls"</span>, <span class="st">"echo_lateral_e"</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>dat5 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(echo_continuous), as.numeric))</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>t5 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> echo_continuous,</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> <span class="cn">NULL</span>,</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat5,</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"hrs_responders_cat_2"</span>,</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task5_echo_hrs_responders_cat_2.csv"</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t5, <span class="at">caption =</span> <span class="st">"Task 5 — Echo by HRS response (binary)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>echo_flags <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"echo_ef_abnormal"</span>, <span class="st">"echo_eeratio_abnormal"</span>, <span class="st">"echo_gls_abnormal"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                <span class="st">"echo_lateral_e_abnormal"</span>, <span class="st">"echo_tr_abnormal"</span>, <span class="st">"echo_lavi_abnormal"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>dat5 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(echo_continuous), as.numeric),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>         <span class="fu">across</span>(<span class="fu">all_of</span>(echo_flags),      as.factor))</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>t5 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> <span class="fu">c</span>(echo_continuous, echo_flags),</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> echo_flags,</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat5,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"hrs_responders_cat_2"</span>,</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task5_echo_hrs_responders_cat_2.csv"</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t5, <span class="at">caption =</span> <span class="st">"Task 5 — Echo by HRS response (binary)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -2080,6 +2104,116 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">nonnorm</td>
 <td style="text-align: left;">51.1</td>
 </tr>
+<tr class="odd">
+<td style="text-align: left;">echo_ef_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">85 (90.4)</td>
+<td style="text-align: left;">31 (91.2)</td>
+<td style="text-align: left;">54 (90.0)</td>
+<td style="text-align: left;">1.000</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">9 (9.6)</td>
+<td style="text-align: left;">3 (8.8)</td>
+<td style="text-align: left;">6 (10.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">echo_eeratio_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">55 (94.8)</td>
+<td style="text-align: left;">19 (95.0)</td>
+<td style="text-align: left;">36 (94.7)</td>
+<td style="text-align: left;">1.000</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">38.3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3 (5.2)</td>
+<td style="text-align: left;">1 (5.0)</td>
+<td style="text-align: left;">2 (5.3)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">echo_gls_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">16 (100.0)</td>
+<td style="text-align: left;">7 (100.0)</td>
+<td style="text-align: left;">9 (100.0)</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">83.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">echo_lateral_e_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">34 (73.9)</td>
+<td style="text-align: left;">12 (75.0)</td>
+<td style="text-align: left;">22 (73.3)</td>
+<td style="text-align: left;">1.000</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">51.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">12 (26.1)</td>
+<td style="text-align: left;">4 (25.0)</td>
+<td style="text-align: left;">8 (26.7)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">echo_tr_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">10 (76.9)</td>
+<td style="text-align: left;">4 (100.0)</td>
+<td style="text-align: left;">6 (66.7)</td>
+<td style="text-align: left;">0.546</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">86.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3 (23.1)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">3 (33.3)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">echo_lavi_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">39 (55.7)</td>
+<td style="text-align: left;">16 (61.5)</td>
+<td style="text-align: left;">23 (52.3)</td>
+<td style="text-align: left;">0.613</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">25.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">31 (44.3)</td>
+<td style="text-align: left;">10 (38.5)</td>
+<td style="text-align: left;">21 (47.7)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -2092,16 +2226,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <details class="code-fold">
 <summary>Show Task 6 Table 1 call</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>dat6 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(echo_continuous), as.numeric))</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>t6 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> echo_continuous,</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> <span class="cn">NULL</span>,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat6,</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"terli_ae_respfail"</span>,</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task6_echo_terli_ae_respfail.csv"</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t6, <span class="at">caption =</span> <span class="st">"Task 6 — Echo by terlipressin-associated respiratory failure"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(echo_continuous), as.numeric),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">across</span>(<span class="fu">all_of</span>(echo_flags),      as.factor))</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>t6 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> <span class="fu">c</span>(echo_continuous, echo_flags),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> echo_flags,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat6,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"terli_ae_respfail"</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task6_echo_terli_ae_respfail.csv"</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t6, <span class="at">caption =</span> <span class="st">"Task 6 — Echo by terlipressin-associated respiratory failure"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -2189,6 +2324,116 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">nonnorm</td>
 <td style="text-align: left;">51.1</td>
 </tr>
+<tr class="odd">
+<td style="text-align: left;">echo_ef_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">85 (90.4)</td>
+<td style="text-align: left;">76 (89.4)</td>
+<td style="text-align: left;">9 (100.0)</td>
+<td style="text-align: left;">0.667</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">9 (9.6)</td>
+<td style="text-align: left;">9 (10.6)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">echo_eeratio_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">55 (94.8)</td>
+<td style="text-align: left;">52 (94.5)</td>
+<td style="text-align: left;">3 (100.0)</td>
+<td style="text-align: left;">1.000</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">38.3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3 (5.2)</td>
+<td style="text-align: left;">3 (5.5)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">echo_gls_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">16 (100.0)</td>
+<td style="text-align: left;">16 (100.0)</td>
+<td style="text-align: left;">0 (NaN)</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">83.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">echo_lateral_e_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">34 (73.9)</td>
+<td style="text-align: left;">32 (72.7)</td>
+<td style="text-align: left;">2 (100.0)</td>
+<td style="text-align: left;">0.971</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">51.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">12 (26.1)</td>
+<td style="text-align: left;">12 (27.3)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">echo_tr_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">10 (76.9)</td>
+<td style="text-align: left;">9 (75.0)</td>
+<td style="text-align: left;">1 (100.0)</td>
+<td style="text-align: left;">1.000</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">86.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3 (23.1)</td>
+<td style="text-align: left;">3 (25.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">echo_lavi_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">39 (55.7)</td>
+<td style="text-align: left;">37 (58.7)</td>
+<td style="text-align: left;">2 (28.6)</td>
+<td style="text-align: left;">0.261</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">25.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">31 (44.3)</td>
+<td style="text-align: left;">26 (41.3)</td>
+<td style="text-align: left;">5 (71.4)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -2202,16 +2447,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <details class="code-fold">
 <summary>Show Task 7 Table 1 call</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dat7 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(echo_continuous), as.numeric))</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>t7 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> echo_continuous,</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> <span class="cn">NULL</span>,</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat7,</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"time_to_death_status_90days"</span>,</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task7_echo_time_to_death_status_90days.csv"</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t7, <span class="at">caption =</span> <span class="st">"Task 7 — Echo by 90-day mortality status"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(echo_continuous), as.numeric),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>         <span class="fu">across</span>(<span class="fu">all_of</span>(echo_flags),      as.factor))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>t7 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> <span class="fu">c</span>(echo_continuous, echo_flags),</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> echo_flags,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat7,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"time_to_death_status_90days"</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task7_echo_time_to_death_status_90days.csv"</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t7, <span class="at">caption =</span> <span class="st">"Task 7 — Echo by 90-day mortality status"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -2298,6 +2544,116 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">0.698</td>
 <td style="text-align: left;">nonnorm</td>
 <td style="text-align: left;">51.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">echo_ef_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">85 (90.4)</td>
+<td style="text-align: left;">55 (93.2)</td>
+<td style="text-align: left;">30 (85.7)</td>
+<td style="text-align: left;">0.405</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">9 (9.6)</td>
+<td style="text-align: left;">4 (6.8)</td>
+<td style="text-align: left;">5 (14.3)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">echo_eeratio_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">55 (94.8)</td>
+<td style="text-align: left;">33 (91.7)</td>
+<td style="text-align: left;">22 (100.0)</td>
+<td style="text-align: left;">0.436</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">38.3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3 (5.2)</td>
+<td style="text-align: left;">3 (8.3)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">echo_gls_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">16 (100.0)</td>
+<td style="text-align: left;">9 (100.0)</td>
+<td style="text-align: left;">7 (100.0)</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">83.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">echo_lateral_e_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">34 (73.9)</td>
+<td style="text-align: left;">23 (79.3)</td>
+<td style="text-align: left;">11 (64.7)</td>
+<td style="text-align: left;">0.459</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">51.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">12 (26.1)</td>
+<td style="text-align: left;">6 (20.7)</td>
+<td style="text-align: left;">6 (35.3)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">echo_tr_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">10 (76.9)</td>
+<td style="text-align: left;">6 (75.0)</td>
+<td style="text-align: left;">4 (80.0)</td>
+<td style="text-align: left;">1.000</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">86.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3 (23.1)</td>
+<td style="text-align: left;">2 (25.0)</td>
+<td style="text-align: left;">1 (20.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">echo_lavi_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">39 (55.7)</td>
+<td style="text-align: left;">20 (47.6)</td>
+<td style="text-align: left;">19 (67.9)</td>
+<td style="text-align: left;">0.154</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">25.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">31 (44.3)</td>
+<td style="text-align: left;">22 (52.4)</td>
+<td style="text-align: left;">9 (32.1)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
 </tr>
 </tbody>
 </table>
