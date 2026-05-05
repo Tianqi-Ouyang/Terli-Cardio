@@ -85,7 +85,28 @@ echo_cohort <- master %>%
   )
 
 preterli_echo <- echo_cohort %>%
-  filter(days_to_echo < days_to_terli_initiation_day0)
+  filter(days_to_echo < days_to_terli_initiation_day0) %>%
+  mutate(
+    # Abnormal-echo flags (1 = abnormal, 0 = normal, NA if measurement missing)
+    echo_ef_abnormal        = if_else(is.na(echo_ef),
+                                      NA_real_, as.numeric(echo_ef < 60)),
+    echo_eeratio_abnormal   = if_else(is.na(echo_eeratio),
+                                      NA_real_, as.numeric(echo_eeratio > 15)),
+    # GLS uses |GLS| < 18 because some centers store the value as a negative
+    # number (standard convention) while others store the absolute value.
+    echo_gls_abnormal       = if_else(is.na(echo_gls),
+                                      NA_real_, as.numeric(abs(echo_gls) < 18)),
+    echo_lateral_e_abnormal = if_else(is.na(echo_lateral_e),
+                                      NA_real_, as.numeric(echo_lateral_e < 10)),
+    # TR is unit-aware: < 100 treated as m/s (cutoff 2.8); >= 100 as cm/s (cutoff 280).
+    echo_tr_abnormal        = if_else(is.na(echo_tr),
+                                      NA_real_,
+                                      as.numeric(if_else(echo_tr < 100,
+                                                         echo_tr > 2.8,
+                                                         echo_tr > 280))),
+    echo_lavi_abnormal      = if_else(is.na(echo_lavi),
+                                      NA_real_, as.numeric(echo_lavi > 34))
+  )
 
 cat("Echo cohort N      :", nrow(echo_cohort),    "\n")
 cat("Pre-terli cohort N :", nrow(preterli_echo), "\n")
@@ -171,13 +192,16 @@ In the pre-terli echo cohort, `echo_gls` ranges from **−20 to +25** — some c
 #| code-summary: "Show Task 5 Table 1 call"
 echo_continuous <- c("echo_ef", "echo_earatio", "echo_eeratio",
                      "echo_gls", "echo_lateral_e")
+echo_flags <- c("echo_ef_abnormal", "echo_eeratio_abnormal", "echo_gls_abnormal",
+                "echo_lateral_e_abnormal", "echo_tr_abnormal", "echo_lavi_abnormal")
 
 dat5 <- preterli_echo %>%
-  mutate(across(all_of(echo_continuous), as.numeric))
+  mutate(across(all_of(echo_continuous), as.numeric),
+         across(all_of(echo_flags),      as.factor))
 
 t5 <- create_table_one(
-  all_vars = echo_continuous,
-  cat_vars = NULL,
+  all_vars = c(echo_continuous, echo_flags),
+  cat_vars = echo_flags,
   data     = dat5,
   strata   = "hrs_responders_cat_2",
   output   = "tables/task5_echo_hrs_responders_cat_2.csv"
@@ -192,11 +216,12 @@ knitr::kable(t5, caption = "Task 5 — Echo by HRS response (binary)")
 ```{r task6-respfail}
 #| code-summary: "Show Task 6 Table 1 call"
 dat6 <- preterli_echo %>%
-  mutate(across(all_of(echo_continuous), as.numeric))
+  mutate(across(all_of(echo_continuous), as.numeric),
+         across(all_of(echo_flags),      as.factor))
 
 t6 <- create_table_one(
-  all_vars = echo_continuous,
-  cat_vars = NULL,
+  all_vars = c(echo_continuous, echo_flags),
+  cat_vars = echo_flags,
   data     = dat6,
   strata   = "terli_ae_respfail",
   output   = "tables/task6_echo_terli_ae_respfail.csv"
@@ -213,11 +238,12 @@ Death capped at 90 days.
 ```{r task7-mortality}
 #| code-summary: "Show Task 7 Table 1 call"
 dat7 <- preterli_echo %>%
-  mutate(across(all_of(echo_continuous), as.numeric))
+  mutate(across(all_of(echo_continuous), as.numeric),
+         across(all_of(echo_flags),      as.factor))
 
 t7 <- create_table_one(
-  all_vars = echo_continuous,
-  cat_vars = NULL,
+  all_vars = c(echo_continuous, echo_flags),
+  cat_vars = echo_flags,
   data     = dat7,
   strata   = "time_to_death_status_90days",
   output   = "tables/task7_echo_time_to_death_status_90days.csv"
