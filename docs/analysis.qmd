@@ -160,6 +160,12 @@ demographic_categorical <- c(
 )
 demographic_numerical <- c("age")
 
+# 6 abnormal-echo flags also appended as categorical rows
+demographic_categorical <- c(demographic_categorical,
+                             "echo_ef_abnormal", "echo_eeratio_abnormal",
+                             "echo_gls_abnormal", "echo_lateral_e_abnormal",
+                             "echo_tr_abnormal", "echo_lavi_abnormal")
+
 demographic_categorical <- intersect(demographic_categorical, names(preterli_echo))
 demographic_numerical   <- intersect(demographic_numerical,   names(preterli_echo))
 demographic_all <- c(demographic_numerical, demographic_categorical)
@@ -175,7 +181,7 @@ t4 <- create_table_one(
   strata   = "hrs_responders",
   output   = "tables/task4_demographics_hrs_responders.csv"
 )
-knitr::kable(t4, caption = "Task 4 — Demographics by `hrs_responders` (3-level)")
+knitr::kable(t4, caption = "Task 4 — Demographics + abnormal-echo flags by `hrs_responders` (3-level)")
 ```
 
 [📥 Download CSV — Task 4](tables/task4_demographics_hrs_responders.csv)
