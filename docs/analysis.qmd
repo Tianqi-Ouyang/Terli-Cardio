@@ -98,12 +98,8 @@ preterli_echo <- echo_cohort %>%
                                       NA_real_, as.numeric(abs(echo_gls) < 18)),
     echo_lateral_e_abnormal = if_else(is.na(echo_lateral_e),
                                       NA_real_, as.numeric(echo_lateral_e < 10)),
-    # TR is unit-aware: < 100 treated as m/s (cutoff 2.8); >= 100 as cm/s (cutoff 280).
     echo_tr_abnormal        = if_else(is.na(echo_tr),
-                                      NA_real_,
-                                      as.numeric(if_else(echo_tr < 100,
-                                                         echo_tr > 2.8,
-                                                         echo_tr > 280))),
+                                      NA_real_, as.numeric(echo_tr > 2.8)),
     echo_lavi_abnormal      = if_else(is.na(echo_lavi),
                                       NA_real_, as.numeric(echo_lavi > 34))
   )
