@@ -336,26 +336,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>demographic_numerical <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"age"</span>)</span>
 <span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>demographic_categorical <span class="ot">&lt;-</span> <span class="fu">intersect</span>(demographic_categorical, <span class="fu">names</span>(preterli_echo))</span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>demographic_numerical   <span class="ot">&lt;-</span> <span class="fu">intersect</span>(demographic_numerical,   <span class="fu">names</span>(preterli_echo))</span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>demographic_all <span class="ot">&lt;-</span> <span class="fu">c</span>(demographic_numerical, demographic_categorical)</span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>dat4 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(demographic_categorical), as.factor),</span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>         <span class="fu">across</span>(<span class="fu">all_of</span>(demographic_numerical),   as.numeric))</span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>t4 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> demographic_all,</span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> demographic_categorical,</span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat4,</span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"hrs_responders"</span>,</span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task4_demographics_hrs_responders.csv"</span></span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t4, <span class="at">caption =</span> <span class="st">"Task 4 — Demographics by `hrs_responders` (3-level)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="co"># 6 abnormal-echo flags also appended as categorical rows</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>demographic_categorical <span class="ot">&lt;-</span> <span class="fu">c</span>(demographic_categorical,</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>                             <span class="st">"echo_ef_abnormal"</span>, <span class="st">"echo_eeratio_abnormal"</span>,</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>                             <span class="st">"echo_gls_abnormal"</span>, <span class="st">"echo_lateral_e_abnormal"</span>,</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>                             <span class="st">"echo_tr_abnormal"</span>, <span class="st">"echo_lavi_abnormal"</span>)</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>demographic_categorical <span class="ot">&lt;-</span> <span class="fu">intersect</span>(demographic_categorical, <span class="fu">names</span>(preterli_echo))</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>demographic_numerical   <span class="ot">&lt;-</span> <span class="fu">intersect</span>(demographic_numerical,   <span class="fu">names</span>(preterli_echo))</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>demographic_all <span class="ot">&lt;-</span> <span class="fu">c</span>(demographic_numerical, demographic_categorical)</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>dat4 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(demographic_categorical), as.factor),</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>         <span class="fu">across</span>(<span class="fu">all_of</span>(demographic_numerical),   as.numeric))</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>t4 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> demographic_all,</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> demographic_categorical,</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat4,</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"hrs_responders"</span>,</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task4_demographics_hrs_responders.csv"</span></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t4, <span class="at">caption =</span> <span class="st">"Task 4 — Demographics + abnormal-echo flags by `hrs_responders` (3-level)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
-<caption>Task 4 &lt;U+2014&gt; Demographics by <code>hrs_responders</code> (3-level)</caption>
+<caption>Task 4 &lt;U+2014&gt; Demographics + abnormal-echo flags by <code>hrs_responders</code> (3-level)</caption>
 <colgroup>
 <col style="width: 20%">
 <col style="width: 4%">
@@ -1972,6 +1978,127 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">13 (38.2)</td>
 <td style="text-align: left;">15 (75.0)</td>
 <td style="text-align: left;">10 (29.4)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">echo_ef_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">85 (90.4)</td>
+<td style="text-align: left;">31 (91.2)</td>
+<td style="text-align: left;">15 (75.0)</td>
+<td style="text-align: left;">39 (97.5)</td>
+<td style="text-align: left;">0.020</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">9 (9.6)</td>
+<td style="text-align: left;">3 (8.8)</td>
+<td style="text-align: left;">5 (25.0)</td>
+<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">echo_eeratio_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">55 (94.8)</td>
+<td style="text-align: left;">19 (95.0)</td>
+<td style="text-align: left;">9 (100.0)</td>
+<td style="text-align: left;">27 (93.1)</td>
+<td style="text-align: left;">0.716</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">38.3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3 (5.2)</td>
+<td style="text-align: left;">1 (5.0)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">2 (6.9)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">echo_gls_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">16 (100.0)</td>
+<td style="text-align: left;">7 (100.0)</td>
+<td style="text-align: left;">2 (100.0)</td>
+<td style="text-align: left;">7 (100.0)</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">83.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">echo_lateral_e_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">34 (73.9)</td>
+<td style="text-align: left;">12 (75.0)</td>
+<td style="text-align: left;">6 (75.0)</td>
+<td style="text-align: left;">16 (72.7)</td>
+<td style="text-align: left;">0.985</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">51.1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">12 (26.1)</td>
+<td style="text-align: left;">4 (25.0)</td>
+<td style="text-align: left;">2 (25.0)</td>
+<td style="text-align: left;">6 (27.3)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">echo_tr_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">10 (76.9)</td>
+<td style="text-align: left;">4 (100.0)</td>
+<td style="text-align: left;">1 (50.0)</td>
+<td style="text-align: left;">5 (71.4)</td>
+<td style="text-align: left;">0.344</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">86.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3 (23.1)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">1 (50.0)</td>
+<td style="text-align: left;">2 (28.6)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">echo_lavi_abnormal (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">39 (55.7)</td>
+<td style="text-align: left;">16 (61.5)</td>
+<td style="text-align: left;">9 (69.2)</td>
+<td style="text-align: left;">14 (45.2)</td>
+<td style="text-align: left;">0.257</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">25.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">31 (44.3)</td>
+<td style="text-align: left;">10 (38.5)</td>
+<td style="text-align: left;">4 (30.8)</td>
+<td style="text-align: left;">17 (54.8)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
