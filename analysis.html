@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Tianqi Ouyang">
-<meta name="dcterms.date" content="2026-05-07">
+<meta name="dcterms.date" content="2026-05-11">
 
 <title>Cardio — Analysis – Terlipressin — Cardio</title>
 <style>
@@ -166,7 +166,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#task-5-echo-hrs_responders_cat_2" id="toc-task-5-echo-hrs_responders_cat_2" class="nav-link" data-scroll-target="#task-5-echo-hrs_responders_cat_2">Task 5 — Echo × <code>hrs_responders_cat_2</code></a></li>
   <li><a href="#task-6-echo-terli_ae_respfail" id="toc-task-6-echo-terli_ae_respfail" class="nav-link" data-scroll-target="#task-6-echo-terli_ae_respfail">Task 6 — Echo × <code>terli_ae_respfail</code></a></li>
   <li><a href="#task-7-echo-time_to_death_status_90days" id="toc-task-7-echo-time_to_death_status_90days" class="nav-link" data-scroll-target="#task-7-echo-time_to_death_status_90days">Task 7 — Echo × <code>time_to_death_status_90days</code></a></li>
-  <li><a href="#task-8-cubic-spline-logistic-regression" id="toc-task-8-cubic-spline-logistic-regression" class="nav-link" data-scroll-target="#task-8-cubic-spline-logistic-regression">Task 8 — Cubic-Spline Logistic Regression</a></li>
+  <li><a href="#task-8-cubic-spline-logistic-regression-models" id="toc-task-8-cubic-spline-logistic-regression-models" class="nav-link" data-scroll-target="#task-8-cubic-spline-logistic-regression-models">Task 8 — Cubic-Spline Logistic Regression Models</a>
+  <ul class="collapse">
+  <li><a href="#echo_ef-pre-terli-cohort" id="toc-echo_ef-pre-terli-cohort" class="nav-link" data-scroll-target="#echo_ef-pre-terli-cohort">8.1 <code>echo_ef</code> — Pre-terli cohort</a></li>
+  <li><a href="#echo_ef-echo-cohort" id="toc-echo_ef-echo-cohort" class="nav-link" data-scroll-target="#echo_ef-echo-cohort">8.2 <code>echo_ef</code> — Echo cohort</a></li>
+  <li><a href="#echo_earatio-pre-terli-cohort" id="toc-echo_earatio-pre-terli-cohort" class="nav-link" data-scroll-target="#echo_earatio-pre-terli-cohort">8.3 <code>echo_earatio</code> — Pre-terli cohort</a></li>
+  <li><a href="#echo_earatio-echo-cohort" id="toc-echo_earatio-echo-cohort" class="nav-link" data-scroll-target="#echo_earatio-echo-cohort">8.4 <code>echo_earatio</code> — Echo cohort</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -192,7 +198,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 7, 2026</p>
+      <p class="date">May 11, 2026</p>
     </div>
   </div>
   
@@ -258,6 +264,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="tasks-13-echo-timing-counts" class="level1">
 <h1>Tasks 1–3 — Echo Timing Counts</h1>
+<p><strong>Cohort:</strong> Echo cohort (N = 243)</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show timing-count code</summary>
@@ -306,6 +313,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="task-4-demographics-hrs_responders" class="level1">
 <h1>Task 4 — Demographics × <code>hrs_responders</code></h1>
+<p><strong>Cohort:</strong> Pre-terli echo (N = 94)</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show demographic variable lists + Table 1 call</summary>
@@ -1997,6 +2005,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="task-5-echo-hrs_responders_cat_2" class="level1">
 <h1>Task 5 — Echo × <code>hrs_responders_cat_2</code></h1>
+<p><strong>Cohort:</strong> Pre-terli echo (N = 94)</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show Task 5 Table 1 call</summary>
@@ -2222,6 +2231,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="task-6-echo-terli_ae_respfail" class="level1">
 <h1>Task 6 — Echo × <code>terli_ae_respfail</code></h1>
+<p><strong>Cohort:</strong> Pre-terli echo (N = 94)</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show Task 6 Table 1 call</summary>
@@ -2442,6 +2452,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="task-7-echo-time_to_death_status_90days" class="level1">
 <h1>Task 7 — Echo × <code>time_to_death_status_90days</code></h1>
+<p><strong>Cohort:</strong> Pre-terli echo (N = 94)</p>
 <p>Death capped at 90 days.</p>
 <div class="cell">
 <details class="code-fold">
@@ -2661,39 +2672,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p><a href="tables/task7_echo_time_to_death_status_90days.csv">📥 Download CSV — Task 7</a></p>
 </section>
-<section id="task-8-cubic-spline-logistic-regression" class="level1">
-<h1>Task 8 — Cubic-Spline Logistic Regression</h1>
-<p>Outcome: <code>hrs_responders_cat_2</code> (binary). Covariate: <code>echo_ef</code> modelled as a natural cubic spline with 3 degrees of freedom.</p>
+<section id="task-8-cubic-spline-logistic-regression-models" class="level1">
+<h1>Task 8 — Cubic-Spline Logistic Regression Models</h1>
+<p>Outcome: <code>hrs_responders_cat_2</code> (binary). Covariate modelled as a natural cubic spline with <strong>df = 3</strong>. Four model fits below — two covariates × two cohorts.</p>
+<section id="echo_ef-pre-terli-cohort" class="level2">
+<h2 class="anchored" data-anchor-id="echo_ef-pre-terli-cohort">8.1 <code>echo_ef</code> — Pre-terli cohort</h2>
+<p><strong>Cohort:</strong> Pre-terli echo (N = 94)</p>
 <div class="cell">
 <details class="code-fold">
-<summary>Show spline model fit</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>dat8 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">hrs_responders_cat_2 =</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(hrs_responders_cat_2)),</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_ef              =</span> <span class="fu">as.numeric</span>(echo_ef)</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>(echo_ef, hrs_responders_cat_2)</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>fit8 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  hrs_responders_cat_2 <span class="sc">~</span> <span class="fu">ns</span>(echo_ef, <span class="at">df =</span> <span class="dv">3</span>),</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">data   =</span> dat8,</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit8)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>Show spline fit + plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>res_8_1 <span class="ot">&lt;-</span> <span class="fu">spline_logit</span>(preterli_echo, <span class="st">"echo_ef"</span>,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">xlab =</span> <span class="st">"Ejection fraction (%)"</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">cohort_label =</span> <span class="st">"Pre-terli cohort"</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_8_1<span class="sc">$</span>fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
-glm(formula = hrs_responders_cat_2 ~ ns(echo_ef, df = 3), family = binomial, 
-    data = dat8)
+glm(formula = .y ~ ns(.x, df = df), family = binomial, data = d)
 
 Coefficients:
-                     Estimate Std. Error z value Pr(&gt;|z|)  
-(Intercept)            0.5946     1.2359   0.481   0.6304  
-ns(echo_ef, df = 3)1  -1.6719     0.9641  -1.734   0.0829 .
-ns(echo_ef, df = 3)2   0.7076     2.7964   0.253   0.8002  
-ns(echo_ef, df = 3)3  -0.4915     1.1178  -0.440   0.6601  
+                 Estimate Std. Error z value Pr(&gt;|z|)  
+(Intercept)        0.5946     1.2359   0.481   0.6304  
+ns(.x, df = df)1  -1.6719     0.9641  -1.734   0.0829 .
+ns(.x, df = df)2   0.7076     2.7964   0.253   0.8002  
+ns(.x, df = df)3  -0.4915     1.1178  -0.440   0.6601  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -2705,49 +2708,155 @@ AIC: 126.14
 
 Number of Fisher Scoring iterations: 4</code></pre>
 </div>
-</div>
-<div class="cell">
 <details class="code-fold">
-<summary>Show predicted-probability plot</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>grid8 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">echo_ef =</span> <span class="fu">seq</span>(<span class="fu">min</span>(dat8<span class="sc">$</span>echo_ef, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                <span class="fu">max</span>(dat8<span class="sc">$</span>echo_ef, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                <span class="at">length.out =</span> <span class="dv">200</span>)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>pred8 <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit8, <span class="at">newdata =</span> grid8, <span class="at">type =</span> <span class="st">"link"</span>, <span class="at">se.fit =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>grid8 <span class="ot">&lt;-</span> grid8 <span class="sc">%&gt;%</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">fit   =</span> <span class="fu">plogis</span>(pred8<span class="sc">$</span>fit),</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">lower =</span> <span class="fu">plogis</span>(pred8<span class="sc">$</span>fit <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> pred8<span class="sc">$</span>se.fit),</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">upper =</span> <span class="fu">plogis</span>(pred8<span class="sc">$</span>fit <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> pred8<span class="sc">$</span>se.fit)</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(grid8, <span class="fu">aes</span>(echo_ef, fit)) <span class="sc">+</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lower, <span class="at">ymax =</span> upper), <span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">fill =</span> <span class="st">"#2c8dbb"</span>) <span class="sc">+</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"#2c8dbb"</span>) <span class="sc">+</span></span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_rug</span>(<span class="at">data =</span> dat8, <span class="fu">aes</span>(<span class="at">x =</span> echo_ef), <span class="at">inherit.aes =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>           <span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">sides =</span> <span class="st">"b"</span>) <span class="sc">+</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">percent_format</span>(<span class="at">accuracy =</span> <span class="dv">1</span>),</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>                     <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Ejection fraction (%)"</span>,</span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Probability of HRS response (hrs_responders_cat_2 = 1)"</span>,</span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Predicted probability of HRS response by EF (natural cubic spline, df = 3)"</span>,</span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Shaded ribbon = 95% CI; rug = observed EF values"</span></span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<summary>Show spline fit + plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>res_8_1<span class="sc">$</span>plot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="analysis_files/figure-html/task8-spline-plot-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="analysis_files/figure-html/task8-1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="echo_ef-echo-cohort" class="level2">
+<h2 class="anchored" data-anchor-id="echo_ef-echo-cohort">8.2 <code>echo_ef</code> — Echo cohort</h2>
+<p><strong>Cohort:</strong> Echo cohort (N = 243)</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show spline fit + plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>res_8_2 <span class="ot">&lt;-</span> <span class="fu">spline_logit</span>(echo_cohort, <span class="st">"echo_ef"</span>,</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">xlab =</span> <span class="st">"Ejection fraction (%)"</span>,</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">cohort_label =</span> <span class="st">"Echo cohort (all echos)"</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_8_2<span class="sc">$</span>fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = .y ~ ns(.x, df = df), family = binomial, data = d)
+
+Coefficients:
+                 Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)        0.2082     0.8863   0.235    0.814
+ns(.x, df = df)1  -0.9152     0.6718  -1.362    0.173
+ns(.x, df = df)2   0.1227     2.0877   0.059    0.953
+ns(.x, df = df)3  -0.6916     1.1161  -0.620    0.535
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 250.52  on 181  degrees of freedom
+Residual deviance: 246.25  on 178  degrees of freedom
+AIC: 254.25
+
+Number of Fisher Scoring iterations: 4</code></pre>
+</div>
+<details class="code-fold">
+<summary>Show spline fit + plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>res_8_2<span class="sc">$</span>plot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analysis_files/figure-html/task8-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="echo_earatio-pre-terli-cohort" class="level2">
+<h2 class="anchored" data-anchor-id="echo_earatio-pre-terli-cohort">8.3 <code>echo_earatio</code> — Pre-terli cohort</h2>
+<p><strong>Cohort:</strong> Pre-terli echo (N = 94)</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show spline fit + plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>res_8_3 <span class="ot">&lt;-</span> <span class="fu">spline_logit</span>(preterli_echo, <span class="st">"echo_earatio"</span>,</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">xlab =</span> <span class="st">"Mitral E/A ratio"</span>,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">cohort_label =</span> <span class="st">"Pre-terli cohort"</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_8_3<span class="sc">$</span>fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = .y ~ ns(.x, df = df), family = binomial, data = d)
+
+Coefficients:
+                 Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)         1.048      1.234   0.849    0.396
+ns(.x, df = df)1   -3.922      2.862  -1.370    0.171
+ns(.x, df = df)2   -4.777      5.082  -0.940    0.347
+ns(.x, df = df)3   -5.432      9.146  -0.594    0.553
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 77.936  on 58  degrees of freedom
+Residual deviance: 73.417  on 55  degrees of freedom
+AIC: 81.417
+
+Number of Fisher Scoring iterations: 6</code></pre>
+</div>
+<details class="code-fold">
+<summary>Show spline fit + plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>res_8_3<span class="sc">$</span>plot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analysis_files/figure-html/task8-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="echo_earatio-echo-cohort" class="level2">
+<h2 class="anchored" data-anchor-id="echo_earatio-echo-cohort">8.4 <code>echo_earatio</code> — Echo cohort</h2>
+<p><strong>Cohort:</strong> Echo cohort (N = 243)</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show spline fit + plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>res_8_4 <span class="ot">&lt;-</span> <span class="fu">spline_logit</span>(echo_cohort, <span class="st">"echo_earatio"</span>,</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">xlab =</span> <span class="st">"Mitral E/A ratio"</span>,</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">cohort_label =</span> <span class="st">"Echo cohort (all echos)"</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(res_8_4<span class="sc">$</span>fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+glm(formula = .y ~ ns(.x, df = df), family = binomial, data = d)
+
+Coefficients:
+                 Estimate Std. Error z value Pr(&gt;|z|)  
+(Intercept)         0.125      1.114   0.112   0.9107  
+ns(.x, df = df)1   -3.604      2.094  -1.722   0.0852 .
+ns(.x, df = df)2   -3.333      4.673  -0.713   0.4757  
+ns(.x, df = df)3   -4.649      8.444  -0.551   0.5819  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 144.41  on 104  degrees of freedom
+Residual deviance: 139.06  on 101  degrees of freedom
+AIC: 147.06
+
+Number of Fisher Scoring iterations: 6</code></pre>
+</div>
+<details class="code-fold">
+<summary>Show spline fit + plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>res_8_4<span class="sc">$</span>plot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analysis_files/figure-html/task8-4-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
