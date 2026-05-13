@@ -234,12 +234,6 @@ knitr::kable(t4, caption = "Task 4 — Demographics by `hrs_responders` (3-level
 
 [📥 Download CSV — Task 4](tables/task4_demographics_hrs_responders.csv)
 
-::: {.callout-note}
-## `echo_gls` harmonization
-
-Source data mixed two conventions — some centers stored GLS as a negative number (standard) and others stored the absolute value, so the raw range was **−20 to +25**. The cohort prep above takes `abs(echo_gls)` once, so every summary below — Tasks 5–7 medians and the `echo_gls_abnormal` flag — operates on the magnitude. **83 %** of the pre-terli cohort is still missing GLS, so the medians are n-limited.
-:::
-
 # Task 5 — Echo × `hrs_responders_cat_2`
 
 **Cohort:** Pre-terli echo (N = `r nrow(preterli_echo)`)
