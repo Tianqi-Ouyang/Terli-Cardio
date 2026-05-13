@@ -128,7 +128,12 @@ echo_cohort <- master %>%
     echo_gls_notavailable___999     == 0 |
     echo_earatio_notavailable___999 == 0 |
     echo_eeratio_notavailable___999 == 0
-  )
+  ) %>%
+  # Harmonize echo_gls sign convention: some centers store negatives (the
+  # standard convention), others store the absolute value. Take abs() once
+  # here so every downstream summary (medians, abnormal flag, spline) uses
+  # magnitudes only.
+  mutate(echo_gls = abs(echo_gls))
 
 preterli_echo <- echo_cohort %>%
   filter(days_to_echo < days_to_terli_initiation_day0) %>%
@@ -138,10 +143,9 @@ preterli_echo <- echo_cohort %>%
                                       NA_real_, as.numeric(echo_ef < 60)),
     echo_eeratio_abnormal   = if_else(is.na(echo_eeratio),
                                       NA_real_, as.numeric(echo_eeratio > 15)),
-    # GLS uses |GLS| < 18 because some centers store the value as a negative
-    # number (standard convention) while others store the absolute value.
+    # echo_gls is already stored as a magnitude (see harmonization in echo_cohort).
     echo_gls_abnormal       = if_else(is.na(echo_gls),
-                                      NA_real_, as.numeric(abs(echo_gls) < 18)),
+                                      NA_real_, as.numeric(echo_gls < 18)),
     echo_lateral_e_abnormal = if_else(is.na(echo_lateral_e),
                                       NA_real_, as.numeric(echo_lateral_e < 10)),
     # TR is unit-aware: < 100 treated as m/s (cutoff 2.8); >= 100 as cm/s (cutoff 280).
@@ -230,10 +234,10 @@ knitr::kable(t4, caption = "Task 4 — Demographics by `hrs_responders` (3-level
 
 [📥 Download CSV — Task 4](tables/task4_demographics_hrs_responders.csv)
 
-::: {.callout-warning}
-## `echo_gls` quirk
+::: {.callout-note}
+## `echo_gls` harmonization
 
-In the pre-terli echo cohort, `echo_gls` ranges from **−20 to +25** — some centers store GLS as a negative number (the standard convention) and others store the absolute value. **83 %** of the cohort is missing GLS. Tasks 5–7 below report raw values only; medians are unstable and any future modeling on GLS should harmonize sign per center or work with `abs(echo_gls)`.
+Source data mixed two conventions — some centers stored GLS as a negative number (standard) and others stored the absolute value, so the raw range was **−20 to +25**. The cohort prep above takes `abs(echo_gls)` once, so every summary below — Tasks 5–7 medians and the `echo_gls_abnormal` flag — operates on the magnitude. **83 %** of the pre-terli cohort is still missing GLS, so the medians are n-limited.
 :::
 
 # Task 5 — Echo × `hrs_responders_cat_2`

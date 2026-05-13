@@ -41,7 +41,7 @@ The **abnormal-echo flag** definitions (EF < 60, \|GLS\| < 18, E/e′ > 15, late
 
 ## Data Caveats
 
-- **`echo_gls` has mixed signs across centers** — range observed in the pre-terli echo cohort is roughly **−20 to +25**, indicating that some sites store GLS as a negative number (the standard convention) while others store the absolute value. **83 % of the pre-terli cohort is missing GLS.** Any model or threshold that uses GLS must either harmonize the sign convention per center or operate on `abs(echo_gls)`. The current `docs/analysis.qmd` reports raw values only — it does *not* derive an abnormal flag from GLS.
+- **`echo_gls` is harmonized to `abs(echo_gls)` in the `echo_cohort` step** — source data mixed two conventions (some centers store negative GLS, others store the absolute value; raw range was **−20 to +25**). `docs/analysis.qmd` takes `abs()` once at the cohort prep, so every downstream summary (Tasks 5–7 medians, the `echo_gls_abnormal` flag, splines) operates on magnitudes only. **83 % of the pre-terli cohort is still missing GLS**, so the medians remain n-limited.
 
 ## Sourcing the Shared Pipeline
 
