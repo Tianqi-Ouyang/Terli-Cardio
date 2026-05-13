@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Tianqi Ouyang">
-<meta name="dcterms.date" content="2026-05-11">
+<meta name="dcterms.date" content="2026-05-13">
 
 <title>Cardio — Analysis – Terlipressin — Cardio</title>
 <style>
@@ -198,7 +198,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 11, 2026</p>
+      <p class="date">May 13, 2026</p>
     </div>
   </div>
   
@@ -222,33 +222,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    echo_gls_notavailable___999     <span class="sc">==</span> <span class="dv">0</span> <span class="sc">|</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    echo_earatio_notavailable___999 <span class="sc">==</span> <span class="dv">0</span> <span class="sc">|</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    echo_eeratio_notavailable___999 <span class="sc">==</span> <span class="dv">0</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>preterli_echo <span class="ot">&lt;-</span> echo_cohort <span class="sc">%&gt;%</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(days_to_echo <span class="sc">&lt;</span> days_to_terli_initiation_day0) <span class="sc">%&gt;%</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Abnormal-echo flags (1 = abnormal, 0 = normal, NA if measurement missing)</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_ef_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_ef),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_ef <span class="sc">&lt;</span> <span class="dv">60</span>)),</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_eeratio_abnormal   =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_eeratio),</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_eeratio <span class="sc">&gt;</span> <span class="dv">15</span>)),</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># GLS uses |GLS| &lt; 18 because some centers store the value as a negative</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># number (standard convention) while others store the absolute value.</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_gls_abnormal       =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_gls),</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(<span class="fu">abs</span>(echo_gls) <span class="sc">&lt;</span> <span class="dv">18</span>)),</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_lateral_e_abnormal =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_lateral_e),</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_lateral_e <span class="sc">&lt;</span> <span class="dv">10</span>)),</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># TR is unit-aware: &lt; 100 treated as m/s (cutoff 2.8); &gt;= 100 as cm/s (cutoff 280).</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_tr_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_tr),</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>,</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>                                      <span class="fu">as.numeric</span>(<span class="fu">if_else</span>(echo_tr <span class="sc">&lt;</span> <span class="dv">100</span>,</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>                                                         echo_tr <span class="sc">&gt;</span> <span class="fl">2.8</span>,</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>                                                         echo_tr <span class="sc">&gt;</span> <span class="dv">280</span>))),</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_lavi_abnormal      =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_lavi),</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_lavi <span class="sc">&gt;</span> <span class="dv">34</span>))</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Echo cohort N      :"</span>, <span class="fu">nrow</span>(echo_cohort),    <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Harmonize echo_gls sign convention: some centers store negatives (the</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># standard convention), others store the absolute value. Take abs() once</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># here so every downstream summary (medians, abnormal flag, spline) uses</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># magnitudes only.</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">echo_gls =</span> <span class="fu">abs</span>(echo_gls))</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>preterli_echo <span class="ot">&lt;-</span> echo_cohort <span class="sc">%&gt;%</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(days_to_echo <span class="sc">&lt;</span> days_to_terli_initiation_day0) <span class="sc">%&gt;%</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Abnormal-echo flags (1 = abnormal, 0 = normal, NA if measurement missing)</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_ef_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_ef),</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_ef <span class="sc">&lt;</span> <span class="dv">60</span>)),</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_eeratio_abnormal   =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_eeratio),</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_eeratio <span class="sc">&gt;</span> <span class="dv">15</span>)),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># echo_gls is already stored as a magnitude (see harmonization in echo_cohort).</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_gls_abnormal       =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_gls),</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_gls <span class="sc">&lt;</span> <span class="dv">18</span>)),</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_lateral_e_abnormal =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_lateral_e),</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_lateral_e <span class="sc">&lt;</span> <span class="dv">10</span>)),</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># TR is unit-aware: &lt; 100 treated as m/s (cutoff 2.8); &gt;= 100 as cm/s (cutoff 280).</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_tr_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_tr),</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>,</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>                                      <span class="fu">as.numeric</span>(<span class="fu">if_else</span>(echo_tr <span class="sc">&lt;</span> <span class="dv">100</span>,</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>                                                         echo_tr <span class="sc">&gt;</span> <span class="fl">2.8</span>,</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>                                                         echo_tr <span class="sc">&gt;</span> <span class="dv">280</span>))),</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_lavi_abnormal      =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_lavi),</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_lavi <span class="sc">&gt;</span> <span class="dv">34</span>))</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Echo cohort N      :"</span>, <span class="fu">nrow</span>(echo_cohort),    <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Echo cohort N      : 243 </code></pre>
@@ -1989,17 +1993,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p><a href="tables/task4_demographics_hrs_responders.csv">📥 Download CSV — Task 4</a></p>
-<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span><code>echo_gls</code> quirk
+<span class="screen-reader-only">Note</span><code>echo_gls</code> harmonization
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>In the pre-terli echo cohort, <code>echo_gls</code> ranges from <strong>−20 to +25</strong> — some centers store GLS as a negative number (the standard convention) and others store the absolute value. <strong>83 %</strong> of the cohort is missing GLS. Tasks 5–7 below report raw values only; medians are unstable and any future modeling on GLS should harmonize sign per center or work with <code>abs(echo_gls)</code>.</p>
+<p>Source data mixed two conventions — some centers stored GLS as a negative number (standard) and others stored the absolute value, so the raw range was <strong>−20 to +25</strong>. The cohort prep above takes <code>abs(echo_gls)</code> once, so every summary below — Tasks 5–7 medians and the <code>echo_gls_abnormal</code> flag — operates on the magnitude. <strong>83 %</strong> of the pre-terli cohort is still missing GLS, so the medians are n-limited.</p>
 </div>
 </div>
 </section>
@@ -2033,8 +2037,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <colgroup>
 <col style="width: 24%">
 <col style="width: 4%">
-<col style="width: 16%">
-<col style="width: 18%">
+<col style="width: 17%">
+<col style="width: 17%">
 <col style="width: 17%">
 <col style="width: 4%">
 <col style="width: 6%">
@@ -2096,10 +2100,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">echo_gls (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">0.65 [-20.77, 25.00]</td>
-<td style="text-align: left;">-18.50 [-20.85, 21.80]</td>
-<td style="text-align: left;">22.70 [-20.70, 25.30]</td>
-<td style="text-align: left;">0.368</td>
+<td style="text-align: left;">22.60 [20.47, 25.35]</td>
+<td style="text-align: left;">22.50 [19.50, 24.65]</td>
+<td style="text-align: left;">22.70 [21.00, 25.30]</td>
+<td style="text-align: left;">0.560</td>
 <td style="text-align: left;">nonnorm</td>
 <td style="text-align: left;">83.0</td>
 </tr>
@@ -2317,8 +2321,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">echo_gls (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">0.65 [-20.77, 25.00]</td>
-<td style="text-align: left;">0.65 [-20.77, 25.00]</td>
+<td style="text-align: left;">22.60 [20.47, 25.35]</td>
+<td style="text-align: left;">22.60 [20.47, 25.35]</td>
 <td style="text-align: left;">NA [NA, NA]</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">nonnorm</td>
@@ -2476,9 +2480,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <colgroup>
 <col style="width: 24%">
 <col style="width: 4%">
-<col style="width: 16%">
 <col style="width: 17%">
-<col style="width: 18%">
+<col style="width: 17%">
+<col style="width: 17%">
 <col style="width: 4%">
 <col style="width: 6%">
 <col style="width: 6%">
@@ -2539,10 +2543,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">echo_gls (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">0.65 [-20.77, 25.00]</td>
-<td style="text-align: left;">19.80 [-21.00, 23.80]</td>
-<td style="text-align: left;">-18.50 [-19.95, 25.20]</td>
-<td style="text-align: left;">0.791</td>
+<td style="text-align: left;">22.60 [20.47, 25.35]</td>
+<td style="text-align: left;">22.50 [21.00, 23.80]</td>
+<td style="text-align: left;">24.90 [19.95, 26.10]</td>
+<td style="text-align: left;">0.634</td>
 <td style="text-align: left;">nonnorm</td>
 <td style="text-align: left;">83.0</td>
 </tr>
