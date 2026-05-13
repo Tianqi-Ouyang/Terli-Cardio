@@ -1993,19 +1993,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p><a href="tables/task4_demographics_hrs_responders.csv">📥 Download CSV — Task 4</a></p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span><code>echo_gls</code> harmonization
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Source data mixed two conventions — some centers stored GLS as a negative number (standard) and others stored the absolute value, so the raw range was <strong>−20 to +25</strong>. The cohort prep above takes <code>abs(echo_gls)</code> once, so every summary below — Tasks 5–7 medians and the <code>echo_gls_abnormal</code> flag — operates on the magnitude. <strong>83 %</strong> of the pre-terli cohort is still missing GLS, so the medians are n-limited.</p>
-</div>
-</div>
 </section>
 <section id="task-5-echo-hrs_responders_cat_2" class="level1">
 <h1>Task 5 — Echo × <code>hrs_responders_cat_2</code></h1>
