@@ -228,29 +228,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">echo_gls =</span> <span class="fu">abs</span>(echo_gls))</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>preterli_echo <span class="ot">&lt;-</span> echo_cohort <span class="sc">%&gt;%</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(days_to_echo <span class="sc">&lt;</span> days_to_terli_initiation_day0) <span class="sc">%&gt;%</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Abnormal-echo flags (1 = abnormal, 0 = normal, NA if measurement missing)</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_ef_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_ef),</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_ef <span class="sc">&lt;</span> <span class="dv">60</span>)),</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_eeratio_abnormal   =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_eeratio),</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_eeratio <span class="sc">&gt;</span> <span class="dv">15</span>)),</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># echo_gls is already stored as a magnitude (see harmonization in echo_cohort).</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_gls_abnormal       =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_gls),</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_gls <span class="sc">&lt;</span> <span class="dv">18</span>)),</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_lateral_e_abnormal =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_lateral_e),</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_lateral_e <span class="sc">&lt;</span> <span class="dv">10</span>)),</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># TR is unit-aware: &lt; 100 treated as m/s (cutoff 2.8); &gt;= 100 as cm/s (cutoff 280).</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_tr_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_tr),</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>,</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>                                      <span class="fu">as.numeric</span>(<span class="fu">if_else</span>(echo_tr <span class="sc">&lt;</span> <span class="dv">100</span>,</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>                                                         echo_tr <span class="sc">&gt;</span> <span class="fl">2.8</span>,</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>                                                         echo_tr <span class="sc">&gt;</span> <span class="dv">280</span>))),</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_lavi_abnormal      =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_lavi),</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_lavi <span class="sc">&gt;</span> <span class="dv">34</span>))</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Echo cohort N      :"</span>, <span class="fu">nrow</span>(echo_cohort),    <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Pre-terli OR same-day echo (per analyst spec — adds 13 same-day patients</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># on top of the strict pre-terli set).</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(days_to_echo <span class="sc">&lt;=</span> days_to_terli_initiation_day0) <span class="sc">%&gt;%</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Abnormal-echo flags (1 = abnormal, 0 = normal, NA if measurement missing)</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_ef_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_ef),</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_ef <span class="sc">&lt;</span> <span class="dv">60</span>)),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_eeratio_abnormal   =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_eeratio),</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_eeratio <span class="sc">&gt;</span> <span class="dv">15</span>)),</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># echo_gls is already stored as a magnitude (see harmonization in echo_cohort).</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_gls_abnormal       =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_gls),</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_gls <span class="sc">&lt;</span> <span class="dv">18</span>)),</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_lateral_e_abnormal =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_lateral_e),</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_lateral_e <span class="sc">&lt;</span> <span class="dv">10</span>)),</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># TR is unit-aware: &lt; 100 treated as m/s (cutoff 2.8); &gt;= 100 as cm/s (cutoff 280).</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_tr_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_tr),</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>,</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>                                      <span class="fu">as.numeric</span>(<span class="fu">if_else</span>(echo_tr <span class="sc">&lt;</span> <span class="dv">100</span>,</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>                                                         echo_tr <span class="sc">&gt;</span> <span class="fl">2.8</span>,</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>                                                         echo_tr <span class="sc">&gt;</span> <span class="dv">280</span>))),</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_lavi_abnormal      =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_lavi),</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_lavi <span class="sc">&gt;</span> <span class="dv">34</span>))</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Echo cohort N      :"</span>, <span class="fu">nrow</span>(echo_cohort),    <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Echo cohort N      : 243 </code></pre>
@@ -260,7 +262,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Pre-terli cohort N :"</span>, <span class="fu">nrow</span>(preterli_echo), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Pre-terli cohort N : 94 </code></pre>
+<pre><code>Pre-terli cohort N : 107 </code></pre>
 </div>
 </div>
 </section>
@@ -315,7 +317,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="task-4-demographics-hrs_responders" class="level1">
 <h1>Task 4 — Demographics × <code>hrs_responders</code></h1>
-<p><strong>Cohort:</strong> Pre-terli echo (N = 94)</p>
+<p><strong>Cohort:</strong> Pre-terli + same-day echo (N = 107)</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show demographic variable lists + Table 1 call</summary>
@@ -394,10 +396,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">n</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">94</td>
-<td style="text-align: left;">34</td>
-<td style="text-align: left;">20</td>
+<td style="text-align: left;">107</td>
 <td style="text-align: left;">40</td>
+<td style="text-align: left;">23</td>
+<td style="text-align: left;">44</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -405,32 +407,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">age (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">58.10 [50.47, 63.75]</td>
-<td style="text-align: left;">53.65 [43.42, 65.02]</td>
-<td style="text-align: left;">61.45 [55.95, 63.75]</td>
-<td style="text-align: left;">57.90 [51.95, 63.28]</td>
-<td style="text-align: left;">0.258</td>
+<td style="text-align: left;">57.60 [50.80, 63.70]</td>
+<td style="text-align: left;">54.40 [43.48, 64.88]</td>
+<td style="text-align: left;">61.60 [56.65, 63.90]</td>
+<td style="text-align: left;">57.65 [51.95, 63.28]</td>
+<td style="text-align: left;">0.099</td>
 <td style="text-align: left;">nonnorm</td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">sex_male (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">39 (41.5)</td>
-<td style="text-align: left;">15 (44.1)</td>
-<td style="text-align: left;">10 (50.0)</td>
-<td style="text-align: left;">14 (35.0)</td>
-<td style="text-align: left;">0.500</td>
+<td style="text-align: left;">42 (39.3)</td>
+<td style="text-align: left;">16 (40.0)</td>
+<td style="text-align: left;">10 (43.5)</td>
+<td style="text-align: left;">16 (36.4)</td>
+<td style="text-align: left;">0.846</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">55 (58.5)</td>
-<td style="text-align: left;">19 (55.9)</td>
-<td style="text-align: left;">10 (50.0)</td>
-<td style="text-align: left;">26 (65.0)</td>
+<td style="text-align: left;">65 (60.7)</td>
+<td style="text-align: left;">24 (60.0)</td>
+<td style="text-align: left;">13 (56.5)</td>
+<td style="text-align: left;">28 (63.6)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -438,21 +440,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">race (%)</td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">78 (83.0)</td>
-<td style="text-align: left;">30 (88.2)</td>
-<td style="text-align: left;">15 (75.0)</td>
-<td style="text-align: left;">33 (82.5)</td>
-<td style="text-align: left;">0.550</td>
+<td style="text-align: left;">90 (84.1)</td>
+<td style="text-align: left;">35 (87.5)</td>
+<td style="text-align: left;">18 (78.3)</td>
+<td style="text-align: left;">37 (84.1)</td>
+<td style="text-align: left;">0.548</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">2</td>
-<td style="text-align: left;">4 (4.3)</td>
+<td style="text-align: left;">4 (3.7)</td>
 <td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">2 (10.0)</td>
-<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;">2 (8.7)</td>
+<td style="text-align: left;">2 (4.5)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -460,10 +462,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">3</td>
-<td style="text-align: left;">1 (1.1)</td>
+<td style="text-align: left;">1 (0.9)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;">1 (2.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -471,10 +473,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">4</td>
-<td style="text-align: left;">11 (11.7)</td>
-<td style="text-align: left;">4 (11.8)</td>
-<td style="text-align: left;">3 (15.0)</td>
-<td style="text-align: left;">4 (10.0)</td>
+<td style="text-align: left;">12 (11.2)</td>
+<td style="text-align: left;">5 (12.5)</td>
+<td style="text-align: left;">3 (13.0)</td>
+<td style="text-align: left;">4 (9.1)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -482,21 +484,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">hispanic (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">78 (83.0)</td>
-<td style="text-align: left;">27 (79.4)</td>
-<td style="text-align: left;">19 (95.0)</td>
+<td style="text-align: left;">88 (82.2)</td>
 <td style="text-align: left;">32 (80.0)</td>
-<td style="text-align: left;">0.272</td>
+<td style="text-align: left;">21 (91.3)</td>
+<td style="text-align: left;">35 (79.5)</td>
+<td style="text-align: left;">0.438</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">16 (17.0)</td>
-<td style="text-align: left;">7 (20.6)</td>
-<td style="text-align: left;">1 (5.0)</td>
+<td style="text-align: left;">19 (17.8)</td>
 <td style="text-align: left;">8 (20.0)</td>
+<td style="text-align: left;">2 (8.7)</td>
+<td style="text-align: left;">9 (20.5)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -504,21 +506,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">cirrhosis_etiology (%)</td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">59 (62.8)</td>
-<td style="text-align: left;">21 (61.8)</td>
-<td style="text-align: left;">12 (60.0)</td>
-<td style="text-align: left;">26 (65.0)</td>
-<td style="text-align: left;">0.610</td>
+<td style="text-align: left;">67 (62.6)</td>
+<td style="text-align: left;">25 (62.5)</td>
+<td style="text-align: left;">15 (65.2)</td>
+<td style="text-align: left;">27 (61.4)</td>
+<td style="text-align: left;">0.697</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">2</td>
-<td style="text-align: left;">15 (16.0)</td>
-<td style="text-align: left;">6 (17.6)</td>
-<td style="text-align: left;">3 (15.0)</td>
+<td style="text-align: left;">17 (15.9)</td>
 <td style="text-align: left;">6 (15.0)</td>
+<td style="text-align: left;">3 (13.0)</td>
+<td style="text-align: left;">8 (18.2)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -526,10 +528,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">3</td>
-<td style="text-align: left;">3 (3.2)</td>
+<td style="text-align: left;">3 (2.8)</td>
 <td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">2 (10.0)</td>
-<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;">2 (8.7)</td>
+<td style="text-align: left;">1 (2.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -537,10 +539,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">4</td>
-<td style="text-align: left;">7 (7.4)</td>
-<td style="text-align: left;">4 (11.8)</td>
+<td style="text-align: left;">7 (6.5)</td>
+<td style="text-align: left;">4 (10.0)</td>
 <td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">3 (7.5)</td>
+<td style="text-align: left;">3 (6.8)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -548,10 +550,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">5</td>
-<td style="text-align: left;">6 (6.4)</td>
-<td style="text-align: left;">1 (2.9)</td>
-<td style="text-align: left;">2 (10.0)</td>
-<td style="text-align: left;">3 (7.5)</td>
+<td style="text-align: left;">7 (6.5)</td>
+<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;">2 (8.7)</td>
+<td style="text-align: left;">3 (6.8)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -559,10 +561,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">6</td>
-<td style="text-align: left;">4 (4.3)</td>
-<td style="text-align: left;">2 (5.9)</td>
-<td style="text-align: left;">1 (5.0)</td>
-<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;">6 (5.6)</td>
+<td style="text-align: left;">3 (7.5)</td>
+<td style="text-align: left;">1 (4.3)</td>
+<td style="text-align: left;">2 (4.5)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -570,21 +572,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">etoh_hepatitis (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">65 (69.1)</td>
-<td style="text-align: left;">23 (67.6)</td>
-<td style="text-align: left;">16 (80.0)</td>
-<td style="text-align: left;">26 (65.0)</td>
-<td style="text-align: left;">0.481</td>
+<td style="text-align: left;">75 (70.8)</td>
+<td style="text-align: left;">27 (67.5)</td>
+<td style="text-align: left;">19 (82.6)</td>
+<td style="text-align: left;">29 (67.4)</td>
+<td style="text-align: left;">0.369</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">0.0</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">29 (30.9)</td>
-<td style="text-align: left;">11 (32.4)</td>
-<td style="text-align: left;">4 (20.0)</td>
-<td style="text-align: left;">14 (35.0)</td>
+<td style="text-align: left;">31 (29.2)</td>
+<td style="text-align: left;">13 (32.5)</td>
+<td style="text-align: left;">4 (17.4)</td>
+<td style="text-align: left;">14 (32.6)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -592,21 +594,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">hegrade_admit (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">51 (54.8)</td>
-<td style="text-align: left;">16 (48.5)</td>
-<td style="text-align: left;">12 (60.0)</td>
-<td style="text-align: left;">23 (57.5)</td>
-<td style="text-align: left;">0.870</td>
+<td style="text-align: left;">58 (54.7)</td>
+<td style="text-align: left;">21 (53.8)</td>
+<td style="text-align: left;">13 (56.5)</td>
+<td style="text-align: left;">24 (54.5)</td>
+<td style="text-align: left;">0.924</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">27 (29.0)</td>
-<td style="text-align: left;">11 (33.3)</td>
-<td style="text-align: left;">5 (25.0)</td>
-<td style="text-align: left;">11 (27.5)</td>
+<td style="text-align: left;">31 (29.2)</td>
+<td style="text-align: left;">12 (30.8)</td>
+<td style="text-align: left;">6 (26.1)</td>
+<td style="text-align: left;">13 (29.5)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -614,10 +616,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">2</td>
-<td style="text-align: left;">10 (10.8)</td>
-<td style="text-align: left;">4 (12.1)</td>
-<td style="text-align: left;">2 (10.0)</td>
-<td style="text-align: left;">4 (10.0)</td>
+<td style="text-align: left;">12 (11.3)</td>
+<td style="text-align: left;">4 (10.3)</td>
+<td style="text-align: left;">3 (13.0)</td>
+<td style="text-align: left;">5 (11.4)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -625,10 +627,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">3</td>
-<td style="text-align: left;">2 (2.2)</td>
+<td style="text-align: left;">2 (1.9)</td>
 <td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">1 (5.0)</td>
-<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;">1 (4.3)</td>
+<td style="text-align: left;">1 (2.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -636,10 +638,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">4</td>
-<td style="text-align: left;">3 (3.2)</td>
-<td style="text-align: left;">2 (6.1)</td>
+<td style="text-align: left;">3 (2.8)</td>
+<td style="text-align: left;">2 (5.1)</td>
 <td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;">1 (2.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -647,21 +649,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">admit_ascites (%)</td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">5 (5.4)</td>
-<td style="text-align: left;">1 (2.9)</td>
-<td style="text-align: left;">3 (15.8)</td>
-<td style="text-align: left;">1 (2.5)</td>
-<td style="text-align: left;">0.102</td>
+<td style="text-align: left;">6 (5.7)</td>
+<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;">3 (13.6)</td>
+<td style="text-align: left;">1 (2.3)</td>
+<td style="text-align: left;">0.217</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">2</td>
-<td style="text-align: left;">55 (59.1)</td>
-<td style="text-align: left;">18 (52.9)</td>
-<td style="text-align: left;">9 (47.4)</td>
-<td style="text-align: left;">28 (70.0)</td>
+<td style="text-align: left;">64 (60.4)</td>
+<td style="text-align: left;">22 (55.0)</td>
+<td style="text-align: left;">11 (50.0)</td>
+<td style="text-align: left;">31 (70.5)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -669,10 +671,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">3</td>
-<td style="text-align: left;">33 (35.5)</td>
-<td style="text-align: left;">15 (44.1)</td>
-<td style="text-align: left;">7 (36.8)</td>
-<td style="text-align: left;">11 (27.5)</td>
+<td style="text-align: left;">36 (34.0)</td>
+<td style="text-align: left;">16 (40.0)</td>
+<td style="text-align: left;">8 (36.4)</td>
+<td style="text-align: left;">12 (27.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -680,21 +682,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">htn_medical_hx (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">50 (53.2)</td>
-<td style="text-align: left;">19 (55.9)</td>
-<td style="text-align: left;">10 (50.0)</td>
-<td style="text-align: left;">21 (52.5)</td>
-<td style="text-align: left;">0.910</td>
+<td style="text-align: left;">59 (55.1)</td>
+<td style="text-align: left;">24 (60.0)</td>
+<td style="text-align: left;">12 (52.2)</td>
+<td style="text-align: left;">23 (52.3)</td>
+<td style="text-align: left;">0.737</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">44 (46.8)</td>
-<td style="text-align: left;">15 (44.1)</td>
-<td style="text-align: left;">10 (50.0)</td>
-<td style="text-align: left;">19 (47.5)</td>
+<td style="text-align: left;">48 (44.9)</td>
+<td style="text-align: left;">16 (40.0)</td>
+<td style="text-align: left;">11 (47.8)</td>
+<td style="text-align: left;">21 (47.7)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -702,21 +704,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">dm_medical_hx (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">63 (67.0)</td>
-<td style="text-align: left;">20 (58.8)</td>
-<td style="text-align: left;">16 (80.0)</td>
-<td style="text-align: left;">27 (67.5)</td>
-<td style="text-align: left;">0.278</td>
+<td style="text-align: left;">73 (68.2)</td>
+<td style="text-align: left;">26 (65.0)</td>
+<td style="text-align: left;">18 (78.3)</td>
+<td style="text-align: left;">29 (65.9)</td>
+<td style="text-align: left;">0.504</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">31 (33.0)</td>
-<td style="text-align: left;">14 (41.2)</td>
-<td style="text-align: left;">4 (20.0)</td>
-<td style="text-align: left;">13 (32.5)</td>
+<td style="text-align: left;">34 (31.8)</td>
+<td style="text-align: left;">14 (35.0)</td>
+<td style="text-align: left;">5 (21.7)</td>
+<td style="text-align: left;">15 (34.1)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -724,21 +726,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">ckd_medical_hx (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">66 (70.2)</td>
-<td style="text-align: left;">22 (64.7)</td>
-<td style="text-align: left;">15 (75.0)</td>
-<td style="text-align: left;">29 (72.5)</td>
-<td style="text-align: left;">0.666</td>
+<td style="text-align: left;">77 (72.0)</td>
+<td style="text-align: left;">28 (70.0)</td>
+<td style="text-align: left;">17 (73.9)</td>
+<td style="text-align: left;">32 (72.7)</td>
+<td style="text-align: left;">0.936</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">28 (29.8)</td>
-<td style="text-align: left;">12 (35.3)</td>
-<td style="text-align: left;">5 (25.0)</td>
-<td style="text-align: left;">11 (27.5)</td>
+<td style="text-align: left;">30 (28.0)</td>
+<td style="text-align: left;">12 (30.0)</td>
+<td style="text-align: left;">6 (26.1)</td>
+<td style="text-align: left;">12 (27.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -746,21 +748,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">cad_medical_hx (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">74 (78.7)</td>
-<td style="text-align: left;">27 (79.4)</td>
-<td style="text-align: left;">14 (70.0)</td>
+<td style="text-align: left;">86 (80.4)</td>
 <td style="text-align: left;">33 (82.5)</td>
-<td style="text-align: left;">0.533</td>
+<td style="text-align: left;">16 (69.6)</td>
+<td style="text-align: left;">37 (84.1)</td>
+<td style="text-align: left;">0.332</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">20 (21.3)</td>
-<td style="text-align: left;">7 (20.6)</td>
-<td style="text-align: left;">6 (30.0)</td>
+<td style="text-align: left;">21 (19.6)</td>
 <td style="text-align: left;">7 (17.5)</td>
+<td style="text-align: left;">7 (30.4)</td>
+<td style="text-align: left;">7 (15.9)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -768,21 +770,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">sbp_ppx_preadmission (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">64 (69.6)</td>
-<td style="text-align: left;">24 (70.6)</td>
-<td style="text-align: left;">16 (88.9)</td>
-<td style="text-align: left;">24 (60.0)</td>
-<td style="text-align: left;">0.356</td>
+<td style="text-align: left;">73 (69.5)</td>
+<td style="text-align: left;">30 (75.0)</td>
+<td style="text-align: left;">16 (76.2)</td>
+<td style="text-align: left;">27 (61.4)</td>
+<td style="text-align: left;">0.669</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">2.1</td>
+<td style="text-align: left;">1.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">20 (21.7)</td>
-<td style="text-align: left;">6 (17.6)</td>
-<td style="text-align: left;">2 (11.1)</td>
-<td style="text-align: left;">12 (30.0)</td>
+<td style="text-align: left;">22 (21.0)</td>
+<td style="text-align: left;">6 (15.0)</td>
+<td style="text-align: left;">3 (14.3)</td>
+<td style="text-align: left;">13 (29.5)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -790,10 +792,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">2</td>
-<td style="text-align: left;">3 (3.3)</td>
-<td style="text-align: left;">1 (2.9)</td>
-<td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;">4 (3.8)</td>
+<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;">1 (4.8)</td>
+<td style="text-align: left;">2 (4.5)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -801,10 +803,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">3</td>
-<td style="text-align: left;">5 (5.4)</td>
-<td style="text-align: left;">3 (8.8)</td>
-<td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;">6 (5.7)</td>
+<td style="text-align: left;">3 (7.5)</td>
+<td style="text-align: left;">1 (4.8)</td>
+<td style="text-align: left;">2 (4.5)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -812,21 +814,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">lactulose_preadmission (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">43 (46.2)</td>
-<td style="text-align: left;">15 (44.1)</td>
-<td style="text-align: left;">11 (57.9)</td>
-<td style="text-align: left;">17 (42.5)</td>
-<td style="text-align: left;">0.516</td>
+<td style="text-align: left;">51 (48.1)</td>
+<td style="text-align: left;">20 (50.0)</td>
+<td style="text-align: left;">12 (54.5)</td>
+<td style="text-align: left;">19 (43.2)</td>
+<td style="text-align: left;">0.654</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">50 (53.8)</td>
-<td style="text-align: left;">19 (55.9)</td>
-<td style="text-align: left;">8 (42.1)</td>
-<td style="text-align: left;">23 (57.5)</td>
+<td style="text-align: left;">55 (51.9)</td>
+<td style="text-align: left;">20 (50.0)</td>
+<td style="text-align: left;">10 (45.5)</td>
+<td style="text-align: left;">25 (56.8)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -834,21 +836,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">ascites_previous_comp (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">11 (11.7)</td>
-<td style="text-align: left;">2 (5.9)</td>
-<td style="text-align: left;">3 (15.0)</td>
-<td style="text-align: left;">6 (15.0)</td>
-<td style="text-align: left;">0.418</td>
+<td style="text-align: left;">14 (13.1)</td>
+<td style="text-align: left;">5 (12.5)</td>
+<td style="text-align: left;">3 (13.0)</td>
+<td style="text-align: left;">6 (13.6)</td>
+<td style="text-align: left;">0.988</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">83 (88.3)</td>
-<td style="text-align: left;">32 (94.1)</td>
-<td style="text-align: left;">17 (85.0)</td>
-<td style="text-align: left;">34 (85.0)</td>
+<td style="text-align: left;">93 (86.9)</td>
+<td style="text-align: left;">35 (87.5)</td>
+<td style="text-align: left;">20 (87.0)</td>
+<td style="text-align: left;">38 (86.4)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -856,21 +858,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">refascites_previous_comp (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">37 (46.2)</td>
-<td style="text-align: left;">17 (53.1)</td>
-<td style="text-align: left;">8 (53.3)</td>
-<td style="text-align: left;">12 (36.4)</td>
-<td style="text-align: left;">0.331</td>
+<td style="text-align: left;">42 (46.7)</td>
+<td style="text-align: left;">19 (54.3)</td>
+<td style="text-align: left;">9 (50.0)</td>
+<td style="text-align: left;">14 (37.8)</td>
+<td style="text-align: left;">0.358</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">14.9</td>
+<td style="text-align: left;">15.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">43 (53.8)</td>
-<td style="text-align: left;">15 (46.9)</td>
-<td style="text-align: left;">7 (46.7)</td>
-<td style="text-align: left;">21 (63.6)</td>
+<td style="text-align: left;">48 (53.3)</td>
+<td style="text-align: left;">16 (45.7)</td>
+<td style="text-align: left;">9 (50.0)</td>
+<td style="text-align: left;">23 (62.2)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -878,21 +880,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">he_previous_comp (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">43 (45.7)</td>
-<td style="text-align: left;">15 (44.1)</td>
-<td style="text-align: left;">9 (45.0)</td>
-<td style="text-align: left;">19 (47.5)</td>
-<td style="text-align: left;">0.956</td>
+<td style="text-align: left;">48 (45.3)</td>
+<td style="text-align: left;">19 (48.7)</td>
+<td style="text-align: left;">9 (39.1)</td>
+<td style="text-align: left;">20 (45.5)</td>
+<td style="text-align: left;">0.764</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">0.0</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">51 (54.3)</td>
-<td style="text-align: left;">19 (55.9)</td>
-<td style="text-align: left;">11 (55.0)</td>
-<td style="text-align: left;">21 (52.5)</td>
+<td style="text-align: left;">58 (54.7)</td>
+<td style="text-align: left;">20 (51.3)</td>
+<td style="text-align: left;">14 (60.9)</td>
+<td style="text-align: left;">24 (54.5)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -900,21 +902,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">sbp_previous_comp (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">71 (77.2)</td>
-<td style="text-align: left;">27 (81.8)</td>
-<td style="text-align: left;">14 (73.7)</td>
-<td style="text-align: left;">30 (75.0)</td>
-<td style="text-align: left;">0.725</td>
+<td style="text-align: left;">80 (76.2)</td>
+<td style="text-align: left;">33 (84.6)</td>
+<td style="text-align: left;">15 (68.2)</td>
+<td style="text-align: left;">32 (72.7)</td>
+<td style="text-align: left;">0.273</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">2.1</td>
+<td style="text-align: left;">1.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">21 (22.8)</td>
-<td style="text-align: left;">6 (18.2)</td>
-<td style="text-align: left;">5 (26.3)</td>
-<td style="text-align: left;">10 (25.0)</td>
+<td style="text-align: left;">25 (23.8)</td>
+<td style="text-align: left;">6 (15.4)</td>
+<td style="text-align: left;">7 (31.8)</td>
+<td style="text-align: left;">12 (27.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -922,21 +924,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">nonsbp_previous_comp (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">75 (82.4)</td>
-<td style="text-align: left;">25 (78.1)</td>
-<td style="text-align: left;">13 (68.4)</td>
-<td style="text-align: left;">37 (92.5)</td>
-<td style="text-align: left;">0.056</td>
+<td style="text-align: left;">86 (82.7)</td>
+<td style="text-align: left;">29 (76.3)</td>
+<td style="text-align: left;">16 (72.7)</td>
+<td style="text-align: left;">41 (93.2)</td>
+<td style="text-align: left;">0.050</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">3.2</td>
+<td style="text-align: left;">2.8</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">16 (17.6)</td>
-<td style="text-align: left;">7 (21.9)</td>
-<td style="text-align: left;">6 (31.6)</td>
-<td style="text-align: left;">3 (7.5)</td>
+<td style="text-align: left;">18 (17.3)</td>
+<td style="text-align: left;">9 (23.7)</td>
+<td style="text-align: left;">6 (27.3)</td>
+<td style="text-align: left;">3 (6.8)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -944,21 +946,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">phtn_bleed_previous_comp (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">72 (77.4)</td>
-<td style="text-align: left;">29 (85.3)</td>
-<td style="text-align: left;">15 (78.9)</td>
-<td style="text-align: left;">28 (70.0)</td>
-<td style="text-align: left;">0.288</td>
+<td style="text-align: left;">82 (77.4)</td>
+<td style="text-align: left;">33 (82.5)</td>
+<td style="text-align: left;">17 (77.3)</td>
+<td style="text-align: left;">32 (72.7)</td>
+<td style="text-align: left;">0.565</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">21 (22.6)</td>
-<td style="text-align: left;">5 (14.7)</td>
-<td style="text-align: left;">4 (21.1)</td>
-<td style="text-align: left;">12 (30.0)</td>
+<td style="text-align: left;">24 (22.6)</td>
+<td style="text-align: left;">7 (17.5)</td>
+<td style="text-align: left;">5 (22.7)</td>
+<td style="text-align: left;">12 (27.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -966,21 +968,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">hcc_previous_comp (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">89 (95.7)</td>
-<td style="text-align: left;">33 (97.1)</td>
-<td style="text-align: left;">18 (94.7)</td>
-<td style="text-align: left;">38 (95.0)</td>
-<td style="text-align: left;">0.886</td>
+<td style="text-align: left;">101 (95.3)</td>
+<td style="text-align: left;">39 (97.5)</td>
+<td style="text-align: left;">20 (90.9)</td>
+<td style="text-align: left;">42 (95.5)</td>
+<td style="text-align: left;">0.502</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">4 (4.3)</td>
-<td style="text-align: left;">1 (2.9)</td>
-<td style="text-align: left;">1 (5.3)</td>
-<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;">5 (4.7)</td>
+<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;">2 (9.1)</td>
+<td style="text-align: left;">2 (4.5)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -988,21 +990,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">tips_previous_comp (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">88 (93.6)</td>
-<td style="text-align: left;">31 (91.2)</td>
-<td style="text-align: left;">20 (100.0)</td>
+<td style="text-align: left;">101 (94.4)</td>
 <td style="text-align: left;">37 (92.5)</td>
-<td style="text-align: left;">0.409</td>
+<td style="text-align: left;">23 (100.0)</td>
+<td style="text-align: left;">41 (93.2)</td>
+<td style="text-align: left;">0.415</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">6 (6.4)</td>
-<td style="text-align: left;">3 (8.8)</td>
-<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">6 (5.6)</td>
 <td style="text-align: left;">3 (7.5)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">3 (6.8)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1010,21 +1012,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">baseline_scr_outpt (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">54 (58.1)</td>
-<td style="text-align: left;">18 (52.9)</td>
-<td style="text-align: left;">14 (73.7)</td>
+<td style="text-align: left;">63 (59.4)</td>
 <td style="text-align: left;">22 (55.0)</td>
-<td style="text-align: left;">0.298</td>
+<td style="text-align: left;">16 (72.7)</td>
+<td style="text-align: left;">25 (56.8)</td>
+<td style="text-align: left;">0.356</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">39 (41.9)</td>
-<td style="text-align: left;">16 (47.1)</td>
-<td style="text-align: left;">5 (26.3)</td>
+<td style="text-align: left;">43 (40.6)</td>
 <td style="text-align: left;">18 (45.0)</td>
+<td style="text-align: left;">6 (27.3)</td>
+<td style="text-align: left;">19 (43.2)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1032,21 +1034,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">aki_previous_90days (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">56 (60.9)</td>
-<td style="text-align: left;">21 (61.8)</td>
-<td style="text-align: left;">11 (57.9)</td>
-<td style="text-align: left;">24 (61.5)</td>
-<td style="text-align: left;">0.956</td>
+<td style="text-align: left;">64 (61.0)</td>
+<td style="text-align: left;">24 (60.0)</td>
+<td style="text-align: left;">13 (59.1)</td>
+<td style="text-align: left;">27 (62.8)</td>
+<td style="text-align: left;">0.947</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">2.1</td>
+<td style="text-align: left;">1.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">36 (39.1)</td>
-<td style="text-align: left;">13 (38.2)</td>
-<td style="text-align: left;">8 (42.1)</td>
-<td style="text-align: left;">15 (38.5)</td>
+<td style="text-align: left;">41 (39.0)</td>
+<td style="text-align: left;">16 (40.0)</td>
+<td style="text-align: left;">9 (40.9)</td>
+<td style="text-align: left;">16 (37.2)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1054,21 +1056,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">transfer_aki (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">73 (78.5)</td>
-<td style="text-align: left;">26 (76.5)</td>
-<td style="text-align: left;">16 (84.2)</td>
-<td style="text-align: left;">31 (77.5)</td>
-<td style="text-align: left;">0.789</td>
+<td style="text-align: left;">77 (72.6)</td>
+<td style="text-align: left;">28 (70.0)</td>
+<td style="text-align: left;">17 (77.3)</td>
+<td style="text-align: left;">32 (72.7)</td>
+<td style="text-align: left;">0.828</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">20 (21.5)</td>
-<td style="text-align: left;">8 (23.5)</td>
-<td style="text-align: left;">3 (15.8)</td>
-<td style="text-align: left;">9 (22.5)</td>
+<td style="text-align: left;">29 (27.4)</td>
+<td style="text-align: left;">12 (30.0)</td>
+<td style="text-align: left;">5 (22.7)</td>
+<td style="text-align: left;">12 (27.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1082,7 +1084,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;">0.384</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">93.6</td>
+<td style="text-align: left;">94.4</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
@@ -1109,21 +1111,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">he_aki (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">47 (50.5)</td>
-<td style="text-align: left;">15 (45.5)</td>
-<td style="text-align: left;">12 (60.0)</td>
-<td style="text-align: left;">20 (50.0)</td>
-<td style="text-align: left;">0.552</td>
+<td style="text-align: left;">55 (51.9)</td>
+<td style="text-align: left;">20 (51.3)</td>
+<td style="text-align: left;">13 (56.5)</td>
+<td style="text-align: left;">22 (50.0)</td>
+<td style="text-align: left;">0.705</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">31 (33.3)</td>
-<td style="text-align: left;">11 (33.3)</td>
-<td style="text-align: left;">6 (30.0)</td>
-<td style="text-align: left;">14 (35.0)</td>
+<td style="text-align: left;">34 (32.1)</td>
+<td style="text-align: left;">12 (30.8)</td>
+<td style="text-align: left;">7 (30.4)</td>
+<td style="text-align: left;">15 (34.1)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1131,10 +1133,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">2</td>
-<td style="text-align: left;">11 (11.8)</td>
-<td style="text-align: left;">5 (15.2)</td>
-<td style="text-align: left;">1 (5.0)</td>
-<td style="text-align: left;">5 (12.5)</td>
+<td style="text-align: left;">13 (12.3)</td>
+<td style="text-align: left;">5 (12.8)</td>
+<td style="text-align: left;">2 (8.7)</td>
+<td style="text-align: left;">6 (13.6)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1142,10 +1144,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">3</td>
-<td style="text-align: left;">2 (2.2)</td>
+<td style="text-align: left;">2 (1.9)</td>
 <td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">1 (5.0)</td>
-<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;">1 (4.3)</td>
+<td style="text-align: left;">1 (2.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1153,8 +1155,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">4</td>
-<td style="text-align: left;">2 (2.2)</td>
-<td style="text-align: left;">2 (6.1)</td>
+<td style="text-align: left;">2 (1.9)</td>
+<td style="text-align: left;">2 (5.1)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;"></td>
@@ -1164,21 +1166,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">rrt_aki (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">91 (97.8)</td>
-<td style="text-align: left;">34 (100.0)</td>
-<td style="text-align: left;">18 (94.7)</td>
-<td style="text-align: left;">39 (97.5)</td>
+<td style="text-align: left;">104 (98.1)</td>
+<td style="text-align: left;">40 (100.0)</td>
+<td style="text-align: left;">21 (95.5)</td>
+<td style="text-align: left;">43 (97.7)</td>
 <td style="text-align: left;">0.439</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">2 (2.2)</td>
+<td style="text-align: left;">2 (1.9)</td>
 <td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">1 (5.3)</td>
-<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;">1 (4.5)</td>
+<td style="text-align: left;">1 (2.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1186,21 +1188,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">mv_aki (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">90 (95.7)</td>
-<td style="text-align: left;">32 (94.1)</td>
-<td style="text-align: left;">19 (95.0)</td>
-<td style="text-align: left;">39 (97.5)</td>
-<td style="text-align: left;">0.759</td>
+<td style="text-align: left;">103 (96.3)</td>
+<td style="text-align: left;">38 (95.0)</td>
+<td style="text-align: left;">22 (95.7)</td>
+<td style="text-align: left;">43 (97.7)</td>
+<td style="text-align: left;">0.793</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">4 (4.3)</td>
-<td style="text-align: left;">2 (5.9)</td>
-<td style="text-align: left;">1 (5.0)</td>
-<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;">4 (3.7)</td>
+<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;">1 (4.3)</td>
+<td style="text-align: left;">1 (2.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1208,21 +1210,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">pressors_aki (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">84 (90.3)</td>
-<td style="text-align: left;">32 (94.1)</td>
-<td style="text-align: left;">17 (89.5)</td>
-<td style="text-align: left;">35 (87.5)</td>
-<td style="text-align: left;">0.625</td>
+<td style="text-align: left;">95 (89.6)</td>
+<td style="text-align: left;">38 (95.0)</td>
+<td style="text-align: left;">19 (86.4)</td>
+<td style="text-align: left;">38 (86.4)</td>
+<td style="text-align: left;">0.368</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">9 (9.7)</td>
-<td style="text-align: left;">2 (5.9)</td>
-<td style="text-align: left;">2 (10.5)</td>
-<td style="text-align: left;">5 (12.5)</td>
+<td style="text-align: left;">11 (10.4)</td>
+<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;">3 (13.6)</td>
+<td style="text-align: left;">6 (13.6)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1230,21 +1232,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">chest_imaging (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">3 (3.2)</td>
-<td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">3 (7.5)</td>
-<td style="text-align: left;">0.128</td>
+<td style="text-align: left;">7 (6.6)</td>
+<td style="text-align: left;">1 (2.6)</td>
+<td style="text-align: left;">2 (8.7)</td>
+<td style="text-align: left;">4 (9.1)</td>
+<td style="text-align: left;">0.441</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">90 (96.8)</td>
-<td style="text-align: left;">33 (100.0)</td>
-<td style="text-align: left;">20 (100.0)</td>
-<td style="text-align: left;">37 (92.5)</td>
+<td style="text-align: left;">99 (93.4)</td>
+<td style="text-align: left;">38 (97.4)</td>
+<td style="text-align: left;">21 (91.3)</td>
+<td style="text-align: left;">40 (90.9)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1252,21 +1254,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">chest_imaging_pulmedema (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">65 (73.9)</td>
-<td style="text-align: left;">23 (69.7)</td>
-<td style="text-align: left;">15 (78.9)</td>
-<td style="text-align: left;">27 (75.0)</td>
-<td style="text-align: left;">0.750</td>
+<td style="text-align: left;">72 (74.2)</td>
+<td style="text-align: left;">26 (68.4)</td>
+<td style="text-align: left;">16 (80.0)</td>
+<td style="text-align: left;">30 (76.9)</td>
+<td style="text-align: left;">0.558</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">6.4</td>
+<td style="text-align: left;">9.3</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">23 (26.1)</td>
-<td style="text-align: left;">10 (30.3)</td>
-<td style="text-align: left;">4 (21.1)</td>
-<td style="text-align: left;">9 (25.0)</td>
+<td style="text-align: left;">25 (25.8)</td>
+<td style="text-align: left;">12 (31.6)</td>
+<td style="text-align: left;">4 (20.0)</td>
+<td style="text-align: left;">9 (23.1)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1274,21 +1276,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">chest_imaging_effusion (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">56 (62.9)</td>
-<td style="text-align: left;">20 (60.6)</td>
-<td style="text-align: left;">10 (52.6)</td>
-<td style="text-align: left;">26 (70.3)</td>
-<td style="text-align: left;">0.408</td>
+<td style="text-align: left;">60 (61.2)</td>
+<td style="text-align: left;">21 (55.3)</td>
+<td style="text-align: left;">11 (55.0)</td>
+<td style="text-align: left;">28 (70.0)</td>
+<td style="text-align: left;">0.334</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">5.3</td>
+<td style="text-align: left;">8.4</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">33 (37.1)</td>
-<td style="text-align: left;">13 (39.4)</td>
-<td style="text-align: left;">9 (47.4)</td>
-<td style="text-align: left;">11 (29.7)</td>
+<td style="text-align: left;">38 (38.8)</td>
+<td style="text-align: left;">17 (44.7)</td>
+<td style="text-align: left;">9 (45.0)</td>
+<td style="text-align: left;">12 (30.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1296,21 +1298,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">ecg (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">8 (8.6)</td>
-<td style="text-align: left;">2 (5.9)</td>
-<td style="text-align: left;">2 (10.5)</td>
-<td style="text-align: left;">4 (10.0)</td>
-<td style="text-align: left;">0.775</td>
+<td style="text-align: left;">10 (9.4)</td>
+<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;">3 (13.6)</td>
+<td style="text-align: left;">5 (11.4)</td>
+<td style="text-align: left;">0.457</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">85 (91.4)</td>
-<td style="text-align: left;">32 (94.1)</td>
-<td style="text-align: left;">17 (89.5)</td>
-<td style="text-align: left;">36 (90.0)</td>
+<td style="text-align: left;">96 (90.6)</td>
+<td style="text-align: left;">38 (95.0)</td>
+<td style="text-align: left;">19 (86.4)</td>
+<td style="text-align: left;">39 (88.6)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1318,10 +1320,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">echo (%)</td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">94 (100.0)</td>
-<td style="text-align: left;">34 (100.0)</td>
-<td style="text-align: left;">20 (100.0)</td>
+<td style="text-align: left;">107 (100.0)</td>
 <td style="text-align: left;">40 (100.0)</td>
+<td style="text-align: left;">23 (100.0)</td>
+<td style="text-align: left;">44 (100.0)</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
@@ -1329,10 +1331,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">albumin_before_terli (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">5 (5.3)</td>
+<td style="text-align: left;">7 (6.5)</td>
 <td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">5 (25.0)</td>
-<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">6 (26.1)</td>
+<td style="text-align: left;">1 (2.3)</td>
 <td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
@@ -1340,10 +1342,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">89 (94.7)</td>
-<td style="text-align: left;">34 (100.0)</td>
-<td style="text-align: left;">15 (75.0)</td>
+<td style="text-align: left;">100 (93.5)</td>
 <td style="text-align: left;">40 (100.0)</td>
+<td style="text-align: left;">17 (73.9)</td>
+<td style="text-align: left;">43 (97.7)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1351,21 +1353,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">crystalloid_before_terli (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">37 (40.2)</td>
-<td style="text-align: left;">12 (35.3)</td>
-<td style="text-align: left;">8 (40.0)</td>
-<td style="text-align: left;">17 (44.7)</td>
-<td style="text-align: left;">0.717</td>
+<td style="text-align: left;">46 (43.8)</td>
+<td style="text-align: left;">17 (42.5)</td>
+<td style="text-align: left;">11 (47.8)</td>
+<td style="text-align: left;">18 (42.9)</td>
+<td style="text-align: left;">0.908</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">2.1</td>
+<td style="text-align: left;">1.9</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">55 (59.8)</td>
-<td style="text-align: left;">22 (64.7)</td>
-<td style="text-align: left;">12 (60.0)</td>
-<td style="text-align: left;">21 (55.3)</td>
+<td style="text-align: left;">59 (56.2)</td>
+<td style="text-align: left;">23 (57.5)</td>
+<td style="text-align: left;">12 (52.2)</td>
+<td style="text-align: left;">24 (57.1)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1373,19 +1375,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">nsbb_before_terli (%)</td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">16 (17.6)</td>
-<td style="text-align: left;">5 (15.2)</td>
-<td style="text-align: left;">7 (36.8)</td>
-<td style="text-align: left;">4 (10.3)</td>
-<td style="text-align: left;">0.010</td>
+<td style="text-align: left;">17 (16.3)</td>
+<td style="text-align: left;">5 (12.8)</td>
+<td style="text-align: left;">8 (36.4)</td>
+<td style="text-align: left;">4 (9.3)</td>
+<td style="text-align: left;">0.005</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">3.2</td>
+<td style="text-align: left;">2.8</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">2</td>
-<td style="text-align: left;">1 (1.1)</td>
-<td style="text-align: left;">1 (3.0)</td>
+<td style="text-align: left;">1 (1.0)</td>
+<td style="text-align: left;">1 (2.6)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;"></td>
@@ -1395,9 +1397,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">3</td>
-<td style="text-align: left;">2 (2.2)</td>
+<td style="text-align: left;">2 (1.9)</td>
 <td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">2 (10.5)</td>
+<td style="text-align: left;">2 (9.1)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1406,10 +1408,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">4</td>
-<td style="text-align: left;">72 (79.1)</td>
-<td style="text-align: left;">27 (81.8)</td>
-<td style="text-align: left;">10 (52.6)</td>
-<td style="text-align: left;">35 (89.7)</td>
+<td style="text-align: left;">84 (80.8)</td>
+<td style="text-align: left;">33 (84.6)</td>
+<td style="text-align: left;">12 (54.5)</td>
+<td style="text-align: left;">39 (90.7)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1417,21 +1419,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">mido_before_terli (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">21 (22.6)</td>
-<td style="text-align: left;">8 (23.5)</td>
-<td style="text-align: left;">5 (26.3)</td>
-<td style="text-align: left;">8 (20.0)</td>
-<td style="text-align: left;">0.851</td>
+<td style="text-align: left;">25 (23.6)</td>
+<td style="text-align: left;">9 (22.5)</td>
+<td style="text-align: left;">5 (22.7)</td>
+<td style="text-align: left;">11 (25.0)</td>
+<td style="text-align: left;">0.959</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">72 (77.4)</td>
-<td style="text-align: left;">26 (76.5)</td>
-<td style="text-align: left;">14 (73.7)</td>
-<td style="text-align: left;">32 (80.0)</td>
+<td style="text-align: left;">81 (76.4)</td>
+<td style="text-align: left;">31 (77.5)</td>
+<td style="text-align: left;">17 (77.3)</td>
+<td style="text-align: left;">33 (75.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1439,21 +1441,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">oct_before_terli (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">39 (41.9)</td>
-<td style="text-align: left;">14 (41.2)</td>
-<td style="text-align: left;">8 (42.1)</td>
-<td style="text-align: left;">17 (42.5)</td>
-<td style="text-align: left;">0.993</td>
+<td style="text-align: left;">48 (45.3)</td>
+<td style="text-align: left;">19 (47.5)</td>
+<td style="text-align: left;">8 (36.4)</td>
+<td style="text-align: left;">21 (47.7)</td>
+<td style="text-align: left;">0.640</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">54 (58.1)</td>
-<td style="text-align: left;">20 (58.8)</td>
-<td style="text-align: left;">11 (57.9)</td>
-<td style="text-align: left;">23 (57.5)</td>
+<td style="text-align: left;">58 (54.7)</td>
+<td style="text-align: left;">21 (52.5)</td>
+<td style="text-align: left;">14 (63.6)</td>
+<td style="text-align: left;">23 (52.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1461,21 +1463,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">ne_before_terli (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">74 (79.6)</td>
-<td style="text-align: left;">25 (73.5)</td>
-<td style="text-align: left;">15 (78.9)</td>
-<td style="text-align: left;">34 (85.0)</td>
-<td style="text-align: left;">0.474</td>
+<td style="text-align: left;">86 (81.1)</td>
+<td style="text-align: left;">31 (77.5)</td>
+<td style="text-align: left;">18 (81.8)</td>
+<td style="text-align: left;">37 (84.1)</td>
+<td style="text-align: left;">0.740</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">19 (20.4)</td>
-<td style="text-align: left;">9 (26.5)</td>
-<td style="text-align: left;">4 (21.1)</td>
-<td style="text-align: left;">6 (15.0)</td>
+<td style="text-align: left;">20 (18.9)</td>
+<td style="text-align: left;">9 (22.5)</td>
+<td style="text-align: left;">4 (18.2)</td>
+<td style="text-align: left;">7 (15.9)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1483,21 +1485,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">gihep_consult (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">4 (4.3)</td>
-<td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">1 (5.3)</td>
-<td style="text-align: left;">3 (7.5)</td>
-<td style="text-align: left;">0.277</td>
+<td style="text-align: left;">5 (4.7)</td>
+<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;">1 (4.5)</td>
+<td style="text-align: left;">3 (6.8)</td>
+<td style="text-align: left;">0.647</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">89 (95.7)</td>
-<td style="text-align: left;">34 (100.0)</td>
-<td style="text-align: left;">18 (94.7)</td>
-<td style="text-align: left;">37 (92.5)</td>
+<td style="text-align: left;">101 (95.3)</td>
+<td style="text-align: left;">39 (97.5)</td>
+<td style="text-align: left;">21 (95.5)</td>
+<td style="text-align: left;">41 (93.2)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1505,21 +1507,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">neph_consult (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">6 (6.5)</td>
+<td style="text-align: left;">6 (5.7)</td>
 <td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">2 (10.5)</td>
-<td style="text-align: left;">4 (10.0)</td>
-<td style="text-align: left;">0.157</td>
+<td style="text-align: left;">2 (9.1)</td>
+<td style="text-align: left;">4 (9.1)</td>
+<td style="text-align: left;">0.146</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">87 (93.5)</td>
-<td style="text-align: left;">34 (100.0)</td>
-<td style="text-align: left;">17 (89.5)</td>
-<td style="text-align: left;">36 (90.0)</td>
+<td style="text-align: left;">100 (94.3)</td>
+<td style="text-align: left;">40 (100.0)</td>
+<td style="text-align: left;">20 (90.9)</td>
+<td style="text-align: left;">40 (90.9)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1527,21 +1529,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">pall_consult (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">64 (69.6)</td>
-<td style="text-align: left;">19 (55.9)</td>
-<td style="text-align: left;">15 (78.9)</td>
-<td style="text-align: left;">30 (76.9)</td>
-<td style="text-align: left;">0.091</td>
+<td style="text-align: left;">72 (68.6)</td>
+<td style="text-align: left;">22 (55.0)</td>
+<td style="text-align: left;">17 (77.3)</td>
+<td style="text-align: left;">33 (76.7)</td>
+<td style="text-align: left;">0.063</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">2.1</td>
+<td style="text-align: left;">1.9</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">28 (30.4)</td>
-<td style="text-align: left;">15 (44.1)</td>
-<td style="text-align: left;">4 (21.1)</td>
-<td style="text-align: left;">9 (23.1)</td>
+<td style="text-align: left;">33 (31.4)</td>
+<td style="text-align: left;">18 (45.0)</td>
+<td style="text-align: left;">5 (22.7)</td>
+<td style="text-align: left;">10 (23.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1549,21 +1551,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">code_status (%)</td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">22 (81.5)</td>
-<td style="text-align: left;">10 (71.4)</td>
-<td style="text-align: left;">4 (100.0)</td>
-<td style="text-align: left;">8 (88.9)</td>
-<td style="text-align: left;">0.337</td>
+<td style="text-align: left;">26 (81.2)</td>
+<td style="text-align: left;">12 (70.6)</td>
+<td style="text-align: left;">5 (100.0)</td>
+<td style="text-align: left;">9 (90.0)</td>
+<td style="text-align: left;">0.232</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">71.3</td>
+<td style="text-align: left;">70.1</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">2</td>
-<td style="text-align: left;">5 (18.5)</td>
-<td style="text-align: left;">4 (28.6)</td>
+<td style="text-align: left;">6 (18.8)</td>
+<td style="text-align: left;">5 (29.4)</td>
 <td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">1 (11.1)</td>
+<td style="text-align: left;">1 (10.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1571,21 +1573,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">ua_hrs (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">5 (5.4)</td>
-<td style="text-align: left;">1 (2.9)</td>
-<td style="text-align: left;">2 (10.5)</td>
-<td style="text-align: left;">2 (5.0)</td>
-<td style="text-align: left;">0.497</td>
+<td style="text-align: left;">5 (4.7)</td>
+<td style="text-align: left;">1 (2.5)</td>
+<td style="text-align: left;">2 (9.1)</td>
+<td style="text-align: left;">2 (4.5)</td>
+<td style="text-align: left;">0.502</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">88 (94.6)</td>
-<td style="text-align: left;">33 (97.1)</td>
-<td style="text-align: left;">17 (89.5)</td>
-<td style="text-align: left;">38 (95.0)</td>
+<td style="text-align: left;">101 (95.3)</td>
+<td style="text-align: left;">39 (97.5)</td>
+<td style="text-align: left;">20 (90.9)</td>
+<td style="text-align: left;">42 (95.5)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1593,21 +1595,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">ua_na_hrs (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">13 (14.0)</td>
-<td style="text-align: left;">7 (20.6)</td>
-<td style="text-align: left;">3 (15.8)</td>
-<td style="text-align: left;">3 (7.5)</td>
-<td style="text-align: left;">0.261</td>
+<td style="text-align: left;">14 (13.2)</td>
+<td style="text-align: left;">7 (17.5)</td>
+<td style="text-align: left;">3 (13.6)</td>
+<td style="text-align: left;">4 (9.1)</td>
+<td style="text-align: left;">0.523</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">80 (86.0)</td>
-<td style="text-align: left;">27 (79.4)</td>
-<td style="text-align: left;">16 (84.2)</td>
-<td style="text-align: left;">37 (92.5)</td>
+<td style="text-align: left;">92 (86.8)</td>
+<td style="text-align: left;">33 (82.5)</td>
+<td style="text-align: left;">19 (86.4)</td>
+<td style="text-align: left;">40 (90.9)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1615,21 +1617,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">ua_cr_hrs (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">20 (21.5)</td>
-<td style="text-align: left;">8 (23.5)</td>
-<td style="text-align: left;">3 (15.8)</td>
-<td style="text-align: left;">9 (22.5)</td>
-<td style="text-align: left;">0.789</td>
+<td style="text-align: left;">25 (23.6)</td>
+<td style="text-align: left;">11 (27.5)</td>
+<td style="text-align: left;">4 (18.2)</td>
+<td style="text-align: left;">10 (22.7)</td>
+<td style="text-align: left;">0.700</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">73 (78.5)</td>
-<td style="text-align: left;">26 (76.5)</td>
-<td style="text-align: left;">16 (84.2)</td>
-<td style="text-align: left;">31 (77.5)</td>
+<td style="text-align: left;">81 (76.4)</td>
+<td style="text-align: left;">29 (72.5)</td>
+<td style="text-align: left;">18 (81.8)</td>
+<td style="text-align: left;">34 (77.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1637,21 +1639,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">ua_urea_hrs (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">49 (54.4)</td>
-<td style="text-align: left;">22 (66.7)</td>
-<td style="text-align: left;">11 (57.9)</td>
-<td style="text-align: left;">16 (42.1)</td>
-<td style="text-align: left;">0.110</td>
+<td style="text-align: left;">59 (57.3)</td>
+<td style="text-align: left;">28 (71.8)</td>
+<td style="text-align: left;">13 (59.1)</td>
+<td style="text-align: left;">18 (42.9)</td>
+<td style="text-align: left;">0.031</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">4.3</td>
+<td style="text-align: left;">3.7</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">41 (45.6)</td>
-<td style="text-align: left;">11 (33.3)</td>
-<td style="text-align: left;">8 (42.1)</td>
-<td style="text-align: left;">22 (57.9)</td>
+<td style="text-align: left;">44 (42.7)</td>
+<td style="text-align: left;">11 (28.2)</td>
+<td style="text-align: left;">9 (40.9)</td>
+<td style="text-align: left;">24 (57.1)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1659,21 +1661,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">ua_granularcasts_hrs (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">54 (67.5)</td>
-<td style="text-align: left;">20 (69.0)</td>
-<td style="text-align: left;">9 (60.0)</td>
-<td style="text-align: left;">25 (69.4)</td>
-<td style="text-align: left;">0.789</td>
+<td style="text-align: left;">62 (68.1)</td>
+<td style="text-align: left;">25 (71.4)</td>
+<td style="text-align: left;">10 (58.8)</td>
+<td style="text-align: left;">27 (69.2)</td>
+<td style="text-align: left;">0.646</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">14.9</td>
+<td style="text-align: left;">15.0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">26 (32.5)</td>
-<td style="text-align: left;">9 (31.0)</td>
-<td style="text-align: left;">6 (40.0)</td>
-<td style="text-align: left;">11 (30.6)</td>
+<td style="text-align: left;">29 (31.9)</td>
+<td style="text-align: left;">10 (28.6)</td>
+<td style="text-align: left;">7 (41.2)</td>
+<td style="text-align: left;">12 (30.8)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1681,21 +1683,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">ua_epi_cells_hrs (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">61 (75.3)</td>
-<td style="text-align: left;">22 (75.9)</td>
-<td style="text-align: left;">10 (66.7)</td>
-<td style="text-align: left;">29 (78.4)</td>
-<td style="text-align: left;">0.672</td>
+<td style="text-align: left;">68 (75.6)</td>
+<td style="text-align: left;">27 (77.1)</td>
+<td style="text-align: left;">11 (64.7)</td>
+<td style="text-align: left;">30 (78.9)</td>
+<td style="text-align: left;">0.505</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">13.8</td>
+<td style="text-align: left;">15.9</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">20 (24.7)</td>
-<td style="text-align: left;">7 (24.1)</td>
-<td style="text-align: left;">5 (33.3)</td>
-<td style="text-align: left;">8 (21.6)</td>
+<td style="text-align: left;">22 (24.4)</td>
+<td style="text-align: left;">8 (22.9)</td>
+<td style="text-align: left;">6 (35.3)</td>
+<td style="text-align: left;">8 (21.1)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1703,21 +1705,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">location_terli_day0 (%)</td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">46 (52.3)</td>
-<td style="text-align: left;">18 (54.5)</td>
-<td style="text-align: left;">6 (33.3)</td>
-<td style="text-align: left;">22 (59.5)</td>
-<td style="text-align: left;">0.363</td>
+<td style="text-align: left;">56 (55.4)</td>
+<td style="text-align: left;">23 (59.0)</td>
+<td style="text-align: left;">8 (38.1)</td>
+<td style="text-align: left;">25 (61.0)</td>
+<td style="text-align: left;">0.442</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">6.4</td>
+<td style="text-align: left;">5.6</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">2</td>
-<td style="text-align: left;">24 (27.3)</td>
-<td style="text-align: left;">8 (24.2)</td>
-<td style="text-align: left;">6 (33.3)</td>
-<td style="text-align: left;">10 (27.0)</td>
+<td style="text-align: left;">25 (24.8)</td>
+<td style="text-align: left;">8 (20.5)</td>
+<td style="text-align: left;">7 (33.3)</td>
+<td style="text-align: left;">10 (24.4)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1725,10 +1727,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">3</td>
-<td style="text-align: left;">18 (20.5)</td>
-<td style="text-align: left;">7 (21.2)</td>
-<td style="text-align: left;">6 (33.3)</td>
-<td style="text-align: left;">5 (13.5)</td>
+<td style="text-align: left;">20 (19.8)</td>
+<td style="text-align: left;">8 (20.5)</td>
+<td style="text-align: left;">6 (28.6)</td>
+<td style="text-align: left;">6 (14.6)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1736,21 +1738,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">terli_route_day0 (%)</td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">69 (73.4)</td>
-<td style="text-align: left;">24 (70.6)</td>
-<td style="text-align: left;">15 (75.0)</td>
-<td style="text-align: left;">30 (75.0)</td>
-<td style="text-align: left;">0.897</td>
+<td style="text-align: left;">81 (75.7)</td>
+<td style="text-align: left;">29 (72.5)</td>
+<td style="text-align: left;">18 (78.3)</td>
+<td style="text-align: left;">34 (77.3)</td>
+<td style="text-align: left;">0.834</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">2</td>
-<td style="text-align: left;">25 (26.6)</td>
-<td style="text-align: left;">10 (29.4)</td>
-<td style="text-align: left;">5 (25.0)</td>
-<td style="text-align: left;">10 (25.0)</td>
+<td style="text-align: left;">26 (24.3)</td>
+<td style="text-align: left;">11 (27.5)</td>
+<td style="text-align: left;">5 (21.7)</td>
+<td style="text-align: left;">10 (22.7)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1758,21 +1760,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">tele_terli_day0 (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">15 (16.1)</td>
-<td style="text-align: left;">6 (17.6)</td>
-<td style="text-align: left;">3 (15.0)</td>
+<td style="text-align: left;">20 (19.0)</td>
 <td style="text-align: left;">6 (15.4)</td>
-<td style="text-align: left;">0.955</td>
+<td style="text-align: left;">5 (21.7)</td>
+<td style="text-align: left;">9 (20.9)</td>
+<td style="text-align: left;">0.761</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">1.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">78 (83.9)</td>
-<td style="text-align: left;">28 (82.4)</td>
-<td style="text-align: left;">17 (85.0)</td>
+<td style="text-align: left;">85 (81.0)</td>
 <td style="text-align: left;">33 (84.6)</td>
+<td style="text-align: left;">18 (78.3)</td>
+<td style="text-align: left;">34 (79.1)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1780,21 +1782,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">he_terli_day0 (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">68 (73.1)</td>
-<td style="text-align: left;">24 (72.7)</td>
-<td style="text-align: left;">17 (85.0)</td>
-<td style="text-align: left;">27 (67.5)</td>
-<td style="text-align: left;">0.590</td>
+<td style="text-align: left;">76 (71.7)</td>
+<td style="text-align: left;">28 (71.8)</td>
+<td style="text-align: left;">18 (78.3)</td>
+<td style="text-align: left;">30 (68.2)</td>
+<td style="text-align: left;">0.463</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">1.1</td>
+<td style="text-align: left;">0.9</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">19 (20.4)</td>
-<td style="text-align: left;">6 (18.2)</td>
-<td style="text-align: left;">2 (10.0)</td>
-<td style="text-align: left;">11 (27.5)</td>
+<td style="text-align: left;">21 (19.8)</td>
+<td style="text-align: left;">7 (17.9)</td>
+<td style="text-align: left;">3 (13.0)</td>
+<td style="text-align: left;">11 (25.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1802,10 +1804,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">2</td>
-<td style="text-align: left;">4 (4.3)</td>
-<td style="text-align: left;">1 (3.0)</td>
-<td style="text-align: left;">1 (5.0)</td>
-<td style="text-align: left;">2 (5.0)</td>
+<td style="text-align: left;">6 (5.7)</td>
+<td style="text-align: left;">1 (2.6)</td>
+<td style="text-align: left;">2 (8.7)</td>
+<td style="text-align: left;">3 (6.8)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1813,8 +1815,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">3</td>
-<td style="text-align: left;">1 (1.1)</td>
-<td style="text-align: left;">1 (3.0)</td>
+<td style="text-align: left;">2 (1.9)</td>
+<td style="text-align: left;">2 (5.1)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;"></td>
@@ -1824,8 +1826,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">4</td>
-<td style="text-align: left;">1 (1.1)</td>
-<td style="text-align: left;">1 (3.0)</td>
+<td style="text-align: left;">1 (0.9)</td>
+<td style="text-align: left;">1 (2.6)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;"></td>
@@ -1835,21 +1837,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">infection_terli_day0 (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">60 (65.2)</td>
-<td style="text-align: left;">22 (66.7)</td>
-<td style="text-align: left;">11 (55.0)</td>
+<td style="text-align: left;">71 (67.6)</td>
 <td style="text-align: left;">27 (69.2)</td>
-<td style="text-align: left;">0.541</td>
+<td style="text-align: left;">14 (60.9)</td>
+<td style="text-align: left;">30 (69.8)</td>
+<td style="text-align: left;">0.735</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">2.1</td>
+<td style="text-align: left;">1.9</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">32 (34.8)</td>
-<td style="text-align: left;">11 (33.3)</td>
-<td style="text-align: left;">9 (45.0)</td>
+<td style="text-align: left;">34 (32.4)</td>
 <td style="text-align: left;">12 (30.8)</td>
+<td style="text-align: left;">9 (39.1)</td>
+<td style="text-align: left;">13 (30.2)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1857,21 +1859,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">typeinfection_terli_day0 (%)</td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">2 (6.2)</td>
+<td style="text-align: left;">2 (5.9)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">2 (16.7)</td>
-<td style="text-align: left;">0.503</td>
+<td style="text-align: left;">2 (15.4)</td>
+<td style="text-align: left;">0.393</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">66.0</td>
+<td style="text-align: left;">68.2</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">2</td>
-<td style="text-align: left;">5 (15.6)</td>
-<td style="text-align: left;">2 (18.2)</td>
+<td style="text-align: left;">5 (14.7)</td>
+<td style="text-align: left;">2 (16.7)</td>
 <td style="text-align: left;">2 (22.2)</td>
-<td style="text-align: left;">1 (8.3)</td>
+<td style="text-align: left;">1 (7.7)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1879,10 +1881,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">3</td>
-<td style="text-align: left;">5 (15.6)</td>
-<td style="text-align: left;">3 (27.3)</td>
+<td style="text-align: left;">5 (14.7)</td>
+<td style="text-align: left;">3 (25.0)</td>
 <td style="text-align: left;">1 (11.1)</td>
-<td style="text-align: left;">1 (8.3)</td>
+<td style="text-align: left;">1 (7.7)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1890,10 +1892,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">4</td>
-<td style="text-align: left;">7 (21.9)</td>
-<td style="text-align: left;">1 (9.1)</td>
+<td style="text-align: left;">8 (23.5)</td>
+<td style="text-align: left;">1 (8.3)</td>
 <td style="text-align: left;">2 (22.2)</td>
-<td style="text-align: left;">4 (33.3)</td>
+<td style="text-align: left;">5 (38.5)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1901,10 +1903,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">5</td>
-<td style="text-align: left;">13 (40.6)</td>
-<td style="text-align: left;">5 (45.5)</td>
+<td style="text-align: left;">14 (41.2)</td>
+<td style="text-align: left;">6 (50.0)</td>
 <td style="text-align: left;">4 (44.4)</td>
-<td style="text-align: left;">4 (33.3)</td>
+<td style="text-align: left;">4 (30.8)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1912,21 +1914,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">aclf_grade (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">2 (2.1)</td>
+<td style="text-align: left;">2 (1.9)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">2 (5.0)</td>
-<td style="text-align: left;">0.089</td>
+<td style="text-align: left;">2 (4.5)</td>
+<td style="text-align: left;">0.055</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">17 (18.1)</td>
-<td style="text-align: left;">5 (14.7)</td>
-<td style="text-align: left;">4 (20.0)</td>
-<td style="text-align: left;">8 (20.0)</td>
+<td style="text-align: left;">17 (15.9)</td>
+<td style="text-align: left;">5 (12.5)</td>
+<td style="text-align: left;">4 (17.4)</td>
+<td style="text-align: left;">8 (18.2)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1934,10 +1936,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">2</td>
-<td style="text-align: left;">38 (40.4)</td>
-<td style="text-align: left;">12 (35.3)</td>
-<td style="text-align: left;">5 (25.0)</td>
-<td style="text-align: left;">21 (52.5)</td>
+<td style="text-align: left;">42 (39.3)</td>
+<td style="text-align: left;">13 (32.5)</td>
+<td style="text-align: left;">6 (26.1)</td>
+<td style="text-align: left;">23 (52.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1945,10 +1947,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">3</td>
-<td style="text-align: left;">37 (39.4)</td>
-<td style="text-align: left;">17 (50.0)</td>
-<td style="text-align: left;">11 (55.0)</td>
-<td style="text-align: left;">9 (22.5)</td>
+<td style="text-align: left;">46 (43.0)</td>
+<td style="text-align: left;">22 (55.0)</td>
+<td style="text-align: left;">13 (56.5)</td>
+<td style="text-align: left;">11 (25.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1956,21 +1958,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">akin (%)</td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">23 (26.1)</td>
-<td style="text-align: left;">8 (23.5)</td>
+<td style="text-align: left;">27 (26.7)</td>
+<td style="text-align: left;">9 (22.5)</td>
 <td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;">15 (44.1)</td>
-<td style="text-align: left;">0.002</td>
+<td style="text-align: left;">18 (47.4)</td>
+<td style="text-align: left;">&lt;0.001</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">6.4</td>
+<td style="text-align: left;">5.6</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">2</td>
-<td style="text-align: left;">27 (30.7)</td>
-<td style="text-align: left;">13 (38.2)</td>
-<td style="text-align: left;">5 (25.0)</td>
-<td style="text-align: left;">9 (26.5)</td>
+<td style="text-align: left;">32 (31.7)</td>
+<td style="text-align: left;">16 (40.0)</td>
+<td style="text-align: left;">7 (30.4)</td>
+<td style="text-align: left;">9 (23.7)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1978,10 +1980,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">3</td>
-<td style="text-align: left;">38 (43.2)</td>
-<td style="text-align: left;">13 (38.2)</td>
-<td style="text-align: left;">15 (75.0)</td>
-<td style="text-align: left;">10 (29.4)</td>
+<td style="text-align: left;">42 (41.6)</td>
+<td style="text-align: left;">15 (37.5)</td>
+<td style="text-align: left;">16 (69.6)</td>
+<td style="text-align: left;">11 (28.9)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -1994,7 +1996,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="task-5-echo-hrs_responders_cat_2" class="level1">
 <h1>Task 5 — Echo × <code>hrs_responders_cat_2</code></h1>
-<p><strong>Cohort:</strong> Pre-terli echo (N = 94)</p>
+<p><strong>Cohort:</strong> Pre-terli + same-day echo (N = 107)</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show Task 5 Table 1 call</summary>
@@ -2045,9 +2047,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">n</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">94</td>
-<td style="text-align: left;">34</td>
-<td style="text-align: left;">60</td>
+<td style="text-align: left;">107</td>
+<td style="text-align: left;">40</td>
+<td style="text-align: left;">67</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2055,10 +2057,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">echo_ef (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">67.00 [63.00, 70.75]</td>
-<td style="text-align: left;">68.50 [65.00, 72.50]</td>
-<td style="text-align: left;">65.50 [62.50, 70.00]</td>
-<td style="text-align: left;">0.059</td>
+<td style="text-align: left;">66.00 [62.75, 70.50]</td>
+<td style="text-align: left;">67.75 [65.00, 71.00]</td>
+<td style="text-align: left;">66.00 [62.50, 70.00]</td>
+<td style="text-align: left;">0.117</td>
 <td style="text-align: left;">nonnorm</td>
 <td style="text-align: left;">0.0</td>
 </tr>
@@ -2066,48 +2068,48 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">echo_earatio (median [IQR])</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1.10 [0.90, 1.40]</td>
-<td style="text-align: left;">1.29 [1.02, 1.48]</td>
+<td style="text-align: left;">1.27 [1.02, 1.58]</td>
 <td style="text-align: left;">1.00 [0.86, 1.30]</td>
-<td style="text-align: left;">0.043</td>
+<td style="text-align: left;">0.045</td>
 <td style="text-align: left;">nonnorm</td>
-<td style="text-align: left;">37.2</td>
+<td style="text-align: left;">38.3</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">echo_eeratio (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">8.77 [7.00, 10.20]</td>
-<td style="text-align: left;">8.35 [7.22, 10.42]</td>
-<td style="text-align: left;">9.00 [7.00, 10.00]</td>
-<td style="text-align: left;">0.902</td>
+<td style="text-align: left;">8.64 [7.00, 10.10]</td>
+<td style="text-align: left;">8.30 [7.00, 10.23]</td>
+<td style="text-align: left;">9.00 [6.92, 10.00]</td>
+<td style="text-align: left;">0.919</td>
 <td style="text-align: left;">nonnorm</td>
-<td style="text-align: left;">38.3</td>
+<td style="text-align: left;">39.3</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">echo_gls (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">22.60 [20.47, 25.35]</td>
-<td style="text-align: left;">22.50 [19.50, 24.65]</td>
+<td style="text-align: left;">22.70 [20.70, 25.50]</td>
+<td style="text-align: left;">23.15 [19.65, 25.60]</td>
 <td style="text-align: left;">22.70 [21.00, 25.30]</td>
-<td style="text-align: left;">0.560</td>
+<td style="text-align: left;">0.773</td>
 <td style="text-align: left;">nonnorm</td>
-<td style="text-align: left;">83.0</td>
+<td style="text-align: left;">84.1</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">echo_lateral_e (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">11.50 [9.40, 14.00]</td>
-<td style="text-align: left;">12.02 [10.35, 15.20]</td>
-<td style="text-align: left;">11.50 [9.40, 13.00]</td>
-<td style="text-align: left;">0.287</td>
+<td style="text-align: left;">12.00 [9.60, 14.00]</td>
+<td style="text-align: left;">12.60 [9.90, 15.40]</td>
+<td style="text-align: left;">11.50 [9.80, 13.00]</td>
+<td style="text-align: left;">0.274</td>
 <td style="text-align: left;">nonnorm</td>
-<td style="text-align: left;">51.1</td>
+<td style="text-align: left;">52.3</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">echo_ef_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">85 (90.4)</td>
-<td style="text-align: left;">31 (91.2)</td>
-<td style="text-align: left;">54 (90.0)</td>
+<td style="text-align: left;">97 (90.7)</td>
+<td style="text-align: left;">36 (90.0)</td>
+<td style="text-align: left;">61 (91.0)</td>
 <td style="text-align: left;">1.000</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
@@ -2115,9 +2117,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">9 (9.6)</td>
-<td style="text-align: left;">3 (8.8)</td>
-<td style="text-align: left;">6 (10.0)</td>
+<td style="text-align: left;">10 (9.3)</td>
+<td style="text-align: left;">4 (10.0)</td>
+<td style="text-align: left;">6 (9.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2125,19 +2127,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">echo_eeratio_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">55 (94.8)</td>
-<td style="text-align: left;">19 (95.0)</td>
-<td style="text-align: left;">36 (94.7)</td>
+<td style="text-align: left;">62 (95.4)</td>
+<td style="text-align: left;">24 (96.0)</td>
+<td style="text-align: left;">38 (95.0)</td>
 <td style="text-align: left;">1.000</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">38.3</td>
+<td style="text-align: left;">39.3</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">3 (5.2)</td>
-<td style="text-align: left;">1 (5.0)</td>
-<td style="text-align: left;">2 (5.3)</td>
+<td style="text-align: left;">3 (4.6)</td>
+<td style="text-align: left;">1 (4.0)</td>
+<td style="text-align: left;">2 (5.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2145,29 +2147,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">echo_gls_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">16 (100.0)</td>
-<td style="text-align: left;">7 (100.0)</td>
+<td style="text-align: left;">17 (100.0)</td>
+<td style="text-align: left;">8 (100.0)</td>
 <td style="text-align: left;">9 (100.0)</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">83.0</td>
+<td style="text-align: left;">84.1</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">echo_lateral_e_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">34 (73.9)</td>
-<td style="text-align: left;">12 (75.0)</td>
-<td style="text-align: left;">22 (73.3)</td>
+<td style="text-align: left;">38 (74.5)</td>
+<td style="text-align: left;">14 (73.7)</td>
+<td style="text-align: left;">24 (75.0)</td>
 <td style="text-align: left;">1.000</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">51.1</td>
+<td style="text-align: left;">52.3</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">12 (26.1)</td>
-<td style="text-align: left;">4 (25.0)</td>
-<td style="text-align: left;">8 (26.7)</td>
+<td style="text-align: left;">13 (25.5)</td>
+<td style="text-align: left;">5 (26.3)</td>
+<td style="text-align: left;">8 (25.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2175,18 +2177,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">echo_tr_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">10 (76.9)</td>
-<td style="text-align: left;">4 (100.0)</td>
+<td style="text-align: left;">11 (73.3)</td>
+<td style="text-align: left;">5 (83.3)</td>
 <td style="text-align: left;">6 (66.7)</td>
-<td style="text-align: left;">0.546</td>
+<td style="text-align: left;">0.905</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">86.2</td>
+<td style="text-align: left;">86.0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">3 (23.1)</td>
-<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;">4 (26.7)</td>
+<td style="text-align: left;">1 (16.7)</td>
 <td style="text-align: left;">3 (33.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2195,19 +2197,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">echo_lavi_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">39 (55.7)</td>
-<td style="text-align: left;">16 (61.5)</td>
-<td style="text-align: left;">23 (52.3)</td>
-<td style="text-align: left;">0.613</td>
+<td style="text-align: left;">47 (57.3)</td>
+<td style="text-align: left;">20 (62.5)</td>
+<td style="text-align: left;">27 (54.0)</td>
+<td style="text-align: left;">0.596</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">25.5</td>
+<td style="text-align: left;">23.4</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">31 (44.3)</td>
-<td style="text-align: left;">10 (38.5)</td>
-<td style="text-align: left;">21 (47.7)</td>
+<td style="text-align: left;">35 (42.7)</td>
+<td style="text-align: left;">12 (37.5)</td>
+<td style="text-align: left;">23 (46.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2220,7 +2222,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="task-6-echo-terli_ae_respfail" class="level1">
 <h1>Task 6 — Echo × <code>terli_ae_respfail</code></h1>
-<p><strong>Cohort:</strong> Pre-terli echo (N = 94)</p>
+<p><strong>Cohort:</strong> Pre-terli + same-day echo (N = 107)</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show Task 6 Table 1 call</summary>
@@ -2266,9 +2268,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">n</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">94</td>
-<td style="text-align: left;">85</td>
-<td style="text-align: left;">9</td>
+<td style="text-align: left;">107</td>
+<td style="text-align: left;">97</td>
+<td style="text-align: left;">10</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2276,10 +2278,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">echo_ef (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">67.00 [63.00, 70.75]</td>
+<td style="text-align: left;">66.00 [62.75, 70.50]</td>
 <td style="text-align: left;">66.00 [62.50, 70.00]</td>
-<td style="text-align: left;">70.00 [67.50, 75.00]</td>
-<td style="text-align: left;">0.035</td>
+<td style="text-align: left;">69.50 [67.50, 74.00]</td>
+<td style="text-align: left;">0.025</td>
 <td style="text-align: left;">nonnorm</td>
 <td style="text-align: left;">0.0</td>
 </tr>
@@ -2287,57 +2289,57 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">echo_earatio (median [IQR])</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1.10 [0.90, 1.40]</td>
-<td style="text-align: left;">1.10 [0.88, 1.35]</td>
-<td style="text-align: left;">1.35 [1.23, 1.56]</td>
-<td style="text-align: left;">0.135</td>
+<td style="text-align: left;">1.10 [0.90, 1.40]</td>
+<td style="text-align: left;">1.30 [1.03, 1.41]</td>
+<td style="text-align: left;">0.528</td>
 <td style="text-align: left;">nonnorm</td>
-<td style="text-align: left;">37.2</td>
+<td style="text-align: left;">38.3</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">echo_eeratio (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">8.77 [7.00, 10.20]</td>
-<td style="text-align: left;">8.64 [6.85, 10.16]</td>
-<td style="text-align: left;">9.15 [8.29, 10.23]</td>
-<td style="text-align: left;">0.611</td>
+<td style="text-align: left;">8.64 [7.00, 10.10]</td>
+<td style="text-align: left;">8.64 [7.00, 10.10]</td>
+<td style="text-align: left;">8.73 [8.08, 9.69]</td>
+<td style="text-align: left;">0.662</td>
 <td style="text-align: left;">nonnorm</td>
-<td style="text-align: left;">38.3</td>
+<td style="text-align: left;">39.3</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">echo_gls (median [IQR])</td>
 <td style="text-align: left;"></td>
+<td style="text-align: left;">22.70 [20.70, 25.50]</td>
 <td style="text-align: left;">22.60 [20.47, 25.35]</td>
-<td style="text-align: left;">22.60 [20.47, 25.35]</td>
-<td style="text-align: left;">NA [NA, NA]</td>
-<td style="text-align: left;">NA</td>
+<td style="text-align: left;">25.90 [25.90, 25.90]</td>
+<td style="text-align: left;">0.307</td>
 <td style="text-align: left;">nonnorm</td>
-<td style="text-align: left;">83.0</td>
+<td style="text-align: left;">84.1</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">echo_lateral_e (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">11.50 [9.40, 14.00]</td>
+<td style="text-align: left;">12.00 [9.60, 14.00]</td>
 <td style="text-align: left;">11.00 [9.15, 14.00]</td>
-<td style="text-align: left;">14.00 [13.50, 14.50]</td>
-<td style="text-align: left;">0.257</td>
+<td style="text-align: left;">13.00 [12.80, 14.00]</td>
+<td style="text-align: left;">0.279</td>
 <td style="text-align: left;">nonnorm</td>
-<td style="text-align: left;">51.1</td>
+<td style="text-align: left;">52.3</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">echo_ef_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">85 (90.4)</td>
-<td style="text-align: left;">76 (89.4)</td>
-<td style="text-align: left;">9 (100.0)</td>
-<td style="text-align: left;">0.667</td>
+<td style="text-align: left;">97 (90.7)</td>
+<td style="text-align: left;">87 (89.7)</td>
+<td style="text-align: left;">10 (100.0)</td>
+<td style="text-align: left;">0.620</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">9 (9.6)</td>
-<td style="text-align: left;">9 (10.6)</td>
+<td style="text-align: left;">10 (9.3)</td>
+<td style="text-align: left;">10 (10.3)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2346,18 +2348,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">echo_eeratio_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">55 (94.8)</td>
-<td style="text-align: left;">52 (94.5)</td>
-<td style="text-align: left;">3 (100.0)</td>
+<td style="text-align: left;">62 (95.4)</td>
+<td style="text-align: left;">58 (95.1)</td>
+<td style="text-align: left;">4 (100.0)</td>
 <td style="text-align: left;">1.000</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">38.3</td>
+<td style="text-align: left;">39.3</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">3 (5.2)</td>
-<td style="text-align: left;">3 (5.5)</td>
+<td style="text-align: left;">3 (4.6)</td>
+<td style="text-align: left;">3 (4.9)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2366,28 +2368,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">echo_gls_abnormal (%)</td>
 <td style="text-align: left;">0</td>
+<td style="text-align: left;">17 (100.0)</td>
 <td style="text-align: left;">16 (100.0)</td>
-<td style="text-align: left;">16 (100.0)</td>
-<td style="text-align: left;">0 (NaN)</td>
+<td style="text-align: left;">1 (100.0)</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">83.0</td>
+<td style="text-align: left;">84.1</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">echo_lateral_e_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">34 (73.9)</td>
-<td style="text-align: left;">32 (72.7)</td>
-<td style="text-align: left;">2 (100.0)</td>
-<td style="text-align: left;">0.971</td>
+<td style="text-align: left;">38 (74.5)</td>
+<td style="text-align: left;">35 (72.9)</td>
+<td style="text-align: left;">3 (100.0)</td>
+<td style="text-align: left;">0.718</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">51.1</td>
+<td style="text-align: left;">52.3</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">12 (26.1)</td>
-<td style="text-align: left;">12 (27.3)</td>
+<td style="text-align: left;">13 (25.5)</td>
+<td style="text-align: left;">13 (27.1)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2396,18 +2398,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">echo_tr_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">10 (76.9)</td>
-<td style="text-align: left;">9 (75.0)</td>
+<td style="text-align: left;">11 (73.3)</td>
+<td style="text-align: left;">10 (71.4)</td>
 <td style="text-align: left;">1 (100.0)</td>
 <td style="text-align: left;">1.000</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">86.2</td>
+<td style="text-align: left;">86.0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">3 (23.1)</td>
-<td style="text-align: left;">3 (25.0)</td>
+<td style="text-align: left;">4 (26.7)</td>
+<td style="text-align: left;">4 (28.6)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2416,19 +2418,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">echo_lavi_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">39 (55.7)</td>
-<td style="text-align: left;">37 (58.7)</td>
-<td style="text-align: left;">2 (28.6)</td>
-<td style="text-align: left;">0.261</td>
+<td style="text-align: left;">47 (57.3)</td>
+<td style="text-align: left;">44 (59.5)</td>
+<td style="text-align: left;">3 (37.5)</td>
+<td style="text-align: left;">0.414</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">25.5</td>
+<td style="text-align: left;">23.4</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">31 (44.3)</td>
-<td style="text-align: left;">26 (41.3)</td>
-<td style="text-align: left;">5 (71.4)</td>
+<td style="text-align: left;">35 (42.7)</td>
+<td style="text-align: left;">30 (40.5)</td>
+<td style="text-align: left;">5 (62.5)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2441,7 +2443,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="task-7-echo-time_to_death_status_90days" class="level1">
 <h1>Task 7 — Echo × <code>time_to_death_status_90days</code></h1>
-<p><strong>Cohort:</strong> Pre-terli echo (N = 94)</p>
+<p><strong>Cohort:</strong> Pre-terli + same-day echo (N = 107)</p>
 <p>Death capped at 90 days.</p>
 <div class="cell">
 <details class="code-fold">
@@ -2488,9 +2490,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">n</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">94</td>
-<td style="text-align: left;">59</td>
-<td style="text-align: left;">35</td>
+<td style="text-align: left;">107</td>
+<td style="text-align: left;">66</td>
+<td style="text-align: left;">41</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2498,10 +2500,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">echo_ef (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">67.00 [63.00, 70.75]</td>
-<td style="text-align: left;">67.50 [62.75, 71.00]</td>
-<td style="text-align: left;">66.00 [63.75, 67.75]</td>
-<td style="text-align: left;">0.218</td>
+<td style="text-align: left;">66.00 [62.75, 70.50]</td>
+<td style="text-align: left;">67.50 [62.50, 71.00]</td>
+<td style="text-align: left;">66.00 [64.00, 69.00]</td>
+<td style="text-align: left;">0.406</td>
 <td style="text-align: left;">nonnorm</td>
 <td style="text-align: left;">0.0</td>
 </tr>
@@ -2509,58 +2511,58 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">echo_earatio (median [IQR])</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1.10 [0.90, 1.40]</td>
-<td style="text-align: left;">1.12 [0.93, 1.50]</td>
-<td style="text-align: left;">1.10 [0.82, 1.30]</td>
-<td style="text-align: left;">0.172</td>
+<td style="text-align: left;">1.20 [0.93, 1.64]</td>
+<td style="text-align: left;">1.05 [0.83, 1.30]</td>
+<td style="text-align: left;">0.065</td>
 <td style="text-align: left;">nonnorm</td>
-<td style="text-align: left;">37.2</td>
+<td style="text-align: left;">38.3</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">echo_eeratio (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">8.77 [7.00, 10.20]</td>
+<td style="text-align: left;">8.64 [7.00, 10.10]</td>
 <td style="text-align: left;">9.00 [7.00, 10.53]</td>
-<td style="text-align: left;">7.75 [6.85, 9.97]</td>
-<td style="text-align: left;">0.301</td>
+<td style="text-align: left;">7.70 [7.00, 9.90]</td>
+<td style="text-align: left;">0.200</td>
 <td style="text-align: left;">nonnorm</td>
-<td style="text-align: left;">38.3</td>
+<td style="text-align: left;">39.3</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">echo_gls (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">22.60 [20.47, 25.35]</td>
+<td style="text-align: left;">22.70 [20.70, 25.50]</td>
 <td style="text-align: left;">22.50 [21.00, 23.80]</td>
-<td style="text-align: left;">24.90 [19.95, 26.10]</td>
-<td style="text-align: left;">0.634</td>
+<td style="text-align: left;">25.20 [20.32, 26.10]</td>
+<td style="text-align: left;">0.441</td>
 <td style="text-align: left;">nonnorm</td>
-<td style="text-align: left;">83.0</td>
+<td style="text-align: left;">84.1</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">echo_lateral_e (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">11.50 [9.40, 14.00]</td>
-<td style="text-align: left;">11.00 [10.10, 14.00]</td>
-<td style="text-align: left;">12.30 [9.00, 13.00]</td>
-<td style="text-align: left;">0.698</td>
+<td style="text-align: left;">12.00 [9.60, 14.00]</td>
+<td style="text-align: left;">12.00 [10.50, 14.00]</td>
+<td style="text-align: left;">11.65 [8.95, 13.00]</td>
+<td style="text-align: left;">0.384</td>
 <td style="text-align: left;">nonnorm</td>
-<td style="text-align: left;">51.1</td>
+<td style="text-align: left;">52.3</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">echo_ef_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">85 (90.4)</td>
-<td style="text-align: left;">55 (93.2)</td>
-<td style="text-align: left;">30 (85.7)</td>
-<td style="text-align: left;">0.405</td>
+<td style="text-align: left;">97 (90.7)</td>
+<td style="text-align: left;">61 (92.4)</td>
+<td style="text-align: left;">36 (87.8)</td>
+<td style="text-align: left;">0.648</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;">0.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">9 (9.6)</td>
-<td style="text-align: left;">4 (6.8)</td>
-<td style="text-align: left;">5 (14.3)</td>
+<td style="text-align: left;">10 (9.3)</td>
+<td style="text-align: left;">5 (7.6)</td>
+<td style="text-align: left;">5 (12.2)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2568,18 +2570,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">echo_eeratio_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">55 (94.8)</td>
-<td style="text-align: left;">33 (91.7)</td>
-<td style="text-align: left;">22 (100.0)</td>
-<td style="text-align: left;">0.436</td>
+<td style="text-align: left;">62 (95.4)</td>
+<td style="text-align: left;">37 (92.5)</td>
+<td style="text-align: left;">25 (100.0)</td>
+<td style="text-align: left;">0.427</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">38.3</td>
+<td style="text-align: left;">39.3</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">3 (5.2)</td>
-<td style="text-align: left;">3 (8.3)</td>
+<td style="text-align: left;">3 (4.6)</td>
+<td style="text-align: left;">3 (7.5)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2588,29 +2590,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">echo_gls_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">16 (100.0)</td>
+<td style="text-align: left;">17 (100.0)</td>
 <td style="text-align: left;">9 (100.0)</td>
-<td style="text-align: left;">7 (100.0)</td>
+<td style="text-align: left;">8 (100.0)</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">83.0</td>
+<td style="text-align: left;">84.1</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">echo_lateral_e_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">34 (73.9)</td>
-<td style="text-align: left;">23 (79.3)</td>
-<td style="text-align: left;">11 (64.7)</td>
-<td style="text-align: left;">0.459</td>
+<td style="text-align: left;">38 (74.5)</td>
+<td style="text-align: left;">25 (80.6)</td>
+<td style="text-align: left;">13 (65.0)</td>
+<td style="text-align: left;">0.356</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">51.1</td>
+<td style="text-align: left;">52.3</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">12 (26.1)</td>
-<td style="text-align: left;">6 (20.7)</td>
-<td style="text-align: left;">6 (35.3)</td>
+<td style="text-align: left;">13 (25.5)</td>
+<td style="text-align: left;">6 (19.4)</td>
+<td style="text-align: left;">7 (35.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2618,18 +2620,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">echo_tr_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">10 (76.9)</td>
-<td style="text-align: left;">6 (75.0)</td>
+<td style="text-align: left;">11 (73.3)</td>
+<td style="text-align: left;">7 (70.0)</td>
 <td style="text-align: left;">4 (80.0)</td>
 <td style="text-align: left;">1.000</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">86.2</td>
+<td style="text-align: left;">86.0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">3 (23.1)</td>
-<td style="text-align: left;">2 (25.0)</td>
+<td style="text-align: left;">4 (26.7)</td>
+<td style="text-align: left;">3 (30.0)</td>
 <td style="text-align: left;">1 (20.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2638,19 +2640,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td style="text-align: left;">echo_lavi_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">39 (55.7)</td>
-<td style="text-align: left;">20 (47.6)</td>
-<td style="text-align: left;">19 (67.9)</td>
-<td style="text-align: left;">0.154</td>
+<td style="text-align: left;">47 (57.3)</td>
+<td style="text-align: left;">24 (49.0)</td>
+<td style="text-align: left;">23 (69.7)</td>
+<td style="text-align: left;">0.103</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">25.5</td>
+<td style="text-align: left;">23.4</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;"></td>
 <td style="text-align: left;">1</td>
-<td style="text-align: left;">31 (44.3)</td>
-<td style="text-align: left;">22 (52.4)</td>
-<td style="text-align: left;">9 (32.1)</td>
+<td style="text-align: left;">35 (42.7)</td>
+<td style="text-align: left;">25 (51.0)</td>
+<td style="text-align: left;">10 (30.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2666,7 +2668,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Outcome: <code>hrs_responders_cat_2</code> (binary). Covariate <code>echo_ef</code> modelled as a natural cubic spline with <strong>df = 3</strong>, fit on each cohort.</p>
 <section id="echo_ef-pre-terli-cohort" class="level2">
 <h2 class="anchored" data-anchor-id="echo_ef-pre-terli-cohort">8.1 <code>echo_ef</code> — Pre-terli cohort</h2>
-<p><strong>Cohort:</strong> Pre-terli echo (N = 94)</p>
+<p><strong>Cohort:</strong> Pre-terli + same-day echo (N = 107)</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show spline fit + plot</summary>
@@ -2681,19 +2683,17 @@ Call:
 glm(formula = .y ~ ns(.x, df = df), family = binomial, data = d)
 
 Coefficients:
-                 Estimate Std. Error z value Pr(&gt;|z|)  
-(Intercept)        0.5946     1.2359   0.481   0.6304  
-ns(.x, df = df)1  -1.6719     0.9641  -1.734   0.0829 .
-ns(.x, df = df)2   0.7076     2.7964   0.253   0.8002  
-ns(.x, df = df)3  -0.4915     1.1178  -0.440   0.6601  
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+                 Estimate Std. Error z value Pr(&gt;|z|)
+(Intercept)        0.3697     1.2031   0.307    0.759
+ns(.x, df = df)1  -1.2823     0.9092  -1.410    0.158
+ns(.x, df = df)2   0.9588     2.6934   0.356    0.722
+ns(.x, df = df)3  -0.2668     1.0862  -0.246    0.806
 
 (Dispersion parameter for binomial family taken to be 1)
 
-    Null deviance: 123.03  on 93  degrees of freedom
-Residual deviance: 118.14  on 90  degrees of freedom
-AIC: 126.14
+    Null deviance: 141.45  on 106  degrees of freedom
+Residual deviance: 137.83  on 103  degrees of freedom
+AIC: 145.83
 
 Number of Fisher Scoring iterations: 4</code></pre>
 </div>
