@@ -21,20 +21,6 @@
     "text": "8.2 echo_ef — Echo cohort\nCohort: Echo cohort (N = 243)\n\n\nShow spline fit + plot\nres_8_2 &lt;- spline_logit(echo_cohort, \"echo_ef\",\n                        xlab = \"Ejection fraction (%)\",\n                        cohort_label = \"Echo cohort (all echos)\")\nsummary(res_8_2$fit)\n\n\n\nCall:\nglm(formula = .y ~ ns(.x, df = df), family = binomial, data = d)\n\nCoefficients:\n                 Estimate Std. Error z value Pr(&gt;|z|)\n(Intercept)        0.2082     0.8863   0.235    0.814\nns(.x, df = df)1  -0.9152     0.6718  -1.362    0.173\nns(.x, df = df)2   0.1227     2.0877   0.059    0.953\nns(.x, df = df)3  -0.6916     1.1161  -0.620    0.535\n\n(Dispersion parameter for binomial family taken to be 1)\n\n    Null deviance: 250.52  on 181  degrees of freedom\nResidual deviance: 246.25  on 178  degrees of freedom\nAIC: 254.25\n\nNumber of Fisher Scoring iterations: 4\n\n\nShow spline fit + plot\nres_8_2$plot"
   },
   {
-    "objectID": "analysis.html#echo_earatio-pre-terli-cohort",
-    "href": "analysis.html#echo_earatio-pre-terli-cohort",
-    "title": "Cardio — Analysis",
-    "section": "8.3 echo_earatio — Pre-terli cohort",
-    "text": "8.3 echo_earatio — Pre-terli cohort\nCohort: Pre-terli echo (N = 94)\n\n\nShow spline fit + plot\nres_8_3 &lt;- spline_logit(preterli_echo, \"echo_earatio\",\n                        xlab = \"Mitral E/A ratio\",\n                        cohort_label = \"Pre-terli cohort\")\nsummary(res_8_3$fit)\n\n\n\nCall:\nglm(formula = .y ~ ns(.x, df = df), family = binomial, data = d)\n\nCoefficients:\n                 Estimate Std. Error z value Pr(&gt;|z|)\n(Intercept)         1.048      1.234   0.849    0.396\nns(.x, df = df)1   -3.922      2.862  -1.370    0.171\nns(.x, df = df)2   -4.777      5.082  -0.940    0.347\nns(.x, df = df)3   -5.432      9.146  -0.594    0.553\n\n(Dispersion parameter for binomial family taken to be 1)\n\n    Null deviance: 77.936  on 58  degrees of freedom\nResidual deviance: 73.417  on 55  degrees of freedom\nAIC: 81.417\n\nNumber of Fisher Scoring iterations: 6\n\n\nShow spline fit + plot\nres_8_3$plot"
-  },
-  {
-    "objectID": "analysis.html#echo_earatio-echo-cohort",
-    "href": "analysis.html#echo_earatio-echo-cohort",
-    "title": "Cardio — Analysis",
-    "section": "8.4 echo_earatio — Echo cohort",
-    "text": "8.4 echo_earatio — Echo cohort\nCohort: Echo cohort (N = 243)\n\n\nShow spline fit + plot\nres_8_4 &lt;- spline_logit(echo_cohort, \"echo_earatio\",\n                        xlab = \"Mitral E/A ratio\",\n                        cohort_label = \"Echo cohort (all echos)\")\nsummary(res_8_4$fit)\n\n\n\nCall:\nglm(formula = .y ~ ns(.x, df = df), family = binomial, data = d)\n\nCoefficients:\n                 Estimate Std. Error z value Pr(&gt;|z|)  \n(Intercept)         0.125      1.114   0.112   0.9107  \nns(.x, df = df)1   -3.604      2.094  -1.722   0.0852 .\nns(.x, df = df)2   -3.333      4.673  -0.713   0.4757  \nns(.x, df = df)3   -4.649      8.444  -0.551   0.5819  \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n(Dispersion parameter for binomial family taken to be 1)\n\n    Null deviance: 144.41  on 104  degrees of freedom\nResidual deviance: 139.06  on 101  degrees of freedom\nAIC: 147.06\n\nNumber of Fisher Scoring iterations: 6\n\n\nShow spline fit + plot\nres_8_4$plot"
-  },
-  {
     "objectID": "derived_variables.html",
     "href": "derived_variables.html",
     "title": "Derived Variables",
