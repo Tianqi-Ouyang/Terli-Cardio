@@ -309,8 +309,8 @@ knitr::kable(t7, caption = "Task 7 — Echo by 90-day mortality status")
 
 # Task 8 — Cubic-Spline Logistic Regression Models
 
-Outcome: `hrs_responders_cat_2` (binary). Covariate modelled as a natural cubic
-spline with **df = 3**. Four model fits below — two covariates × two cohorts.
+Outcome: `hrs_responders_cat_2` (binary). Covariate `echo_ef` modelled as a
+natural cubic spline with **df = 3**, fit on each cohort.
 
 ## 8.1 `echo_ef` — Pre-terli cohort
 
@@ -336,30 +336,4 @@ res_8_2 <- spline_logit(echo_cohort, "echo_ef",
                         cohort_label = "Echo cohort (all echos)")
 summary(res_8_2$fit)
 res_8_2$plot
-```
-
-## 8.3 `echo_earatio` — Pre-terli cohort
-
-**Cohort:** Pre-terli echo (N = `r nrow(preterli_echo)`)
-
-```{r task8-3, fig.height=5, fig.width=7}
-#| code-summary: "Show spline fit + plot"
-res_8_3 <- spline_logit(preterli_echo, "echo_earatio",
-                        xlab = "Mitral E/A ratio",
-                        cohort_label = "Pre-terli cohort")
-summary(res_8_3$fit)
-res_8_3$plot
-```
-
-## 8.4 `echo_earatio` — Echo cohort
-
-**Cohort:** Echo cohort (N = `r nrow(echo_cohort)`)
-
-```{r task8-4, fig.height=5, fig.width=7}
-#| code-summary: "Show spline fit + plot"
-res_8_4 <- spline_logit(echo_cohort, "echo_earatio",
-                        xlab = "Mitral E/A ratio",
-                        cohort_label = "Echo cohort (all echos)")
-summary(res_8_4$fit)
-res_8_4$plot
 ```
