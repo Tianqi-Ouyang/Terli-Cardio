@@ -171,6 +171,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#echo_ef-pre-terli-cohort" id="toc-echo_ef-pre-terli-cohort" class="nav-link" data-scroll-target="#echo_ef-pre-terli-cohort">8.1 <code>echo_ef</code> — Pre-terli cohort</a></li>
   <li><a href="#echo_ef-echo-cohort" id="toc-echo_ef-echo-cohort" class="nav-link" data-scroll-target="#echo_ef-echo-cohort">8.2 <code>echo_ef</code> — Echo cohort</a></li>
   </ul></li>
+  <li><a href="#task-9-optimal-echo_ef-cutoff-youdens-j" id="toc-task-9-optimal-echo_ef-cutoff-youdens-j" class="nav-link" data-scroll-target="#task-9-optimal-echo_ef-cutoff-youdens-j">Task 9 — Optimal <code>echo_ef</code> Cutoff (Youden’s J)</a></li>
   </ul>
 </nav>
     </div>
@@ -227,32 +228,48 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># magnitudes only.</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">echo_gls =</span> <span class="fu">abs</span>(echo_gls))</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>preterli_echo <span class="ot">&lt;-</span> echo_cohort <span class="sc">%&gt;%</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>preterli_echo_base <span class="ot">&lt;-</span> echo_cohort <span class="sc">%&gt;%</span></span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Pre-terli OR same-day echo (per analyst spec — adds 13 same-day patients</span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># on top of the strict pre-terli set).</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(days_to_echo <span class="sc">&lt;=</span> days_to_terli_initiation_day0) <span class="sc">%&gt;%</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Abnormal-echo flags (1 = abnormal, 0 = normal, NA if measurement missing)</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_ef_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_ef),</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_ef <span class="sc">&lt;</span> <span class="dv">60</span>)),</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_eeratio_abnormal   =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_eeratio),</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_eeratio <span class="sc">&gt;</span> <span class="dv">15</span>)),</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># echo_gls is already stored as a magnitude (see harmonization in echo_cohort).</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_gls_abnormal       =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_gls),</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_gls <span class="sc">&lt;</span> <span class="dv">18</span>)),</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_lateral_e_abnormal =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_lateral_e),</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_lateral_e <span class="sc">&lt;</span> <span class="dv">10</span>)),</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># TR is unit-aware: &lt; 100 treated as m/s (cutoff 2.8); &gt;= 100 as cm/s (cutoff 280).</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_tr_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_tr),</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>,</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>                                      <span class="fu">as.numeric</span>(<span class="fu">if_else</span>(echo_tr <span class="sc">&lt;</span> <span class="dv">100</span>,</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>                                                         echo_tr <span class="sc">&gt;</span> <span class="fl">2.8</span>,</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>                                                         echo_tr <span class="sc">&gt;</span> <span class="dv">280</span>))),</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_lavi_abnormal      =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_lavi),</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_lavi <span class="sc">&gt;</span> <span class="dv">34</span>))</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Echo cohort N      :"</span>, <span class="fu">nrow</span>(echo_cohort),    <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(days_to_echo <span class="sc">&lt;=</span> days_to_terli_initiation_day0)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Youden-optimal echo_ef cutoff (Task 9 input) --------------------------</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute once on the cohort so the same cutoff is used to (a) derive the</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># echo_ef_abnormal_youden flag below and (b) render Task 9.</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>.youden_data <span class="ot">&lt;-</span> preterli_echo_base <span class="sc">%&gt;%</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(echo_ef), <span class="sc">!</span><span class="fu">is.na</span>(hrs_responders_cat_2))</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>.roc_ef <span class="ot">&lt;-</span> pROC<span class="sc">::</span><span class="fu">roc</span>(.youden_data<span class="sc">$</span>hrs_responders_cat_2, .youden_data<span class="sc">$</span>echo_ef,</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>                     <span class="at">quiet =</span> <span class="cn">TRUE</span>, <span class="at">direction =</span> <span class="st">"auto"</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>.youden_coords <span class="ot">&lt;-</span> pROC<span class="sc">::</span><span class="fu">coords</span>(.roc_ef, <span class="at">x =</span> <span class="st">"best"</span>, <span class="at">best.method =</span> <span class="st">"youden"</span>,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>                               <span class="at">ret =</span> <span class="fu">c</span>(<span class="st">"threshold"</span>,<span class="st">"sensitivity"</span>,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>                                       <span class="st">"specificity"</span>,<span class="st">"accuracy"</span>,<span class="st">"ppv"</span>,<span class="st">"npv"</span>))</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>youden_ef_cutoff <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(.youden_coords<span class="sc">$</span>threshold)</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>preterli_echo <span class="ot">&lt;-</span> preterli_echo_base <span class="sc">%&gt;%</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Abnormal-echo flags (1 = abnormal, 0 = normal, NA if measurement missing)</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_ef_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_ef),</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_ef <span class="sc">&lt;</span> <span class="dv">60</span>)),</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_ef_abnormal_youden =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_ef),</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_ef <span class="sc">&lt;</span> youden_ef_cutoff)),</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_eeratio_abnormal   =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_eeratio),</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_eeratio <span class="sc">&gt;</span> <span class="dv">15</span>)),</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># echo_gls is already stored as a magnitude (see harmonization in echo_cohort).</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_gls_abnormal       =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_gls),</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_gls <span class="sc">&lt;</span> <span class="dv">18</span>)),</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_lateral_e_abnormal =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_lateral_e),</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_lateral_e <span class="sc">&lt;</span> <span class="dv">10</span>)),</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="co"># TR is unit-aware: &lt; 100 treated as m/s (cutoff 2.8); &gt;= 100 as cm/s (cutoff 280).</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_tr_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_tr),</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>,</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>                                      <span class="fu">as.numeric</span>(<span class="fu">if_else</span>(echo_tr <span class="sc">&lt;</span> <span class="dv">100</span>,</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>                                                         echo_tr <span class="sc">&gt;</span> <span class="fl">2.8</span>,</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>                                                         echo_tr <span class="sc">&gt;</span> <span class="dv">280</span>))),</span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_lavi_abnormal      =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_lavi),</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_lavi <span class="sc">&gt;</span> <span class="dv">34</span>))</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Echo cohort N      :"</span>, <span class="fu">nrow</span>(echo_cohort),    <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>Echo cohort N      : 243 </code></pre>
@@ -2002,21 +2019,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <summary>Show Task 5 Table 1 call</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>echo_continuous <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"echo_ef"</span>, <span class="st">"echo_earatio"</span>, <span class="st">"echo_eeratio"</span>,</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"echo_gls"</span>, <span class="st">"echo_lateral_e"</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>echo_flags <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"echo_ef_abnormal"</span>, <span class="st">"echo_eeratio_abnormal"</span>, <span class="st">"echo_gls_abnormal"</span>,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                <span class="st">"echo_lateral_e_abnormal"</span>, <span class="st">"echo_tr_abnormal"</span>, <span class="st">"echo_lavi_abnormal"</span>)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>dat5 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(echo_continuous), as.numeric),</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>         <span class="fu">across</span>(<span class="fu">all_of</span>(echo_flags),      as.factor))</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>t5 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> <span class="fu">c</span>(echo_continuous, echo_flags),</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> echo_flags,</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat5,</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"hrs_responders_cat_2"</span>,</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task5_echo_hrs_responders_cat_2.csv"</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t5, <span class="at">caption =</span> <span class="st">"Task 5 — Echo by HRS response (binary)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>echo_flags <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"echo_ef_abnormal"</span>, <span class="st">"echo_ef_abnormal_youden"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                <span class="st">"echo_eeratio_abnormal"</span>, <span class="st">"echo_gls_abnormal"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                <span class="st">"echo_lateral_e_abnormal"</span>, <span class="st">"echo_tr_abnormal"</span>, <span class="st">"echo_lavi_abnormal"</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>dat5 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(echo_continuous), as.numeric),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>         <span class="fu">across</span>(<span class="fu">all_of</span>(echo_flags),      as.factor))</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>t5 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> <span class="fu">c</span>(echo_continuous, echo_flags),</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> echo_flags,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat5,</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"hrs_responders_cat_2"</span>,</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task5_echo_hrs_responders_cat_2.csv"</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t5, <span class="at">caption =</span> <span class="st">"Task 5 — Echo by HRS response (binary)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -2120,6 +2138,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">10 (9.3)</td>
 <td style="text-align: left;">4 (10.0)</td>
 <td style="text-align: left;">6 (9.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">echo_ef_abnormal_youden (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">71 (66.4)</td>
+<td style="text-align: left;">33 (82.5)</td>
+<td style="text-align: left;">38 (56.7)</td>
+<td style="text-align: left;">0.012</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">36 (33.6)</td>
+<td style="text-align: left;">7 (17.5)</td>
+<td style="text-align: left;">29 (43.3)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2340,6 +2378,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">1</td>
 <td style="text-align: left;">10 (9.3)</td>
 <td style="text-align: left;">10 (10.3)</td>
+<td style="text-align: left;">0 (0.0)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">echo_ef_abnormal_youden (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">71 (66.4)</td>
+<td style="text-align: left;">61 (62.9)</td>
+<td style="text-align: left;">10 (100.0)</td>
+<td style="text-align: left;">0.044</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">36 (33.6)</td>
+<td style="text-align: left;">36 (37.1)</td>
 <td style="text-align: left;">0 (0.0)</td>
 <td style="text-align: left;"></td>
 <td style="text-align: left;"></td>
@@ -2568,6 +2626,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;"></td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">echo_ef_abnormal_youden (%)</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">71 (66.4)</td>
+<td style="text-align: left;">42 (63.6)</td>
+<td style="text-align: left;">29 (70.7)</td>
+<td style="text-align: left;">0.586</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">36 (33.6)</td>
+<td style="text-align: left;">24 (36.4)</td>
+<td style="text-align: left;">12 (29.3)</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">echo_eeratio_abnormal (%)</td>
 <td style="text-align: left;">0</td>
 <td style="text-align: left;">62 (95.4)</td>
@@ -2753,9 +2831,155 @@ Number of Fisher Scoring iterations: 4</code></pre>
 </div>
 </div>
 </div>
-
-
 </section>
+</section>
+<section id="task-9-optimal-echo_ef-cutoff-youdens-j" class="level1">
+<h1>Task 9 — Optimal <code>echo_ef</code> Cutoff (Youden’s J)</h1>
+<p><strong>Cohort:</strong> Pre-terli + same-day echo (N = 107)</p>
+<p>Find the EF threshold that maximises <strong>Youden’s J = sensitivity + specificity − 1</strong> for predicting HRS response (<code>hrs_responders_cat_2</code>). pROC chooses the direction that maximises AUC. The resulting cutoff is used to derive the <strong><code>echo_ef_abnormal_youden</code></strong> flag, which is now included as an additional row in Tasks 5–7 alongside the clinical <code>echo_ef_abnormal</code> (EF &lt; 60).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show cutoff + AUC summary</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>auc_ci <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(pROC<span class="sc">::</span><span class="fu">ci.auc</span>(.roc_ef))</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>tibble<span class="sc">::</span><span class="fu">tibble</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Metric =</span> <span class="fu">c</span>(<span class="st">"Youden-optimal EF cutoff"</span>,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>             <span class="st">"AUC"</span>, <span class="st">"AUC 95% CI (lower)"</span>, <span class="st">"AUC 95% CI (upper)"</span>,</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>             <span class="st">"Direction (pROC)"</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>             <span class="st">"Sensitivity at cutoff"</span>, <span class="st">"Specificity at cutoff"</span>,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>             <span class="st">"Accuracy at cutoff"</span>, <span class="st">"PPV at cutoff"</span>, <span class="st">"NPV at cutoff"</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>             <span class="st">"N evaluable"</span>),</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">Value  =</span> <span class="fu">c</span>(<span class="fu">sprintf</span>(<span class="st">"%.1f"</span>, youden_ef_cutoff),</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>             <span class="fu">sprintf</span>(<span class="st">"%.3f"</span>, <span class="fu">as.numeric</span>(pROC<span class="sc">::</span><span class="fu">auc</span>(.roc_ef))),</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>             <span class="fu">sprintf</span>(<span class="st">"%.3f"</span>, auc_ci[<span class="dv">1</span>]),</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>             <span class="fu">sprintf</span>(<span class="st">"%.3f"</span>, auc_ci[<span class="dv">3</span>]),</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>             .roc_ef<span class="sc">$</span>direction,</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>             <span class="fu">sprintf</span>(<span class="st">"%.3f"</span>, .youden_coords<span class="sc">$</span>sensitivity),</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>             <span class="fu">sprintf</span>(<span class="st">"%.3f"</span>, .youden_coords<span class="sc">$</span>specificity),</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>             <span class="fu">sprintf</span>(<span class="st">"%.3f"</span>, .youden_coords<span class="sc">$</span>accuracy),</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>             <span class="fu">sprintf</span>(<span class="st">"%.3f"</span>, .youden_coords<span class="sc">$</span>ppv),</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>             <span class="fu">sprintf</span>(<span class="st">"%.3f"</span>, .youden_coords<span class="sc">$</span>npv),</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>             <span class="fu">as.character</span>(<span class="fu">nrow</span>(.youden_data)))</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Youden-optimal echo_ef cutoff for hrs_responders_cat_2"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Youden-optimal echo_ef cutoff for hrs_responders_cat_2</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Metric</th>
+<th style="text-align: left;">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Youden-optimal EF cutoff</td>
+<td style="text-align: left;">64.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AUC</td>
+<td style="text-align: left;">0.591</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">AUC 95% CI (lower)</td>
+<td style="text-align: left;">0.479</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AUC 95% CI (upper)</td>
+<td style="text-align: left;">0.702</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Direction (pROC)</td>
+<td style="text-align: left;">&gt;</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sensitivity at cutoff</td>
+<td style="text-align: left;">0.433</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Specificity at cutoff</td>
+<td style="text-align: left;">0.825</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Accuracy at cutoff</td>
+<td style="text-align: left;">0.579</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">PPV at cutoff</td>
+<td style="text-align: left;">0.806</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NPV at cutoff</td>
+<td style="text-align: left;">0.465</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">N evaluable</td>
+<td style="text-align: left;">107</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Direction note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>pROC reports <strong>direction = &gt;</strong>, which in this cohort means <em>higher</em> EF is associated with <strong>non-response</strong>. AUC is 0.591 — weak discrimination, so this cutoff should be interpreted cautiously. The flag is defined as <code>echo_ef &lt; 64.5</code> to preserve the clinical “abnormal = below cutoff” convention used by the existing <code>echo_ef_abnormal</code> (&lt; 60).</p>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Show ROC plot</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>roc_df <span class="ot">&lt;-</span> tibble<span class="sc">::</span><span class="fu">tibble</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">fpr =</span> <span class="dv">1</span> <span class="sc">-</span> .roc_ef<span class="sc">$</span>specificities,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">tpr =</span> .roc_ef<span class="sc">$</span>sensitivities</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(fpr, tpr)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>opt_point <span class="ot">&lt;-</span> tibble<span class="sc">::</span><span class="fu">tibble</span>(</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">fpr =</span> <span class="dv">1</span> <span class="sc">-</span> .youden_coords<span class="sc">$</span>specificity,</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">tpr =</span>     .youden_coords<span class="sc">$</span>sensitivity</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(roc_df, <span class="fu">aes</span>(fpr, tpr)) <span class="sc">+</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey60"</span>) <span class="sc">+</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_path</span>(<span class="at">linewidth =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"#2c8dbb"</span>) <span class="sc">+</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> opt_point, <span class="at">color =</span> <span class="st">"#d73027"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">data =</span> opt_point,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>            <span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"EF = %.1f</span><span class="sc">\n</span><span class="st">sens = %.2f, spec = %.2f"</span>,</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>                                youden_ef_cutoff,</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>                                .youden_coords<span class="sc">$</span>sensitivity,</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>                                .youden_coords<span class="sc">$</span>specificity)),</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>            <span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.05</span>, <span class="at">vjust =</span> <span class="fl">1.1</span>, <span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">1.05</span>)) <span class="sc">+</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_equal</span>() <span class="sc">+</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"1 − Specificity (false-positive rate)"</span>,</span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Sensitivity (true-positive rate)"</span>,</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">sprintf</span>(<span class="st">"ROC of echo_ef for HRS response — AUC = %.3f"</span>,</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">as.numeric</span>(pROC<span class="sc">::</span><span class="fu">auc</span>(.roc_ef))),</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="fu">sprintf</span>(<span class="st">"Red point = Youden-optimal cutoff; pROC direction = %s; n = %d"</span>,</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>                      .roc_ef<span class="sc">$</span>direction, <span class="fu">nrow</span>(.youden_data))</span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="analysis_files/figure-html/task9-roc-plot-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->
