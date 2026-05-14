@@ -25,6 +25,7 @@ library(tidyverse)
 library(tableone)
 library(splines)
 library(ggplot2)
+library(pROC)
 
 # Make sure the per-page download dir exists.
 dir.create("tables", showWarnings = FALSE)
@@ -135,14 +136,30 @@ echo_cohort <- master %>%
   # magnitudes only.
   mutate(echo_gls = abs(echo_gls))
 
-preterli_echo <- echo_cohort %>%
+preterli_echo_base <- echo_cohort %>%
   # Pre-terli OR same-day echo (per analyst spec — adds 13 same-day patients
   # on top of the strict pre-terli set).
-  filter(days_to_echo <= days_to_terli_initiation_day0) %>%
+  filter(days_to_echo <= days_to_terli_initiation_day0)
+
+# --- Youden-optimal echo_ef cutoff (Task 9 input) --------------------------
+# Compute once on the cohort so the same cutoff is used to (a) derive the
+# echo_ef_abnormal_youden flag below and (b) render Task 9.
+.youden_data <- preterli_echo_base %>%
+  filter(!is.na(echo_ef), !is.na(hrs_responders_cat_2))
+.roc_ef <- pROC::roc(.youden_data$hrs_responders_cat_2, .youden_data$echo_ef,
+                     quiet = TRUE, direction = "auto")
+.youden_coords <- pROC::coords(.roc_ef, x = "best", best.method = "youden",
+                               ret = c("threshold","sensitivity",
+                                       "specificity","accuracy","ppv","npv"))
+youden_ef_cutoff <- as.numeric(.youden_coords$threshold)
+
+preterli_echo <- preterli_echo_base %>%
   mutate(
     # Abnormal-echo flags (1 = abnormal, 0 = normal, NA if measurement missing)
     echo_ef_abnormal        = if_else(is.na(echo_ef),
                                       NA_real_, as.numeric(echo_ef < 60)),
+    echo_ef_abnormal_youden = if_else(is.na(echo_ef),
+                                      NA_real_, as.numeric(echo_ef < youden_ef_cutoff)),
     echo_eeratio_abnormal   = if_else(is.na(echo_eeratio),
                                       NA_real_, as.numeric(echo_eeratio > 15)),
     # echo_gls is already stored as a magnitude (see harmonization in echo_cohort).
@@ -244,7 +261,8 @@ knitr::kable(t4, caption = "Task 4 — Demographics by `hrs_responders` (3-level
 #| code-summary: "Show Task 5 Table 1 call"
 echo_continuous <- c("echo_ef", "echo_earatio", "echo_eeratio",
                      "echo_gls", "echo_lateral_e")
-echo_flags <- c("echo_ef_abnormal", "echo_eeratio_abnormal", "echo_gls_abnormal",
+echo_flags <- c("echo_ef_abnormal", "echo_ef_abnormal_youden",
+                "echo_eeratio_abnormal", "echo_gls_abnormal",
                 "echo_lateral_e_abnormal", "echo_tr_abnormal", "echo_lavi_abnormal")
 
 dat5 <- preterli_echo %>%
@@ -338,4 +356,83 @@ res_8_2 <- spline_logit(echo_cohort, "echo_ef",
                         cohort_label = "Echo cohort (all echos)")
 summary(res_8_2$fit)
 res_8_2$plot
+```
+
+# Task 9 — Optimal `echo_ef` Cutoff (Youden's J)
+
+**Cohort:** Pre-terli + same-day echo (N = `r nrow(preterli_echo)`)
+
+Find the EF threshold that maximises **Youden's J = sensitivity + specificity − 1**
+for predicting HRS response (`hrs_responders_cat_2`). pROC chooses the direction
+that maximises AUC. The resulting cutoff is used to derive the
+**`echo_ef_abnormal_youden`** flag, which is now included as an additional row
+in Tasks 5–7 alongside the clinical `echo_ef_abnormal` (EF < 60).
+
+```{r task9-cutoff-table}
+#| code-summary: "Show cutoff + AUC summary"
+auc_ci <- as.numeric(pROC::ci.auc(.roc_ef))
+tibble::tibble(
+  Metric = c("Youden-optimal EF cutoff",
+             "AUC", "AUC 95% CI (lower)", "AUC 95% CI (upper)",
+             "Direction (pROC)",
+             "Sensitivity at cutoff", "Specificity at cutoff",
+             "Accuracy at cutoff", "PPV at cutoff", "NPV at cutoff",
+             "N evaluable"),
+  Value  = c(sprintf("%.1f", youden_ef_cutoff),
+             sprintf("%.3f", as.numeric(pROC::auc(.roc_ef))),
+             sprintf("%.3f", auc_ci[1]),
+             sprintf("%.3f", auc_ci[3]),
+             .roc_ef$direction,
+             sprintf("%.3f", .youden_coords$sensitivity),
+             sprintf("%.3f", .youden_coords$specificity),
+             sprintf("%.3f", .youden_coords$accuracy),
+             sprintf("%.3f", .youden_coords$ppv),
+             sprintf("%.3f", .youden_coords$npv),
+             as.character(nrow(.youden_data)))
+) |>
+  knitr::kable(caption = "Youden-optimal echo_ef cutoff for hrs_responders_cat_2")
+```
+
+::: {.callout-note}
+## Direction note
+
+pROC reports **direction = `r .roc_ef$direction`**, which in this cohort means
+*higher* EF is associated with **non-response**. AUC is `r sprintf("%.3f", as.numeric(pROC::auc(.roc_ef)))` — weak discrimination, so this cutoff should be interpreted cautiously. The flag is defined as `echo_ef < `r sprintf("%.1f", youden_ef_cutoff)`` to preserve the clinical "abnormal = below cutoff" convention used by the existing `echo_ef_abnormal` (< 60).
+:::
+
+```{r task9-roc-plot, fig.height=5, fig.width=6}
+#| code-summary: "Show ROC plot"
+roc_df <- tibble::tibble(
+  fpr = 1 - .roc_ef$specificities,
+  tpr = .roc_ef$sensitivities
+) |>
+  arrange(fpr, tpr)
+
+opt_point <- tibble::tibble(
+  fpr = 1 - .youden_coords$specificity,
+  tpr =     .youden_coords$sensitivity
+)
+
+ggplot(roc_df, aes(fpr, tpr)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey60") +
+  geom_path(linewidth = 1, color = "#2c8dbb") +
+  geom_point(data = opt_point, color = "#d73027", size = 3) +
+  geom_text(data = opt_point,
+            aes(label = sprintf("EF = %.1f\nsens = %.2f, spec = %.2f",
+                                youden_ef_cutoff,
+                                .youden_coords$sensitivity,
+                                .youden_coords$specificity)),
+            hjust = -0.05, vjust = 1.1, size = 3.5) +
+  scale_x_continuous(limits = c(0, 1)) +
+  scale_y_continuous(limits = c(0, 1.05)) +
+  coord_equal() +
+  labs(
+    x = "1 − Specificity (false-positive rate)",
+    y = "Sensitivity (true-positive rate)",
+    title = sprintf("ROC of echo_ef for HRS response — AUC = %.3f",
+                    as.numeric(pROC::auc(.roc_ef))),
+    caption = sprintf("Red point = Youden-optimal cutoff; pROC direction = %s; n = %d",
+                      .roc_ef$direction, nrow(.youden_data))
+  ) +
+  theme_bw(base_size = 12)
 ```
