@@ -136,7 +136,9 @@ echo_cohort <- master %>%
   mutate(echo_gls = abs(echo_gls))
 
 preterli_echo <- echo_cohort %>%
-  filter(days_to_echo < days_to_terli_initiation_day0) %>%
+  # Pre-terli OR same-day echo (per analyst spec — adds 13 same-day patients
+  # on top of the strict pre-terli set).
+  filter(days_to_echo <= days_to_terli_initiation_day0) %>%
   mutate(
     # Abnormal-echo flags (1 = abnormal, 0 = normal, NA if measurement missing)
     echo_ef_abnormal        = if_else(is.na(echo_ef),
@@ -183,7 +185,7 @@ knitr::kable(timing_counts,
 
 # Task 4 — Demographics × `hrs_responders`
 
-**Cohort:** Pre-terli echo (N = `r nrow(preterli_echo)`)
+**Cohort:** Pre-terli + same-day echo (N = `r nrow(preterli_echo)`)
 
 ```{r task4-demographics}
 #| code-summary: "Show demographic variable lists + Table 1 call"
@@ -236,7 +238,7 @@ knitr::kable(t4, caption = "Task 4 — Demographics by `hrs_responders` (3-level
 
 # Task 5 — Echo × `hrs_responders_cat_2`
 
-**Cohort:** Pre-terli echo (N = `r nrow(preterli_echo)`)
+**Cohort:** Pre-terli + same-day echo (N = `r nrow(preterli_echo)`)
 
 ```{r task5-response}
 #| code-summary: "Show Task 5 Table 1 call"
@@ -263,7 +265,7 @@ knitr::kable(t5, caption = "Task 5 — Echo by HRS response (binary)")
 
 # Task 6 — Echo × `terli_ae_respfail`
 
-**Cohort:** Pre-terli echo (N = `r nrow(preterli_echo)`)
+**Cohort:** Pre-terli + same-day echo (N = `r nrow(preterli_echo)`)
 
 ```{r task6-respfail}
 #| code-summary: "Show Task 6 Table 1 call"
@@ -285,7 +287,7 @@ knitr::kable(t6, caption = "Task 6 — Echo by terlipressin-associated respirato
 
 # Task 7 — Echo × `time_to_death_status_90days`
 
-**Cohort:** Pre-terli echo (N = `r nrow(preterli_echo)`)
+**Cohort:** Pre-terli + same-day echo (N = `r nrow(preterli_echo)`)
 
 Death capped at 90 days.
 
@@ -314,7 +316,7 @@ natural cubic spline with **df = 3**, fit on each cohort.
 
 ## 8.1 `echo_ef` — Pre-terli cohort
 
-**Cohort:** Pre-terli echo (N = `r nrow(preterli_echo)`)
+**Cohort:** Pre-terli + same-day echo (N = `r nrow(preterli_echo)`)
 
 ```{r task8-1, fig.height=5, fig.width=7}
 #| code-summary: "Show spline fit + plot"
