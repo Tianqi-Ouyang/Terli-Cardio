@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Tianqi Ouyang">
-<meta name="dcterms.date" content="2026-05-14">
+<meta name="dcterms.date" content="2026-05-18">
 
 <title>Cardio — Analysis – Terlipressin — Cardio</title>
 <style>
@@ -197,7 +197,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 14, 2026</p>
+      <p class="date">May 18, 2026</p>
     </div>
   </div>
   
@@ -247,11 +247,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>preterli_echo <span class="ot">&lt;-</span> preterli_echo_base <span class="sc">%&gt;%</span></span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Abnormal-echo flags (1 = abnormal, 0 = normal, NA if measurement missing)</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_ef_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_ef),</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_ef <span class="sc">&lt;</span> <span class="dv">60</span>)),</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_ef_abnormal_youden =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_ef),</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_ef <span class="sc">&lt;</span> youden_ef_cutoff)),</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Abnormal-echo flags (1 = abnormal, 0 = normal, NA if measurement missing).</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># echo_ef_abnormal: cutoff updated 2026-05-14 from 60 to 65 (rounded up from</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># the Youden-optimal 64.5 reported in Task 9).</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_ef_abnormal        =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_ef),</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_ef <span class="sc">&lt;</span> <span class="dv">65</span>)),</span>
 <span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo_eeratio_abnormal   =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(echo_eeratio),</span>
 <span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>                                      <span class="cn">NA_real_</span>, <span class="fu">as.numeric</span>(echo_eeratio <span class="sc">&gt;</span> <span class="dv">15</span>)),</span>
 <span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># echo_gls is already stored as a magnitude (see harmonization in echo_cohort).</span></span>
@@ -2019,22 +2019,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <summary>Show Task 5 Table 1 call</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>echo_continuous <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"echo_ef"</span>, <span class="st">"echo_earatio"</span>, <span class="st">"echo_eeratio"</span>,</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"echo_gls"</span>, <span class="st">"echo_lateral_e"</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>echo_flags <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"echo_ef_abnormal"</span>, <span class="st">"echo_ef_abnormal_youden"</span>,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                <span class="st">"echo_eeratio_abnormal"</span>, <span class="st">"echo_gls_abnormal"</span>,</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                <span class="st">"echo_lateral_e_abnormal"</span>, <span class="st">"echo_tr_abnormal"</span>, <span class="st">"echo_lavi_abnormal"</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>dat5 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(echo_continuous), as.numeric),</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>         <span class="fu">across</span>(<span class="fu">all_of</span>(echo_flags),      as.factor))</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>t5 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> <span class="fu">c</span>(echo_continuous, echo_flags),</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> echo_flags,</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat5,</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"hrs_responders_cat_2"</span>,</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task5_echo_hrs_responders_cat_2.csv"</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t5, <span class="at">caption =</span> <span class="st">"Task 5 — Echo by HRS response (binary)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>echo_flags <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"echo_ef_abnormal"</span>, <span class="st">"echo_eeratio_abnormal"</span>, <span class="st">"echo_gls_abnormal"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                <span class="st">"echo_lateral_e_abnormal"</span>, <span class="st">"echo_tr_abnormal"</span>, <span class="st">"echo_lavi_abnormal"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>dat5 <span class="ot">&lt;-</span> preterli_echo <span class="sc">%&gt;%</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">all_of</span>(echo_continuous), as.numeric),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>         <span class="fu">across</span>(<span class="fu">all_of</span>(echo_flags),      as.factor))</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>t5 <span class="ot">&lt;-</span> <span class="fu">create_table_one</span>(</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">all_vars =</span> <span class="fu">c</span>(echo_continuous, echo_flags),</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">cat_vars =</span> echo_flags,</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">data     =</span> dat5,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata   =</span> <span class="st">"hrs_responders_cat_2"</span>,</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">output   =</span> <span class="st">"tables/task5_echo_hrs_responders_cat_2.csv"</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(t5, <span class="at">caption =</span> <span class="st">"Task 5 — Echo by HRS response (binary)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -2124,26 +2123,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td style="text-align: left;">echo_ef_abnormal (%)</td>
-<td style="text-align: left;">0</td>
-<td style="text-align: left;">97 (90.7)</td>
-<td style="text-align: left;">36 (90.0)</td>
-<td style="text-align: left;">61 (91.0)</td>
-<td style="text-align: left;">1.000</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">0.0</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"></td>
-<td style="text-align: left;">1</td>
-<td style="text-align: left;">10 (9.3)</td>
-<td style="text-align: left;">4 (10.0)</td>
-<td style="text-align: left;">6 (9.0)</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">echo_ef_abnormal_youden (%)</td>
 <td style="text-align: left;">0</td>
 <td style="text-align: left;">71 (66.4)</td>
 <td style="text-align: left;">33 (82.5)</td>
@@ -2365,26 +2344,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td style="text-align: left;">echo_ef_abnormal (%)</td>
-<td style="text-align: left;">0</td>
-<td style="text-align: left;">97 (90.7)</td>
-<td style="text-align: left;">87 (89.7)</td>
-<td style="text-align: left;">10 (100.0)</td>
-<td style="text-align: left;">0.620</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">0.0</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"></td>
-<td style="text-align: left;">1</td>
-<td style="text-align: left;">10 (9.3)</td>
-<td style="text-align: left;">10 (10.3)</td>
-<td style="text-align: left;">0 (0.0)</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">echo_ef_abnormal_youden (%)</td>
 <td style="text-align: left;">0</td>
 <td style="text-align: left;">71 (66.4)</td>
 <td style="text-align: left;">61 (62.9)</td>
@@ -2608,26 +2567,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td style="text-align: left;">echo_ef_abnormal (%)</td>
 <td style="text-align: left;">0</td>
-<td style="text-align: left;">97 (90.7)</td>
-<td style="text-align: left;">61 (92.4)</td>
-<td style="text-align: left;">36 (87.8)</td>
-<td style="text-align: left;">0.648</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;">0.0</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;"></td>
-<td style="text-align: left;">1</td>
-<td style="text-align: left;">10 (9.3)</td>
-<td style="text-align: left;">5 (7.6)</td>
-<td style="text-align: left;">5 (12.2)</td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">echo_ef_abnormal_youden (%)</td>
-<td style="text-align: left;">0</td>
 <td style="text-align: left;">71 (66.4)</td>
 <td style="text-align: left;">42 (63.6)</td>
 <td style="text-align: left;">29 (70.7)</td>
@@ -2836,7 +2775,7 @@ Number of Fisher Scoring iterations: 4</code></pre>
 <section id="task-9-optimal-echo_ef-cutoff-youdens-j" class="level1">
 <h1>Task 9 — Optimal <code>echo_ef</code> Cutoff (Youden’s J)</h1>
 <p><strong>Cohort:</strong> Pre-terli + same-day echo (N = 107)</p>
-<p>Find the EF threshold that maximises <strong>Youden’s J = sensitivity + specificity − 1</strong> for predicting HRS response (<code>hrs_responders_cat_2</code>). pROC chooses the direction that maximises AUC. The resulting cutoff is used to derive the <strong><code>echo_ef_abnormal_youden</code></strong> flag, which is now included as an additional row in Tasks 5–7 alongside the clinical <code>echo_ef_abnormal</code> (EF &lt; 60).</p>
+<p>Find the EF threshold that maximises <strong>Youden’s J = sensitivity + specificity − 1</strong> for predicting HRS response (<code>hrs_responders_cat_2</code>). pROC chooses the direction that maximises AUC. The Youden-optimal cutoff was <strong>64.5</strong>; rounded up to <strong>65</strong> and adopted as the new clinical threshold for <code>echo_ef_abnormal</code> (replacing the prior <code>&lt; 60</code>). All tables in this report now use <strong><code>echo_ef_abnormal = (echo_ef &lt; 65)</code></strong>.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show cutoff + AUC summary</summary>
