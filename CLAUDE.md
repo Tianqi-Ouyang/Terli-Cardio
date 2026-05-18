@@ -24,7 +24,7 @@ Eight outputs in `docs/analysis.qmd`:
 | 7 | Echo Table 1 | pre-terli | `time_to_death_status_90days` (capped at 90 days) | same 5 echo |
 | 8 | Cubic-spline logistic regression | pre-terli | outcome `hrs_responders_cat_2` | `ns(echo_ef, df = 3)` + 95% CI plot |
 
-The **abnormal-echo flag** definitions (EF < 60, \|GLS\| < 18, E/e′ > 15, lateral e′ < 10, TR > 2.8 m/s, LAVI > 34) used in the older `Code/*.Rmd` are **not** part of the current spec — keep the old code only as analyst history.
+The **abnormal-echo flag** definitions (EF < 65, \|GLS\| < 18, E/e′ > 15, lateral e′ < 10, TR > 2.8 m/s, LAVI > 34) are used by Tasks 5–7. The EF cutoff was updated 2026-05-14 from `< 60` to `< 65` (rounded up from the Youden-optimal 64.5 reported in Task 9). The older `Code/*.Rmd` files still show the legacy `< 50` / `< 60` thresholds and remain as analyst history.
 
 ## Repository Layout
 

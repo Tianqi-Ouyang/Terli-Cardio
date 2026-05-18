@@ -155,11 +155,11 @@ youden_ef_cutoff <- as.numeric(.youden_coords$threshold)
 
 preterli_echo <- preterli_echo_base %>%
   mutate(
-    # Abnormal-echo flags (1 = abnormal, 0 = normal, NA if measurement missing)
+    # Abnormal-echo flags (1 = abnormal, 0 = normal, NA if measurement missing).
+    # echo_ef_abnormal: cutoff updated 2026-05-14 from 60 to 65 (rounded up from
+    # the Youden-optimal 64.5 reported in Task 9).
     echo_ef_abnormal        = if_else(is.na(echo_ef),
-                                      NA_real_, as.numeric(echo_ef < 60)),
-    echo_ef_abnormal_youden = if_else(is.na(echo_ef),
-                                      NA_real_, as.numeric(echo_ef < youden_ef_cutoff)),
+                                      NA_real_, as.numeric(echo_ef < 65)),
     echo_eeratio_abnormal   = if_else(is.na(echo_eeratio),
                                       NA_real_, as.numeric(echo_eeratio > 15)),
     # echo_gls is already stored as a magnitude (see harmonization in echo_cohort).
@@ -261,8 +261,7 @@ knitr::kable(t4, caption = "Task 4 — Demographics by `hrs_responders` (3-level
 #| code-summary: "Show Task 5 Table 1 call"
 echo_continuous <- c("echo_ef", "echo_earatio", "echo_eeratio",
                      "echo_gls", "echo_lateral_e")
-echo_flags <- c("echo_ef_abnormal", "echo_ef_abnormal_youden",
-                "echo_eeratio_abnormal", "echo_gls_abnormal",
+echo_flags <- c("echo_ef_abnormal", "echo_eeratio_abnormal", "echo_gls_abnormal",
                 "echo_lateral_e_abnormal", "echo_tr_abnormal", "echo_lavi_abnormal")
 
 dat5 <- preterli_echo %>%
@@ -364,9 +363,9 @@ res_8_2$plot
 
 Find the EF threshold that maximises **Youden's J = sensitivity + specificity − 1**
 for predicting HRS response (`hrs_responders_cat_2`). pROC chooses the direction
-that maximises AUC. The resulting cutoff is used to derive the
-**`echo_ef_abnormal_youden`** flag, which is now included as an additional row
-in Tasks 5–7 alongside the clinical `echo_ef_abnormal` (EF < 60).
+that maximises AUC. The Youden-optimal cutoff was **64.5**; rounded up to **65**
+and adopted as the new clinical threshold for `echo_ef_abnormal` (replacing the
+prior `< 60`). All tables in this report now use **`echo_ef_abnormal = (echo_ef < 65)`**.
 
 ```{r task9-cutoff-table}
 #| code-summary: "Show cutoff + AUC summary"
